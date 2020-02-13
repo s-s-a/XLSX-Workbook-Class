@@ -2,7 +2,7 @@ PUBLIC loExcel   && to keep it from being destroyed and closing the cursors
 LOCAL lcFile, loText
 lcFile = GETFILE("xlsx", "Workbook", "Load", 0, "Select Workbook to load into Class")
 IF !EMPTY(lcFile)
-	loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.vcx", "", 1250)
+	loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.prg", "", 1250)
 	lnBegSec = SECONDS()
 	lnWB = loExcel.OpenXlsxWorkbook(lcFile)
 	lnEndSec = SECONDS()

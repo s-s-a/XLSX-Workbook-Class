@@ -17,3 +17,7 @@ Released to correct some identified bugs and for a new method; see the release n
 ## Written By
 
 Gregory Green
+
+## Release 32
+
+All forms and classes in prg
