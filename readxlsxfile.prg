@@ -3,7 +3,7 @@ LOCAL lcFile, lnWb, loSheets, lnSh, lnRow, lnCol
 lcFile = GETFILE("xlsx", "Workbook", "Load", 0, "Select Workbook to load into Class")
 IF !EMPTY(lcFile)
 	SET DEBUGOUT TO "DebugExcelRead.txt"
-	goExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.vcx")
+	goExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.prg")
 	lnWb = goExcel.OpenXlsxWorkbook(lcFile)
 	loSheets = goExcel.GetWorkbookSheets(lnWb)
 	FOR lnSh=1 TO loSheets.Count

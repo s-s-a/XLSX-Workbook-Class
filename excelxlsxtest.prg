@@ -1,6 +1,6 @@
 *PUBLIC loExcel   && to keep it from being destroyed and closing the cursors
 LOCAL lnTime, lnWb, lnSh, lnRow, lnCol
-loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.vcx")
+loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.prg")
 loExcel.Demo()
 
 *loExcel.DeleteAllWorkbooks()

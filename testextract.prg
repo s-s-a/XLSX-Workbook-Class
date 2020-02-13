@@ -2,7 +2,7 @@
 LOCAL lcFile, loText
 lcFile = GETFILE("xlsx", "Workbook", "Load", 0, "Select Workbook to load into Class")
 IF !EMPTY(lcFile)
-	loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.vcx")
+	loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.prg")
 	lnBegSec = SECONDS()
 	? "Processing file: " + JUSTFNAME(lcFile)
 	lnWB = loExcel.OpenXlsxWorkbook(lcFile)

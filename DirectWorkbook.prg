@@ -7,7 +7,7 @@ IF !EMPTY(lcTable)
 	ENDIF
 	SELECT (lcAlias)
 
-	loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.vcx")
+	loExcel = NEWOBJECT("VFPxWorkbookXLSX", "VFPxWorkbookXLSX.prg")
 
 	loExcel.Savetabletoworkbook(lcAlias, lcAlias + "_test1.xlsx", .T., .T., lcAlias)
 
