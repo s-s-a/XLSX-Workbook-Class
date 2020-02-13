@@ -121,19 +121,19 @@ Define Class vfpxworkbookxlsx As Custom
 
     Case tnFormatId = CELL_FORMAT_ACC_CURR_POUNDS
       lcXMLFormat  = '_-[$&#163;-809]* #,##0.00_-;-[$&#163;-809]* #,##0.00_-;_-[$&#163;-809]* &quot;-&quot;??_-;_-@_-'
-      lcTextFormat = '"Ј"#,##0.00;[Red]("Ј"#,##0.00)'
+      lcTextFormat = '"�"#,##0.00;[Red]("�"#,##0.00)'
 
     Case tnFormatId = CELL_FORMAT_ACC_CURR_EURO
       lcXMLFormat  = '_-[$&#8364;-2]* .00_-;-[$&#8364;-2]* .00_-;_-[$&#8364;-2]* &quot;-&quot;??_-;_-@_-'
-      lcTextFormat = '"Ђ"#,##0.00;[Red]("Ђ"#,##0.00)'
+      lcTextFormat = '"�"#,##0.00;[Red]("�"#,##0.00)'
 
     Case tnFormatId = CELL_FORMAT_CURR_POUNDS_RED
       lcXMLFormat  = '[$&#163;-809]#,##0.00;[Red]\-[$&#163;-809]#,##0.00'
-      lcTextFormat = '"Ј"#,##0.00;[Red]("Ј"#,##0.00)'
+      lcTextFormat = '"�"#,##0.00;[Red]("�"#,##0.00)'
 
     Case tnFormatId = CELL_FORMAT_CURR_EURO_RED
       lcXMLFormat  = '[$&#8364;-2]\ #,##0.00_);[Red]\([$&#8364;-2]\ #,##0.00\)'
-      lcTextFormat = '"Ђ"#,##0.00;[Red]("Ђ"#,##0.00)'
+      lcTextFormat = '"�"#,##0.00;[Red]("�"#,##0.00)'
     Endcase
 
     If llAdded
@@ -351,9 +351,9 @@ Define Class vfpxworkbookxlsx As Custom
     Return 0
   Endif
   With This
-    lcPosCode = GetWordNum(tcFormatCode, 1, ";")
-    lcNegCode = GetWordNum(tcFormatCode, 2, ";")
-    lcZerCode = GetWordNum(tcFormatCode, 3, ";")
+    lcPosCode = Getwordnum(tcFormatCode, 1, ";")
+    lcNegCode = Getwordnum(tcFormatCode, 2, ";")
+    lcZerCode = Getwordnum(tcFormatCode, 3, ";")
     Return .AddCustomNumericFormat(tnWB, lcPosCode, lcNegCode, lcZerCode)
   Endwith
 
@@ -3261,7 +3261,7 @@ Define Class vfpxworkbookxlsx As Custom
 *-- Returns a list of validations for the workbook/sheet
   Procedure GetValidationList
   Lparameters tnWB, tnSheet
-* TODO: заменить на copy fields vtype, validndx to array loValidation.List
+* TODO: �������� �� copy fields vtype, validndx to array loValidation.List
   Local loValiation, lcAlias
   lcAlias = Alias()
   loValidation = Createobject("Empty")
@@ -3299,8 +3299,8 @@ Define Class vfpxworkbookxlsx As Custom
   AddProperty(loSheets, "Count", 0)
   Select xl_sheets
   Set Order To Tag Sheet
-*TODO: заменить на copy fields Sheet, shname to array loSheets.List
-*TODO: loSheets.Count = RecCount()
+* TODO: �������� �� copy fields Sheet, shname to array loSheets.List
+* TODO: loSheets.Count = RecCount()
   Scan For workbook = tnWB And !shdeleted
     loSheets.Count = loSheets.Count + 1
     Dimension loSheets.List[loSheets.Count, 2]
@@ -3313,7 +3313,6 @@ Define Class vfpxworkbookxlsx As Custom
 *-- Returns a XML formatted string for the header and footer text
   Protected Procedure GetXmlHeaderFooterText
     Local lcText
-*TODO: заменить на textmerge
     If Empty(xl_hdrfootertext.FontName)
       lcText = '"-,'
     Else
@@ -4874,7 +4873,7 @@ Define Class vfpxworkbookxlsx As Custom
     Endwith
 
 *-- Removes the working directories
-  Protected Procedure removeworkingdirectories
+  Protected Procedure RemoveWorkingDirectories
     Lparameters tcDir
     Local llReturn, loException
     Try
@@ -4887,7 +4886,7 @@ Define Class vfpxworkbookxlsx As Custom
     Return llReturn
 
 *-- Renames the selected sheet
-  Procedure renamesheet
+  Procedure RenameSheet
   Lparameters tnWB, txSheet, tcSheetName
   Local llReturn
   llReturn = False
@@ -4915,8 +4914,8 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Saves the file as a UTF-8
   Protected Procedure SaveAsUtf8
-    Lparameters tcFileName
-    Strtofile(Strconv(Filetostr(tcFileName), 9), tcFileName, 4)
+    Lparameters tcFileName, tcOutStr
+    Strtofile(Strconv(tcOutStr, 9), tcFileName, 4)
 
 *-- Saves the selected grid to a workbook
   Procedure SaveGridToWorkbook
@@ -5167,56 +5166,58 @@ Define Class vfpxworkbookxlsx As Custom
     laSheetNames[1] = tcSheetName
     If .WriteDirectXMLs(lcTempPath, @laSheetNames)
 *-*	Write the sheet XML
-* TODO: переделать на textmerge
+* TODO: ���������� �� textmerge
       Try
         lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
         lhFile = Fcreate(lcFileName)
         If lhFile < 0
           Throw
         Endif
+        Fclose(lhFile)
 
+        Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"')
-        Fwrite(lhFile, ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"')
-        Fwrite(lhFile, ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"')
-        Fwrite(lhFile, ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+        \\ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"
+        \\ xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*		Write the sheet view information which includes the freeze pane information
-        Fwrite(lhFile, '<dimension ref="A1:' + .ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1) + '"/>')
+        \\<dimension ref="A1:<<.ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1)>>"/>
         If tlFreeze
-          Fwrite(lhFile, '<sheetViews><sheetView workbookViewId="0">')
-          Fwrite(lhFile, '<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>')
-          Fwrite(lhFile, '<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>')
-          Fwrite(lhFile, '</sheetView></sheetViews>')
+          \\<sheetViews><sheetView workbookViewId="0">
+          \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
+          \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
+          \\</sheetView></sheetViews>')
         Endif
-        Fwrite(lhFile, '<sheetFormatPr defaultRowHeight="15"/>')
+        \\<sheetFormatPr defaultRowHeight="15"/>
 
 *-*		Write sheet Column widths
-        Fwrite(lhFile, '<cols>')
+        \\<cols>
         For lnCol=1 To lnColCount
           lnColWidth = .ConvertPixelsToExcelUnits(toGrid.Columns(laColOrder[lnCol, 2]).Width)
-          Fwrite(lhFile, '<col min="' + Transform(lnCol) + '" max="' + Transform(lnCol) + '" width="' + Transform(lnColWidth+0.7109375) + '" customWidth="1"/>')
+          \\<col min="<<Transform(lnCol)>>" max="<<Transform(lnCol)>>" width="<<Transform(lnColWidth+0.7109375)>>" customWidth="1"/>
         Endfor
-        Fwrite(lhFile, '</cols>')
+        \\</cols>')
 
 *-*		Write sheet cell data values
         lcRowDefHt = ' ht="30"'
-        Fwrite(lhFile, '<sheetData>')
+        \\<sheetData>
 
 *-*		Place field names in the first row
-        If toGrid.HeaderHeight > 0                                               && Change recommendation by Doug Hennig (if no headers, then no output)
-          Fwrite(lhFile, '<row r="1" spans="1:' + Transform(lnColCount) + '"' + lcRowDefHt + '>')
+        If toGrid.HeaderHeight > 0  && Change recommendation by Doug Hennig (if no headers, then no output)
+          \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >')
           If .DefaultFont = "Calibri" And .DefaultFontSize = 11
             For lnCol=1 To lnColCount
-              .WriteAsInLineString(lhFile, 1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
             Endfor
           Else
             For lnCol=1 To lnColCount
-              .WriteAsInLineFormattedString(lhFile, 1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              .WriteAsInLineFormattedString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
             Endfor
           Endif
-          Fwrite(lhFile, '</row>')
+          \\</row>
           lnRow = 1
         Else
           lnRow = 0
@@ -5229,30 +5230,30 @@ Define Class vfpxworkbookxlsx As Custom
         If .DefaultFont = "Calibri" And .DefaultFontSize = 11
           Scan
             lnRow = lnRow + 1
-            Fwrite(lhFile, '<row r="' + Transform(lnRow) + '" spans="1:' + Transform(lnColCount) + '"' + lcRowDefHt + '>')
+            \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
             For lnCol=1 To lnColCount
               lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-              .WriteDirectCellValue(lhFile, lnRow, lnCol, lxCellValue)
+              .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
             Endfor
-            Fwrite(lhFile, '</row>')
+            \\</Row>
           Endscan
         Else
           Scan
             lnRow = lnRow + 1
-            Fwrite(lhFile, '<row r="' + Transform(lnRow) + '" spans="1:' + Transform(lnColCount) + '"' + lcRowDefHt + '>')
+            \\<Row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
             For lnCol=1 To lnColCount
               lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-              .WriteDirectCellFormattedValue(lhFile, lnRow, lnCol, lxCellValue)
+              .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
             Endfor
-            Fwrite(lhFile, '</row>')
+            \\</Row>
           Endscan
         Endif
         Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
-        Fwrite(lhFile, '</sheetData>')
-        Fwrite(lhFile, '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>')
-        Fwrite(lhFile, '</worksheet>')
+       \\</sheetData>
+       \\<pageMargins Left="0.7" Right="0.7" Top="0.75" Bottom="0.75" Header="0.3" Footer="0.3"/>
+       \\</worksheet>
 
       Catch To loException
         Set Step On
@@ -5261,15 +5262,14 @@ Define Class vfpxworkbookxlsx As Custom
         Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
 
       Finally
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        .SaveAsUtf8(lcFileName, lcOutStr)
       Endtry
       If llError
         llSuccess = False
       Else
         llSuccess = .CreateExcelFile(lcTempPath, Justpath(tcFileName), Juststem(tcFileName))    && Change recommendation by Doug Hennig [placement of code after ELSE]
       Endif
-      .removeworkingdirectories(lcTempPath)
+      .RemoveWorkingDirectories(lcTempPath)
 
     Else
       llSuccess = False
@@ -5408,43 +5408,39 @@ Define Class vfpxworkbookxlsx As Custom
 
       Try
         lcFileName = lcTempPath + "xl\worksheets\sheet" + Transform(lnGrid) + ".xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-
+        Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"')
-        Fwrite(lhFile, ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"')
-        Fwrite(lhFile, ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"')
-        Fwrite(lhFile, ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
+        \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+        \\ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"
+        \\ xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*		Write the sheet view information which includes the freeze pane information
-        Fwrite(lhFile, '<dimension ref="A1:' + .ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1) + '"/>')
+        \\<dimension ref="A1:' + .ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1) + '"/>
         If toGrids.List[lnGrid, 3]
-          Fwrite(lhFile, '<sheetViews><sheetView workbookViewId="0">')
-          Fwrite(lhFile, '<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>')
-          Fwrite(lhFile, '<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>')
-          Fwrite(lhFile, '</sheetView></sheetViews>')
+          \\<sheetViews><sheetView workbookViewId="0">
+          \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
+          \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
+          \\</sheetView></sheetViews>
         Endif
-        Fwrite(lhFile, '<sheetFormatPr defaultRowHeight="15"/>')
+        \\<sheetFormatPr defaultRowHeight="15"/>
 
 *-*		Write sheet Column widths
-        Fwrite(lhFile, '<cols>')
+        \\<cols>
         For lnCol=1 To lnColCount
           lnColWidth = .ConvertPixelsToExcelUnits(loGrid.Columns(laColOrder[lnCol, 2]).Width)
-          Fwrite(lhFile, '<col min="' + Transform(lnCol) + '" max="' + Transform(lnCol) + '" width="' + Transform(lnColWidth+0.7109375) + '" customWidth="1"/>')
+          \\<col min="<<Transform(lnCol)>>" max="<<Transform(lnCol)>>" width="<<Transform(lnColWidth+0.7109375)>>" customWidth="1"/>
         Endfor
-        Fwrite(lhFile, '</cols>')
+        \\</cols>
 
 *-*		Write sheet cell data values
         lcRowDefHt = ' ht="30"'
-        Fwrite(lhFile, '<sheetData>')
+        \\<sheetData>
 
 *-*		Place field names in the first row
         If loGrid.HeaderHeight > 0                                   && Change recommendation by Doug Hennig (if no headers, then no output)
-          Fwrite(lhFile, '<row r="1" spans="1:' + Transform(lnColCount) + '"' + lcRowDefHt + '>')
+          \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
           If .DefaultFont = "Calibri" And .DefaultFontSize = 11
             For lnCol=1 To lnColCount
               .WriteAsInLineString(lhFile, 1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
@@ -5454,7 +5450,7 @@ Define Class vfpxworkbookxlsx As Custom
               .WriteAsInLineFormattedString(lhFile, 1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
             Endfor
           Endif
-          Fwrite(lhFile, '</row>')
+          \\</row>
           lnRow = 1
         Else
           lnRow = 0
@@ -5467,30 +5463,30 @@ Define Class vfpxworkbookxlsx As Custom
         If .DefaultFont = "Calibri" And .DefaultFontSize = 11
           Scan
             lnRow = lnRow + 1
-            Fwrite(lhFile, '<row r="' + Transform(lnRow) + '" spans="1:' + Transform(lnColCount) + '"' + lcRowDefHt + '>')
+            \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
             For lnCol=1 To lnColCount
               lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
               .WriteDirectCellValue(lhFile, lnRow, lnCol, lxCellValue)
             Endfor
-            Fwrite(lhFile, '</row>')
+            \\</row>
           Endscan
         Else
           Scan
             lnRow = lnRow + 1
-            Fwrite(lhFile, '<row r="' + Transform(lnRow) + '" spans="1:' + Transform(lnColCount) + '"' + lcRowDefHt + '>')
+            \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
             For lnCol=1 To lnColCount
               lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
               .WriteDirectCellFormattedValue(lhFile, lnRow, lnCol, lxCellValue)
             Endfor
-            Fwrite(lhFile, '</row>')
+            \\</row>
           Endscan
         Endif
         Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
-        Fwrite(lhFile, '</sheetData>')
-        Fwrite(lhFile, '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>')
-        Fwrite(lhFile, '</worksheet>')
+        \\</sheetData>
+        \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+        \\</worksheet>
 
       Catch To loException
         Set Step On
@@ -5499,8 +5495,8 @@ Define Class vfpxworkbookxlsx As Custom
         Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
 
       Finally
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
       Endtry
     Endfor
     If llError
@@ -5509,7 +5505,7 @@ Define Class vfpxworkbookxlsx As Custom
       llSuccess = .CreateExcelFile(lcTempPath, Justpath(tcFileName), Juststem(tcFileName))   && Change recommendation by Doug Hennig [placement of code after ELSE]
     Endif
 *-*	Cleanup
-    .removeworkingdirectories(lcTempPath)
+    .RemoveWorkingDirectories(lcTempPath)
     If !Empty(lcCurAlias)
       Select (lcCurAlias)
     Endif
@@ -5849,7 +5845,7 @@ Define Class vfpxworkbookxlsx As Custom
 *-*		Create the XLSX file
       llSuccess = This.CreateExcelFile(lcTempPath, Justpath(tcXlsxName), Juststem(tcXlsxName))    && Change recommendation by Doug Hennig [placement of code after ELSE]
     Endif
-    This.removeworkingdirectories(lcTempPath)
+    This.RemoveWorkingDirectories(lcTempPath)
   Else
     llSuccess = False
   Endif
@@ -5918,7 +5914,7 @@ Define Class vfpxworkbookxlsx As Custom
         Else
           llReturn = False
         Endif
-        .removeworkingdirectories(lcTempPath)
+        .RemoveWorkingDirectories(lcTempPath)
         Raiseevent(This, "OnShowStatusMessage", 2, -1)
       Endif
 
@@ -7012,10 +7008,10 @@ Define Class vfpxworkbookxlsx As Custom
         lcDataType  = DATA_TYPE_CURRENCY
         lcHorzAlign = CELL_HORIZ_ALIGN_RIGHT
         Do Case
-        Case lcCurrency = "Ј"
+        Case lcCurrency = "�"
           lnNumFmtId = CELL_FORMAT_ACC_CURR_POUNDS
 
-        Case lcCurrency = "Ђ"
+        Case lcCurrency = "�"
           lnNumFmtId = CELL_FORMAT_ACC_CURR_EURO
 
         Otherwise
@@ -7998,36 +7994,33 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Writes the string as formatted in-line
   Protected Procedure WriteAsInLineFormattedString
-    Lparameters thFile, tnRow, tnCol, txCellValue
-* TODO: заменить на textmerge
+    Lparameters tnRow, tnCol, txCellValue
     With This
-      Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="inlineStr">')
-      Fwrite(thFile, '<is>')
-      Fwrite(thFile, '<r>')
-      Fwrite(thFile, '<rPr>')
-      Fwrite(thFile, '<sz val="' + Transform(.DefaultFontSize) + '"/>')
-      Fwrite(thFile, '<rFont val="' + .DefaultFont + '"/>')
-      Fwrite(thFile, '</rPr>')
-      Fwrite(thFile, '<t>' + .GetXMLString(txCellValue) + '</t>')
-      Fwrite(thFile, '</r>')
-      Fwrite(thFile, '</is>')
-      Fwrite(thFile, '</c>')
+      \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="inlineStr">
+      \\<is>
+      \\<r>
+      \\<rPr>
+      \\<sz val="<<Transform(.DefaultFontSize)>>"/>
+      \\<rFont val="<<.DefaultFont>>"/>
+      \\</rPr>
+      \\<t><<.GetXMLString(txCellValue)>></t>
+      \\</r>
+      \\</is>
+      \\</c>
     Endwith
 
 *-- Writes the value as an inlineStr value
   Protected Procedure WriteAsInLineString
-    Lparameters thFile, tnRow, tnCol, txCellValue
-* TODO: заменить на textmerge
+    Lparameters tnRow, tnCol, txCellValue
     With This
-      Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="inlineStr">')
-      Fwrite(thFile, '<is><t>' + .GetXMLString(txCellValue) + '</t></is>')
-      Fwrite(thFile, '</c>')
+      \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="inlineStr">
+      \\<is><t><<.GetXMLString(txCellValue)>></t></is>
+      \\</c>
     Endwith
 
 *-- WriteDirectCellFormattedValue
   Protected Procedure WriteDirectCellFormattedValue
-    Lparameters thFile, tnRow, tnCol, txCellValue
-* TODO: заменить на textmerge
+    Lparameters tnRow, tnCol, txCellValue
     With This
       Do Case
       Case Isnull(txCellValue)
@@ -8037,36 +8030,35 @@ Define Class vfpxworkbookxlsx As Custom
         Return
 
       Case Vartype(txCellValue) = DATA_TYPE_DATE
-        .WriteAsInLineFormattedString(thFile, tnRow, tnCol, Transform(txCellValue))
+        .WriteAsInLineFormattedString(tnRow, tnCol, Transform(txCellValue))
 
       Case Vartype(txCellValue) = DATA_TYPE_DATETIME
-        .WriteAsInLineFormattedString(thFile, tnRow, tnCol, Ttoc(txCellValue))
+        .WriteAsInLineFormattedString(tnRow, tnCol, Ttoc(txCellValue))
 
       Case Vartype(txCellValue) = DATA_TYPE_LOGICAL
         txCellValue = Iif(txCellValue, Getwordnum(.TrueFalseValue, 1, "|"), Getwordnum(.TrueFalseValue, 2, "|"))
-        .WriteAsInLineFormattedString(thFile, tnRow, tnCol, txCellValue)
+        .WriteAsInLineFormattedString(tnRow, tnCol, txCellValue)
 
       Case Vartype(txCellValue) = DATA_TYPE_CURRENCY
-        Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="n">')
-        Fwrite(thFile, '<v>' + Transform(Mton(txCellValue)) + '</v></c>')
+        \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="n">
+        \\<v><<Transform(Mton(txCellValue))>></v></c>
 
       Case Vartype(txCellValue) = DATA_TYPE_CHAR
-        .WriteAsInLineFormattedString(thFile, tnRow, tnCol, Alltrim(txCellValue))
+        .WriteAsInLineFormattedString(tnRow, tnCol, Alltrim(txCellValue))
 
       Case Inlist(Vartype(txCellValue), DATA_TYPE_INT, DATA_TYPE_FLOAT)
-        Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="n">')
-        Fwrite(thFile, '<v>' + Transform(txCellValue) + '</v></c>')
+        \<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="n">
+        \<v><<Transform(txCellValue)>></v></c>
 
       Otherwise
-        Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="inlineStr">')
-        Fwrite(thFile, '<is><t>Unsupported Field Type</t></is></c>')
+        \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="inlineStr">
+        \\<is><t>Unsupported Field Type</t></is></c>
       Endcase
     Endwith
 
 *-- Writes the cell value directly to the sheets xml
   Protected Procedure WriteDirectCellValue
-    Lparameters thFile, tnRow, tnCol, txCellValue
-* TODO: заменить на textmerge
+    Lparameters tnRow, tnCol, txCellValue
     With This
       Do Case
       Case Isnull(txCellValue)
@@ -8076,7 +8068,7 @@ Define Class vfpxworkbookxlsx As Custom
         Return
 
       Case Vartype(txCellValue) = DATA_TYPE_DATE
-        .WriteAsInLineString(thFile, tnRow, tnCol, Transform(txCellValue))
+        .WriteAsInLineString(tnRow, tnCol, Transform(txCellValue))
 
       Case Vartype(txCellValue) = DATA_TYPE_DATETIME
         .WriteAsInLineString(thFile, tnRow, tnCol, Ttoc(txCellValue))
@@ -8086,29 +8078,28 @@ Define Class vfpxworkbookxlsx As Custom
         .WriteAsInLineString(thFile, tnRow, tnCol, txCellValue)
 
       Case Vartype(txCellValue) = DATA_TYPE_CURRENCY
-        Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="n">')
-        Fwrite(thFile, '<v>' + Transform(Mton(txCellValue)) + '</v></c>')
+        \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="n">
+        \\<v><<Transform(Mton(txCellValue))>></v></c>
 
       Case Vartype(txCellValue) = DATA_TYPE_CHAR
         .WriteAsInLineString(thFile, tnRow, tnCol, Alltrim(txCellValue))
 
       Case Inlist(Vartype(txCellValue), DATA_TYPE_INT, DATA_TYPE_FLOAT)
-        Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="n">')
-        Fwrite(thFile, '<v>' + Transform(txCellValue) + '</v></c>')
+        \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="n">
+        \\<v><<Transform(txCellValue)>></v></c>
 
       Otherwise
-        Fwrite(thFile, '<c r="' + .ColumnIndexToAscii(tnCol) + Transform(tnRow) + '" t="inlineStr">')
-        Fwrite(thFile, '<is><t>Unsupported Field Type</t></is></c>')
+        \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="inlineStr">')
+        \\<is><t>Unsupported Field Type</t></is></c>')
       Endcase
     Endwith
 
 *-- Writes the workbook XMLs for direct table/grid to workbook output
   Protected Procedure WriteDirectXMLs
     Lparameters tcPath, taSheetNames
-    Local lhFile, lcFileName, loException, lcSheetName, lnSheet, lnNumSheets
+    Local lcFileName, loException, lcSheetName, lnSheet, lnNumSheets
     External Array taSheetNames
 *-*	Create the supporting XML files
-* TODO: заменить на textmerge
     With This
       loException = Null
       Try
@@ -8119,144 +8110,120 @@ Define Class vfpxworkbookxlsx As Custom
         Return False
       Endif
       Try
-        lhFile = Fcreate(tcPath + "[Content_Types].xml")
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">')
-        Fwrite(lhFile, '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>')
-        Fwrite(lhFile, '<Default Extension="xml" ContentType="application/xml"/>')
-        Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>')
-        Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>')
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+        \\<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+        \\<Default Extension="xml" ContentType="application/xml"/>
+        \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
+        \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
         For lnSheet=1 To lnNumSheets
-          Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet' + Transform(lnSheet) + '.xml"/>')
+          \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet' + Transform(lnSheet) + '.xml"/>
         Endfor
-        Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>')
-        Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>')
-        Fwrite(lhFile, '</Types>')
-        Fclose(lhFile)
+        \\<Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
+        \\<Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
+        \\</Types>
+        Set Textmerge To
+        Strtofile(lcOutStr, (tcPath + "[Content_Types].xml"))
 
+        Set Textmerge On To Memvar lcOutStr Noshow
 *-*	Save the .rels XML
-        lhFile = Fcreate(tcPath + "_rels\.rels")
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">')
-        Fwrite(lhFile, '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>')
-        Fwrite(lhFile, '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>')
-        Fwrite(lhFile, '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>')
-        Fwrite(lhFile, '</Relationships>')
-        Fclose(lhFile)
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+        \\<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+        \\<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+        \\<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+        \\</Relationships>
+        Set Textmerge To
+        Strtofile(lcOutStr, (tcPath + "_rels\.rels"))
 
 *-*	Write the workbook relationships file
-        lhFile = Fcreate(tcPath + "xl\_rels\workbook.xml.rels")
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">')
-        Fwrite(lhFile, '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>')
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+        \\<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
         For lnSheet=1 To lnNumSheets
-          Fwrite(lhFile, '<Relationship Id="rId' + Transform(lnSheet+1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + Transform(lnSheet) + '.xml"/>')
+          \\<Relationship Id="rId' + Transform(lnSheet+1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + Transform(lnSheet) + '.xml"/>
         Endfor
-        Fwrite(lhFile, '</Relationships>')
-        Fclose(lhFile)
+        \\</Relationships>
+        Set Textmerge To
+        Strtofile(lcOutStr, (tcPath + "xl\_rels\workbook.xml.rels"))
 
 *-*	Save the app XML
+        Set Textmerge On To Memvar lcOutStr Noshow
         lcFileName = tcPath + "docProps\app.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">')
-        Fwrite(lhFile, '<Application>ExcelXMLX Release ' + Transform(.ExcelXlsxRelease) + '</Application>')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+        \\<Application>ExcelXMLX Release ' + Transform(.ExcelXlsxRelease) + '</Application>
         If !Empty(.CompanyName)
-          Fwrite(lhFile, '<Company>' + .CompanyName + '</Company>')
+          \\<Company>' + .CompanyName + '</Company>
         Endif
-        Fwrite(lhFile, '</Properties>')
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        \\</Properties>
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Save the core XML
+        Set Textmerge On To Memvar lcOutStr Noshow
         lcFileName = tcPath + "docProps\core.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<cp:coreProperties ')
-        Fwrite(lhFile, 'xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" ')
-        Fwrite(lhFile, 'xmlns:dc="http://purl.org/dc/elements/1.1/" ')
-        Fwrite(lhFile, 'xmlns:dcterms="http://purl.org/dc/terms/" ')
-        Fwrite(lhFile, 'xmlns:dcmitype="http://purl.org/dc/dcmitype/" ')
-        Fwrite(lhFile, 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<cp:coreProperties
+        \\xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+        \\xmlns:dc="http://purl.org/dc/elements/1.1/"
+        \\xmlns:dcterms="http://purl.org/dc/terms/"
+        \\xmlns:dcmitype="http://purl.org/dc/dcmitype/"
+        \\xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         If !Empty(.Title)
-          Fwrite(lhFile, '<dc:title>' + .GetXMLString(.Title) + '</dc:title>')
+          \\<dc:title>' + .GetXMLString(.Title) + '</dc:title>
         Endif
         If !Empty(.Subject)
-          Fwrite(lhFile, '<dc:subject>' + .GetXMLString(.Subject) + '</dc:subject>')
+          \\<dc:subject>' + .GetXMLString(.Subject) + '</dc:subject>
         Endif
         If !Empty(.CreatorName)
-          Fwrite(lhFile, '<dc:creator>' + .GetXMLString(.CreatorName) + '</dc:creator>')
+          \\<dc:creator>' + .GetXMLString(.CreatorName) + '</dc:creator>
         Endif
         If !Empty(.UserName)
-          Fwrite(lhFile, '<cp:lastModifiedBy>' + .GetXMLString(.UserName) + '</cp:lastModifiedBy>')
+          \\<cp:lastModifiedBy>' + .GetXMLString(.UserName) + '</cp:lastModifiedBy>
         Endif
-        Fwrite(lhFile, '<dcterms:created xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:created>')
-        Fwrite(lhFile, '<dcterms:modified xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:modified>')
-        Fwrite(lhFile, '</cp:coreProperties>')
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        \\<dcterms:created xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:created>
+        \\<dcterms:modified xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:modified>
+        \\</cp:coreProperties>
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Save the styles XML
         lcFileName = tcPath + "xl\styles.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ')
-        Fwrite(lhFile, 'xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" ')
-        Fwrite(lhFile, 'mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">')
-        Fwrite(lhFile, '<fonts count="1" x14ac:knownFonts="1"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font></fonts>')
-        Fwrite(lhFile, '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>')
-        Fwrite(lhFile, '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>')
-        Fwrite(lhFile, '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>')
-        Fwrite(lhFile, '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>')
-        Fwrite(lhFile, '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>')
-        Fwrite(lhFile, '</styleSheet>')
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+        \\xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        \\mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
+        \\<fonts count="1" x14ac:knownFonts="1"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font></fonts>
+        \\<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
+        \\<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+        \\<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+        \\<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>
+        \\<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+        \\</styleSheet>
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Write the workbook XML
+        Set Textmerge On To Memvar lcOutStr Noshow
         lcFileName = tcPath + "xl\workbook.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+ LF)
-        Fwrite(lhFile, '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">')
-        Fwrite(lhFile, '<sheets>')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+        \\<sheets>
         For lnSheet=1 To lnNumSheets
-          If Empty(taSheetNames[lnSheet])
-            lcSheetName = "Sheet" + Transform(lnSheet)
-          Else
-            lcSheetName = taSheetNames[lnSheet]
-          Endif
-          Fwrite(lhFile, '<sheet name="' + lcSheetName + '" sheetId="' + Transform(lnSheet) + '" r:id="rId' + Transform(lnSheet+1) + '"/>')
+          lcSheetName = Iif(Empty(taSheetNames[lnSheet]), "Sheet" + Transform(lnSheet), taSheetNames[lnSheet])
+          \\<sheet name="' + lcSheetName + '" sheetId="' + Transform(lnSheet) + '" r:id="rId' + Transform(lnSheet+1) + '"/>
         Endfor
-        Fwrite(lhFile, '</sheets>')
-        Fwrite(lhFile, '<calcPr calcId="0"/>')
-        Fwrite(lhFile, '</workbook>')
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        \\</sheets>
+        \\<calcPr calcId="0"/>
+        \\</workbook>
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
 
       Catch To loException
         Set Step On
-        Fclose(lhFile)
         .ErrorLevelId = 18
         Raiseevent(This, "OnShowErrorMessage", 18, "Unable to create workbook supporting XMLs")
       Endtry
@@ -8266,37 +8233,31 @@ Define Class vfpxworkbookxlsx As Custom
 *-- Writes the relationships xml file
   Protected Procedure WriteRelationshipsXML
     Lparameters tnWB, tcPath
-    Local lhFile, lcBaseType, llSuccess
-* TODO: заменить на textmerge
+    Local lcBaseType, llSuccess
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 5)
       lcBaseType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
       Try
 *-*	Write the workbook relationships file
-        lhFile = Fcreate(tcPath + "xl\_rels\workbook.xml.rels")
-        If lhFile < 0
-          Throw
-        Endif
-
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">')
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 
         Select xl_relationships
         Scan For workbook = tnWB
-          Fwrite(lhFile, '<Relationship Id="rId' + Transform(xl_relationships.relid) + '" Target="' + Alltrim(xl_relationships.Target) + '" Type="' + lcBaseType + Alltrim(xl_relationships.reltype) + '"/>')
+          \\<Relationship Id="rId' + Transform(xl_relationships.relid) + '" Target="' + Alltrim(xl_relationships.Target) + '" Type="' + lcBaseType + Alltrim(xl_relationships.reltype) + '"/>
         Endscan
 
-        Fwrite(lhFile, '</Relationships>')
+        \\</Relationships>
         llSuccess = True
+        Set Textmerge To
+        .SaveAsUtf8(tcPath + "xl\_rels\workbook.xml.rels", lcOutStr)
 
       Catch To loException
         Set Step On
         llSuccess = False
         .ErrorLevelId = 16
         Raiseevent(This, "OnShowErrorMessage", 16, "Unable to create workbook.xml.rels")
-
-      Finally
-        Fclose(lhFile)
       Endtry
     Endwith
     Return llSuccess
@@ -8307,34 +8268,30 @@ Define Class vfpxworkbookxlsx As Custom
     Local llSuccess, lcAlias, lhFile, lcRow, lnMinCol, lnMaxCol, lnWidth, lnLastRow, lcDyDescent
     Local lcRowDefHt, lcFileName
 *-*	Write the sheet XML
-* TODO: заменить на textmerge
     With This
       lcAlias = Alias()
 *-*	Write the sheet
       Try
+        Set Textmerge On To Memvar lcOutStr Noshow
         lcFileName = tcPath + "xl\worksheets\sheet" + Transform(tnSheetNbr) + ".xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
 *	lcDyDescent = ' x14ac:dyDescent="0.25"'                && Uncomment to add back...
         lcDyDescent = ''
         lcRowDefHt  = ' ht="30"'
 
 *-*	Write sheet XML header information
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"')
-        Fwrite(lhFile, ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"')
-        Fwrite(lhFile, ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"')
-        Fwrite(lhFile, ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+        \\ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"
+        \\ xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*	Write the tab color definition if set
         Do Case
         Case xl_sheets.tabcolorndx > 0
-          Fwrite(lhFile, '<sheetPr codeName="Sheet' + Transform(tnSheetNbr) + '"><tabColor indexed="' + Transform(xl_sheets.tabcolorndx) + '"/></sheetPr>')
+          \\<sheetPr codeName="Sheet<<Transform(tnSheetNbr)>>"><tabColor indexed="<<Transform(xl_sheets.tabcolorndx)>>"/></sheetPr>
 
         Case !Empty(xl_sheets.tabcolorrgb)
-          Fwrite(lhFile, '<sheetPr codeName="Sheet' + Transform(tnSheetNbr) + '"><tabColor rgb="' + xl_sheets.tabcolorrgb + '"/></sheetPr>')
+          \\<sheetPr codeName="Sheet<<Transform(tnSheetNbr)>>"><tabColor rgb="<<xl_sheets.tabcolorrgb>>"/></sheetPr>
         Endcase
 
 *-*	Verify cells have been written
@@ -8350,36 +8307,35 @@ Define Class vfpxworkbookxlsx As Custom
             GROUP By 1 ;
             INTO Cursor t_max Readwrite
 
-          Fwrite(lhFile, '<dimension ref="A1:' + .ColumnIndexToAscii(t_max.maxcol) + Transform(t_max.maxrow) + '"/>')
+          \\<dimension ref="A1:<<.ColumnIndexToAscii(t_max.maxcol) + Transform(t_max.maxrow)>>"/>
           Do Case
           Case xl_sheets.ysplit > 0 And xl_sheets.xsplit = 0      && Freeze top row(s) only
-            Fwrite(lhFile, '<sheetViews><sheetView workbookViewId="0">')
+            \\<sheetViews><sheetView workbookViewId="0">
             lcRow = Transform(xl_sheets.ysplit+1)
-            Fwrite(lhFile, '<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A' + lcRow + '" ySplit="' + Transform(xl_sheets.ysplit) + '"/>')
-            Fwrite(lhFile, '<selection activeCell="A' + lcRow + '" sqref="A' + lcRow + '" pane="bottomLeft"/>')
+            \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A<<lcRow>>" ySplit="<<Transform(xl_sheets.ysplit)>>"/>
+            \\<selection activeCell="A<<lcRow>>" sqref="A<<lcRow>>" pane="bottomLeft"/>
 
           Case xl_sheets.ysplit = 0 And xl_sheets.xsplit > 0      && Freeze side column(s) only
-            Fwrite(lhFile, '<sheetViews><sheetView workbookViewId="0">')
+            \\<sheetViews><sheetView workbookViewId="0">
             lcColumn = .ColumnIndexToAscii(xl_sheets.xsplit+1)
-            Fwrite(lhFile, '<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="' + lcColumn + '1" xSplit="' + Transform(xl_sheets.xsplit) + '"/>')
-            Fwrite(lhFile, '<selection activeCell="' + lcColumn + '1" sqref="' + lcColumn + '1" pane="topRight"/>')
+            \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="<<lcColumn>>1" xSplit="<<Transform(xl_sheets.xsplit)>>"/>
+            \\<selection activeCell="<<lcColumn>>1" sqref="<<lcColumn>>1" pane="topRight"/>
 
           Case xl_sheets.ysplit > 0 And xl_sheets.xsplit > 0      && Freeze both top row(s) and side column(s)
-            Fwrite(lhFile, '<sheetViews><sheetView workbookViewId="0">')
+            \\<sheetViews><sheetView workbookViewId="0">
             lcRow = Transform(xl_sheets.ysplit+1)
             lcColumn = .ColumnIndexToAscii(xl_sheets.xsplit+1)
-            Fwrite(lhFile, '<pane state="frozenSplit" activePane="bottomRight" topLeftCell="' + lcColumn + lcRow + ;
-              '" ySplit="' + Transform(xl_sheets.ysplit) + '" xSplit="' + Transform(xl_sheets.xsplit) + '"/>')
-            Fwrite(lhFile, '<selection activeCell="' + .ColumnIndexToAscii(xl_sheets.xsplit) + '1" sqref="' + .ColumnIndexToAscii(xl_sheets.xsplit) + '1" pane="topRight"/>')
-            Fwrite(lhFile, '<selection activeCell="' + .ColumnIndexToAscii(xl_sheets.xsplit) + lcRow + '" sqref="' + .ColumnIndexToAscii(xl_sheets.xsplit) + lcRow + '" pane="bottomLeft"/>')
-            Fwrite(lhFile, '<selection activeCell="' + lcColumn + lcRow + '" sqref="' + lcColumn + lcRow + '" pane="bottomRight"/>')
+            \\<pane state="frozenSplit" activePane="bottomRight" topLeftCell="<<lcColumn + lcRow>>" ySplit="<<Transform(xl_sheets.ysplit)>>" xSplit="<<Transform(xl_sheets.xsplit)>>"/>
+            \\<selection activeCell="<<.ColumnIndexToAscii(xl_sheets.xsplit)>>1" sqref="<<.ColumnIndexToAscii(xl_sheets.xsplit)>>1" pane="topRight"/>
+            \\<selection activeCell="<<.ColumnIndexToAscii(xl_sheets.xsplit) + lcRow>>" sqref="<<.ColumnIndexToAscii(xl_sheets.xsplit) + lcRow>>" pane="bottomLeft"/>
+            \\<selection activeCell="<<lcColumn + lcRow>>" sqref="<<lcColumn + lcRow>>" pane="bottomRight"/>
 
           Otherwise
-            Fwrite(lhFile, '<sheetViews><sheetView workbookViewId="0"><selection activeCell="A1" sqref="A1"/>')
+            \\<sheetViews><sheetView workbookViewId="0"><selection activeCell="A1" sqref="A1"/>
 *				FWRITE(lhFile, '<sheetViews><sheetView tabSelected="1" workbookViewId="0">')
           Endcase
-          Fwrite(lhFile, '</sheetView></sheetViews>')
-          Fwrite(lhFile, '<sheetFormatPr defaultRowHeight="15"' + lcDyDescent + '/>')
+          \\</sheetView></sheetViews>
+          \\<sheetFormatPr defaultRowHeight="15"<<lcDyDescent>>/>
 
 *-*		Write sheet Column widths
           Select clm.Column, clm.Width, clm.bestfit From xl_colwidths As clm ;
@@ -8389,7 +8345,7 @@ Define Class vfpxworkbookxlsx As Custom
             INTO Cursor t_colwidths Readwrite
 
           If _Tally > 0
-            Fwrite(lhFile, '<cols>')
+            \\<cols>
             Select t_colwidths
             Goto Top
             lnMinCol = t_colwidths.Column
@@ -8405,21 +8361,20 @@ Define Class vfpxworkbookxlsx As Custom
                 lnMaxCol = t_colwidths.Column
 
               Otherwise
-                Fwrite(lhFile, '<col min="' + Transform(lnMinCol) + '" max="' + Transform(lnMaxCol) + ;
-                  '" width="' + Transform(lnWidth+0.7109375) + '" customWidth="1"/>')
+                \\<col min="<<Transform(lnMinCol)>>max="<<Transform(lnMaxCol)>>" width="<<Transform(lnWidth+0.7109375)>>" customWidth="1"/>
                 lnMinCol = t_colwidths.Column
                 lnMaxCol = t_colwidths.Column
                 lnWidth  = t_colwidths.Width
               Endcase
               Skip In t_colwidths
             Enddo
-            Fwrite(lhFile, '<col min="' + Transform(lnMinCol) + '" max="' + Transform(lnMaxCol) + '" width="' + Transform(lnWidth+0.7109375) + '" customWidth="1"/>')
-            Fwrite(lhFile, '</cols>')
+            \\<col min="<<Transform(lnMinCol)>>" max="<<Transform(lnMaxCol)>>" width="<<Transform(lnWidth+0.7109375)>>" customWidth="1"/>
+            \\</cols>
           Endif
           Use In Select('t_colwidths')
 
 *-*		Write sheet cell data values
-          Fwrite(lhFile, '<sheetData>')
+          \\<sheetData>
 *		lnLastRow = 0
           lnHeadRow = 0
           Select xl_cells
@@ -8428,83 +8383,78 @@ Define Class vfpxworkbookxlsx As Custom
 *-*			Write row header
             If lnHeadRow != xl_cells.cellrow
               If lnHeadRow != 0
-                Fwrite(lhFile, '</row>')
+                \\</row>
               Endif
               lnHeadRow = xl_cells.cellrow
               lnMaxCol  = .GetRowMaxColumn(tnWB, xl_sheets.Sheet, lnHeadRow)
               If Seek(.GetRowHeightKeyExpr(tnWB, xl_sheets.Sheet, xl_cells.cellrow), "xl_rowheights", "shrow")
-                Fwrite(lhFile, '<row r="' + Transform(xl_cells.cellrow) + '" spans="1:' + Transform(lnMaxCol) + ;
-                  '" ht="' + Transform(xl_rowheights.Height) + '" customHeight="1">')
+                \\<row r="<<Transform(xl_cells.cellrow)>>" spans="1:<<Transform(lnMaxCol)>>" ht="<<Transform(xl_rowheights.Height)>>" customHeight="1">
               Else
-                Fwrite(lhFile, '<row r="' + Transform(xl_cells.cellrow) + '" spans="1:' + Transform(lnMaxCol) + '"' + lcRowDefHt + '>')
+                \\<row r="<<Transform(xl_cells.cellrow)>>" spans="1:<<Transform(lnMaxCol)>>"<<lcRowDefHt>>>
               Endif
             Endif
 *-*			Write columns
-            If xl_cells.cellxfs > 0
-              lcStyle = ' s="' + Transform(xl_cells.cellxfs) + '"'
-            Else
-              lcStyle = ''
-            Endif
+            lcStyle = Iif(xl_cells.cellxfs > 0, ' s="' + Transform(xl_cells.cellxfs) + '"', '')
             Do Case
             Case xl_cells.DataType = DATA_TYPE_TIME
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '>')
-              Fwrite(lhFile, '<v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
+              \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>')
 
             Case xl_cells.DataType = DATA_TYPE_DATE
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '>')
-              Fwrite(lhFile, '<v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \<c r="<<ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
+              \<v><<Alltrim(xl_cells.cellvalue)>></v></c>')
 
             Case xl_cells.DataType = DATA_TYPE_DATETIME
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '>')
-              Fwrite(lhFile, '<v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
+              \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_LOGICAL
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + ' t="s"' + '>')
-              Fwrite(lhFile, '<v>' + Transform(xl_cells.stringid) + '</v></c>')
+              \<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>> t="s">
+              \\<v><<Transform(xl_cells.stringid)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_CHAR
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + ' t="s"' + '>')
-              Fwrite(lhFile, '<v>' + Transform(xl_cells.stringid) + '</v></c>')
+              \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>> t="s">
+              \\<v><<Transform(xl_cells.stringid)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_INT
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '>')
-              Fwrite(lhFile, '<v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
+              \<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_FLOAT
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '>')
-              Fwrite(lhFile, '<v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
+              \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_CURRENCY
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '>')
-              Fwrite(lhFile, '<v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
+              \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_PERCENT
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '>')
-              Fwrite(lhFile, '<v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>"<<lcStyle >>>
+              \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_FORMULA
-              Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + ' t="str"' + '>')
-              Fwrite(lhFile, '<f>' + Alltrim(xl_cells.cellformula) + '</f><v>' + Alltrim(xl_cells.cellvalue) + '</v></c>')
+              \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>> t="str">
+              \\<f><<Alltrim(xl_cells.cellformula)>></f><v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_NONE
               If !Empty(lcStyle)
-                Fwrite(lhFile, '<c r="' + .ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow) + '"' + lcStyle + '></c>')
+                \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>></c>
               Endif
             Endcase
           Endscan
-          Fwrite(lhFile, '</row>')
-          Fwrite(lhFile, '</sheetData>')
+          \\</row>
+          \\</sheetData>
           Set Order To
           Use In t_max
 
         Else
 *-*		No cell data has been created/written
-          Fwrite(lhFile, '<dimension ref="A1"/>')
-          Fwrite(lhFile, '<sheetViews>')
-          Fwrite(lhFile, '<sheetView workbookViewId="0"/>')
-          Fwrite(lhFile, '</sheetViews>')
-          Fwrite(lhFile, '<sheetFormatPr defaultRowHeight="14.4"/>')
-          Fwrite(lhFile, '<sheetData/>')
+          \\<dimension ref="A1"/>
+          \\<sheetViews>
+          \\<sheetView workbookViewId="0"/>
+          \\</sheetViews>
+          \\<sheetFormatPr defaultRowHeight="14.4"/>
+          \\<sheetData/>
         Endif
 *-*	Write sheet merge data
         Select mrg.begrow, mrg.begcol, mrg.endrow, mrg.endcol From xl_mergecells As mrg ;
@@ -8514,13 +8464,12 @@ Define Class vfpxworkbookxlsx As Custom
           INTO Cursor t_merge
 
         If _Tally > 0
-          Fwrite(lhFile, '<mergeCells>')
+          \\<mergeCells>
           Select t_merge
           Scan
-            Fwrite(lhFile, '<mergeCell ref="' + .ColumnIndexToAscii(t_merge.begcol) + Transform(t_merge.begrow) + ':' + ;
-              .ColumnIndexToAscii(t_merge.endcol) + Transform(t_merge.endrow) + '"/>')
+            \\<mergeCell ref="<<.ColumnIndexToAscii(t_merge.begcol) + Transform(t_merge.begrow)>>:<<.ColumnIndexToAscii(t_merge.endcol) + Transform(t_merge.endrow)>>"/>
           Endscan
-          Fwrite(lhFile, '</mergeCells>')
+          \\</mergeCells>
         Endif
         Use In t_merge
 
@@ -8528,7 +8477,7 @@ Define Class vfpxworkbookxlsx As Custom
         Select xl_validation
         Count For xl_validation.workbook = tnWB And xl_validation.Sheet = xl_sheets.Sheet And !Deleted() To lnValidCnt
         If lnValidCnt > 0
-          Fwrite(lhFile, '<dataValidations count="' + Transform(lnValidCnt) + '">')
+          \\<dataValidations count="<<Transform(lnValidCnt)>>">
           Scan
             Select xl.cellrow, xl.cellcol From xl_cells As xl ;
               WHERE BinToC(xl.workbook)+BinToC(xl.Sheet)+BinToC(xl.validndx) = BinToC(tnWB)+BinToC(xl_sheets.Sheet)+BinToC(xl_validation.validndx) ;
@@ -8619,73 +8568,76 @@ Define Class vfpxworkbookxlsx As Custom
             If !Empty(xl_validation.vprompt)
               lcValidationText = lcValidationText + ' prompt="' + Alltrim(xl_validation.vprompt) + '"'
             Endif
-            Fwrite(lhFile, '<dataValidation ' + lcValidationText + ' sqref="' + lcSqRef + '">')
+            \\<dataValidation <<lcValidationText>> sqref="<<lcSqRef>>">
             If xl_validation.formula
-              Fwrite(lhFile, '<formula1>' + Alltrim(xl_validation.formula1) + '</formula1>')
+              \\<formula1><<Alltrim(xl_validation.formula1)>></formula1>
               If !Empty(xl_validation.formula2)
-                Fwrite(lhFile, '<formula2>' + Alltrim(xl_validation.formula2) + '</formula2>')
+                \\<formula2><<Alltrim(xl_validation.formula2)>></formula2>
               Endif
             Else
-              Fwrite(lhFile, '<formula1>"' + Alltrim(xl_validation.formula1) + '"</formula1>')
+              \\<formula1>"<<Alltrim(xl_validation.formula1)>>"</formula1>
               If !Empty(xl_validation.formula2)
-                Fwrite(lhFile, '<formula2>"' + Alltrim(xl_validation.formula2) + '"</formula2>')
+                \\<formula2>"<<Alltrim(xl_validation.formula2)>"</formula2>
               Endif
             Endif
-            Fwrite(lhFile, '</dataValidation>')
+            \\</dataValidation>
           Endscan
           Use In Select('t_celllist')
-          Fwrite(lhFile, '</dataValidations>')
+          \\</dataValidations>
         Endif
 
 *-*	Write sheet margin data
-        Fwrite(lhFile, '<pageMargins left="' + Rtrim(Transform(xl_sheets.mleft), 1, '0') + '" right="' + Rtrim(Transform(xl_sheets.mright), 1, '0') + ;
-          '" top="' + Rtrim(Transform(xl_sheets.mtop), 1, '0') + '" bottom="' + Rtrim(Transform(xl_sheets.mbot), 1, '0') + ;
-          '" header="' + Rtrim(Transform(xl_sheets.mheader), 1, '0') + '" footer="' + Rtrim(Transform(xl_sheets.mfooter), 1, '0') + '"/>')
+        \\<pageMargins left="<<Rtrim(Transform(xl_sheets.mleft), 1, '0')>>"
+        \\right="<<Rtrim(Transform(xl_sheets.mright), 1, '0')>>"
+        \\top="<<Rtrim(Transform(xl_sheets.mtop), 1, '0')>>"
+        \\bottom="<<Rtrim(Transform(xl_sheets.mbot), 1, '0')>>"
+        \\header="<<Rtrim(Transform(xl_sheets.mheader), 1, '0')>>"
+        \\footer="<<Rtrim(Transform(xl_sheets.mfooter), 1, '0')>>"/>
 
 *-*	Write the sheet page print setup
-        Fwrite(lhFile, '<pageSetup orientation="' + Iif(xl_sheets.prnorient=PORTRAIT_PRINT_ORIENTATION, 'portrait', 'landscape') + '"')
+        \\<pageSetup orientation="<<Iif(xl_sheets.prnorient=PORTRAIT_PRINT_ORIENTATION, 'portrait', 'landscape')>>"
         If xl_sheets.Paperwidth > 0 And xl_sheets.paperheight > 0
-          Fwrite(lhFile, ' paperHeight="' + Transform(xl_sheets.paperheight) + xl_sheets.paperdimen + '"')
-          Fwrite(lhFile, ' paperWidth="' + Transform(xl_sheets.Paperwidth) + xl_sheets.paperdimen + '"')
+          \\ paperHeight="<<Transform(xl_sheets.paperheight) + xl_sheets.paperdimen>>"
+          \\ paperWidth="<<Transform(xl_sheets.Paperwidth) + xl_sheets.paperdimen>>"
         Else
           If xl_sheets.Papersize > 0
-            Fwrite(lhFile, ' paperSize="' + Transform(xl_sheets.Papersize) + '"')
+            \\ paperSize="' + Transform(xl_sheets.Papersize) + '"
           Endif
         Endif
         Do Case
         Case xl_sheets.fittowidth > 0 And xl_sheets.fittoheight > 0
-          Fwrite(lhFile, ' fitToWidth="'  + Transform(xl_sheets.fittowidth) + '"')
-          Fwrite(lhFile, ' fitToHeight="' + Transform(xl_sheets.fittoheight) + '"')
+          \\ fitToWidth="<<Transform(xl_sheets.fittowidth)>>"
+          \\ fitToHeight="<<Transform(xl_sheets.fittoheight)>>"
 
         Case xl_sheets.fittowidth = 0 And xl_sheets.fittoheight > 0
-          Fwrite(lhFile, ' fitToHeight="' + Transform(xl_sheets.fittoheight) + '"')
+          \\ fitToHeight="<<Transform(xl_sheets.fittoheight)>>"
 
         Case xl_sheets.fittowidth > 0 And xl_sheets.fittoheight = 0
-          Fwrite(lhFile, ' fitToWidth="'  + Transform(xl_sheets.fittowidth) + '"')
+          \\ fitToWidth="<<Transform(xl_sheets.fittowidth)>>"
 
         Otherwise
           If xl_sheets.Scale != 100
-            Fwrite(lhFile, ' scale="' + Transform(xl_sheets.Scale) + '"')
+            \\ scale="<Transform(xl_sheets.Scale)>>"
           Endif
         Endcase
-        Fwrite(lhFile, '/>')
+        \\/>
 
 *-*	Write the header and footer for the sheet if defined
         If Seek(BinToC(tnWB)+BinToC(xl_sheets.Sheet), "xl_hdrfooterdefn", "wbsheet")
-          Fwrite(lhFile, '<headerFooter')
+          \\<headerFooter
           If xl_hdrfooterdefn.alignmargin
-            Fwrite(lhFile, ' alignWithMargins="1"')
+            \\ alignWithMargins="1"
           Endif
           If xl_hdrfooterdefn.difffirstpg
-            Fwrite(lhFile, ' differentFirst="1"')
+            \\ differentFirst="1"
           Endif
           If xl_hdrfooterdefn.diffoddeven
-            Fwrite(lhFile, ' differentOddEven="1"')
+            \\ differentOddEven="1"
           Endif
           If xl_hdrfooterdefn.scalewdoc
-            Fwrite(lhFile, ' scaleWithDoc="1"')
+            \\ scaleWithDoc="1"
           Endif
-          Fwrite(lhFile, '>')
+          \\>
 
 *-*		Get the page header text
           lcOddText = ""
@@ -8812,11 +8764,13 @@ Define Class vfpxworkbookxlsx As Custom
             lcFirstFtrText = lcFirstFtrText + '</firstFooter>'
           Endif
 *-*		Write the header/footer text to XML
-          Fwrite(lhFile, lcHeaderText + lcFooterText + lcFirstHdrText + lcFirstFtrText + '</headerFooter>')
+          \\<<lcHeaderText + lcFooterText + lcFirstHdrText + lcFirstFtrText>></headerFooter>
         Endif
 *-*	Completed writing sheet
-        Fwrite(lhFile, '</worksheet>')
+        \\</worksheet>
         llSuccess = True
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
 
       Catch To loException
         Set Step On
@@ -8824,9 +8778,6 @@ Define Class vfpxworkbookxlsx As Custom
         .ErrorLevelId = 14
         Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
 
-      Finally
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
       Endtry
       If !Empty(lcAlias)
         Select (lcAlias)
@@ -8837,8 +8788,7 @@ Define Class vfpxworkbookxlsx As Custom
 *-- Writes the sharedStrings XML
   Protected Procedure WriteStringsXML
     Lparameters tnWB, tcPath
-    Local lcFileName, lhFile, lnTotCount, lnUniqueCnt, loException, llSuccess, lnRelId
-* TODO: заменить на textmerge
+    Local lcFileName, lnTotCount, lnUniqueCnt, loException, llSuccess, lnRelId
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 2)
       Try
@@ -8859,80 +8809,77 @@ Define Class vfpxworkbookxlsx As Custom
           Endif
 
 *-*		Output the file
+          Set Textmerge On To Memvar lcOutStr Noshow
           lcFileName = tcPath + "xl\sharedStrings.xml"
-          lhFile = Fcreate(lcFileName)
-          If lhFile < 0
-            Throw
-          Endif
 
-          Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + LF)
-          Fwrite(lhFile, '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' + Transform(lnTotCount) + '" uniqueCount="' + Transform(lnUniqueCnt) + '">')   && Change 19Jun2018: missplaced >
+          \\'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          \<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="<<Transform(lnTotCount)>>" uniqueCount="<<Transform(lnUniqueCnt)>>">   && Change 19Jun2018: missplaced >
 
           Select xl_strings
           Scan For workbook = tnWB And !Deleted()
             If xl_strings.Formatted
-              Fwrite(lhFile, '<si>')
+              \\<si>
               Select xl_strformat
               Scan For workbook = tnWB And Id = xl_strings.Id And !Deleted()
-                Fwrite(lhFile, '<r>')
+                \\<r>
                 If xl_strformat.fbold Or xl_strformat.fitalic Or xl_strformat.fcolor>0 Or !Empty(xl_strformat.fname) Or xl_strformat.Fsize>0 ;
                     OR xl_strformat.strkthr Or !Empty(xl_strformat.fvpos) Or xl_strformat.Theme>0 Or xl_strformat.indexed>0 Or xl_strformat.uline != UNDERLINE_NONE
 
-                  Fwrite(lhFile, '<rPr>')
+                  \\<rPr>
                   If xl_strformat.fbold
-                    Fwrite(lhFile, '<b/>')
+                    \\<b/>
                   Endif
                   If xl_strformat.fitalic
-                    Fwrite(lhFile, '<i/>')
+                    \\<i/>
                   Endif
                   If xl_strformat.uline != UNDERLINE_NONE
-                    Fwrite(lhFile, '<u/>')
+                    \\<u/>
                   Endif
                   If xl_strformat.strkthr
-                    Fwrite(lhFile, '<strike/>')
+                    \\<strike/>
                   Endif
                   If xl_strformat.Fsize > 0
-                    Fwrite(lhFile, '<sz val="' + Transform(xl_strformat.Fsize) + '"/>')
+                    \\<sz val="<<Transform(xl_strformat.Fsize)>>"/>
                   Endif
                   Do Case
                   Case xl_strformat.fcolor > 0
-                    Fwrite(lhFile, '<color rgb="' + .ConvertColorToHex(xl_strformat.fcolor) +'"/>')
+                    \\<color rgb="<<.ConvertColorToHex(xl_strformat.fcolor)>>"/>
 
                   Case xl_strformat.indexed > 0
-                    Fwrite(lhFile, '<color indexed="' + Transform(xl_strformat.indexed) + '"/>')
+                    \\<color indexed="<<Transform(xl_strformat.indexed)>>"/>
 
                   Case xl_strformat.Theme > 0
-                    Fwrite(lhFile, '<color theme="' + Transform(xl_strformat.Theme) +'" tint="' + Transform(xl_strformat.tint, "99.999999999999999") + '"/>')
+                    \\<color theme="<<Transform(xl_strformat.Theme)>>" tint="<<Transform(xl_strformat.tint, "99.999999999999999")>>"/>
                   Endcase
                   If !Empty(xl_strformat.fvpos)
-                    Fwrite(lhFile, '<vertAlign val="' + Alltrim(xl_strformat.fvpos) + '"/>')
+                    \\<vertAlign val="<<Alltrim(xl_strformat.fvpos)>>"/>
                   Endif
                   If !Empty(xl_strformat.fname)
-                    Fwrite(lhFile, '<rFont val="' + Alltrim(xl_strformat.fname) + '"/>')
+                    \\<rFont val="<<Alltrim(xl_strformat.fname)>>"/>
                   Endif
-                  Fwrite(lhFile, '</rPr>')
+                  \\</rPr>
                 Endif
 *					IF xl_strformat.presvspace
-                Fwrite(lhFile, '<t xml:space="preserve">' + Chrtran(xl_strformat.stringxml, Chr(160), Chr(32)) + '</t>')
+                \\<t xml:space="preserve"><<Chrtran(xl_strformat.stringxml, Chr(160), Chr(32))>></t>
 *					ELSE
 *						FWRITE(lhFile, '<t>' + xl_strformat.stringxml + '</t>')
 *					ENDIF
-                Fwrite(lhFile, '</r>')
+                \\</r>
               Endscan
-              Fwrite(lhFile, '</si>')
+              \\</si>
               Select xl_strings
             Else
               If xl_strings.presvspace
-                Fwrite(lhFile, '<si><t xml:space="preserve">' + Chrtran(xl_strformat.stringxml, Chr(160), Chr(32)) + '</t></si>')
+                \\<si><t xml:space="preserve"><<Chrtran(xl_strformat.stringxml, Chr(160), Chr(32))>></t></si>
               Else
-                Fwrite(lhFile, '<si><t>' + xl_strings.stringxml + '</t></si>')
+                \\<si><t><<xl_strings.stringxml>></t></si>
               Endif
             Endif
           Endscan
           Set Order To
-          Fwrite(lhFile, '</sst>')
-          Fclose(lhFile)
-          Strtofile(Strconv(Filetostr(lcFileName), 9), lcFileName, 4)      && Save as UTF-8
+          \\</sst>
+          Set Textmerge To
+          .SaveAsUtf8(lcFileName, lcOutStr)
         Else
 *-*		No strings are assigned to cells; remove from relationships if present
           Delete From xl_relationships Where workbook = tnWB And reltype = "sharedStrings"
@@ -8951,22 +8898,19 @@ Define Class vfpxworkbookxlsx As Custom
 *-- Writes the styles.xml support file
   Protected Procedure WriteStylesXML
     Lparameters tnWB, tcPath
-    Local lcAlias, lcFileName, lhFile, lnNumFmtsId, lnRecCount, lcNumFmtId, lnRotation, llIndexedColors
+    Local lcAlias, lcFileName, lnNumFmtsId, lnRecCount, lcNumFmtId, lnRotation, llIndexedColors
     Local llMruColors
-* TODO: заменить на textmerge
+* TODO: �������� �� textmerge
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 3)
       Try
         lcAlias = Alias()
         lcFileName = tcPath + "xl\styles.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ')
-        Fwrite(lhFile, 'xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" ')
-        Fwrite(lhFile, 'mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">')
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+        \\xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        \\mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*	Get last used custom number format Id
         lnNumFmtsId = 0
@@ -8980,255 +8924,255 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*	Write the Number format section
         Count For workbook = tnWB To lnRecCount
-        Fwrite(lhFile, '<numFmts count="' + Transform(lnRecCount) + '">')
+        \\<numFmts count="<<Transform(lnRecCount)>>">
         Scan For workbook = tnWB
           If xl_numFmts.Id > 900
             lnNumFmtsId = lnNumFmtsId + 1
-            Fwrite(lhFile, '<numFmt numFmtId="' + Transform(lnNumFmtsId) + '" formatCode="' + Alltrim(xl_numFmts.formatxml) + '"/>')
+            \\<numFmt numFmtId="<<Transform(lnNumFmtsId)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>"/>
             Replace xl_numFmts.tempid With lnNumFmtsId In xl_numFmts
           Else
-            Fwrite(lhFile, '<numFmt numFmtId="' + Transform(xl_numFmts.Id) + '" formatCode="' + Alltrim(xl_numFmts.formatxml) + '"/>')
+            \\<numFmt numFmtId="<<Transform(xl_numFmts.Id)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>"/>
             Replace xl_numFmts.tempid With xl_numFmts.Id In xl_numFmts
           Endif
         Endscan
-        Fwrite(lhFile, '</numFmts>')
+        \\</numFmts>
         Set Order To
 
 *-*	Write the fonts section
         Select xl_fonts
         Set Order To Tag sortorder
         Count For workbook = tnWB To lnRecCount
-        Fwrite(lhFile, '<fonts count="' + Transform(lnRecCount) + '" x14ac:knownFonts="1">')
+        \\<fonts count="<<Transform(lnRecCount)>" x14ac:knownFonts="1">
         Scan For workbook = tnWB
-          Fwrite(lhFile, '<font>')
-          Fwrite(lhFile, '<name val="' + Alltrim(xl_fonts.fname) + '"/>')
-          Fwrite(lhFile, '<sz val="' + Transform(xl_fonts.Fsize) + '"/>')
+          \\<font>
+          \\<name val="<<Alltrim(xl_fonts.fname)>>"/>
+          \\<sz val="<<Transform(xl_fonts.Fsize)>>"/>
           If xl_fonts.fbold
-            Fwrite(lhFile, '<b/>')
+            \\<b/>
           Endif
           If xl_fonts.fitalic
-            Fwrite(lhFile, '<i/>')
+            \\<i/>
           Endif
           If !Empty(xl_fonts.uline)
-            Fwrite(lhFile, '<u val="' + Alltrim(xl_fonts.uline) + '"/>')
+            \\<u val="<<Alltrim(xl_fonts.uline)>>"/>
           Endif
           If xl_fonts.strkthr
-            Fwrite(lhFile, '<strike/>')
+            \\<strike/>
           Endif
           If !Empty(xl_fonts.fvpos)
-            Fwrite(lhFile, '<vertAlign val="' + Alltrim(xl_fonts.fvpos) + '"/>')
+            \\<vertAlign val="<<Alltrim(xl_fonts.fvpos)>>"/>
           Endif
           Do Case
           Case xl_fonts.fcolor > 0
-            Fwrite(lhFile, '<color rgb="' + .ConvertColorToHex(xl_fonts.fcolor) + '"/>')
+            \\<color rgb="<<.ConvertColorToHex(xl_fonts.fcolor)>>"/>
 
           Case xl_fonts.indexed > 0
-            Fwrite(lhFile, '<color indexed="' + Transform(xl_fonts.indexed) + '"/>')
+            \\<color indexed="<<Transform(xl_fonts.indexed)>>"/>
 
           Case xl_fonts.Theme > 0
-            Fwrite(lhFile, '<color theme="' + Transform(xl_fonts.Theme) + '" tint="' + Transform(xl_fonts.tint, "99.999999999999999") + '"/>')
+            \\<color theme="<<Transform(xl_fonts.Theme)>>" tint="<<Transform(xl_fonts.tint, "99.999999999999999")>>"/>
           Endcase
-          Fwrite(lhFile, '</font>')
+          \\</font>
         Endscan
-        Fwrite(lhFile, '</fonts>')
+        \\</fonts>
         Set Order To
 
 *-*	Write the fills section
         Select xl_fills
         Set Order To Tag sortorder
         Count For workbook = tnWB To lnRecCount
-        Fwrite(lhFile, '<fills count="' + Transform(lnRecCount) + '">')
+        \\<fills count="<<Transform(lnRecCount)>>">
         Scan For workbook = tnWB
-          Fwrite(lhFile, '<fill><patternFill patternType="' + Alltrim(xl_fills.patttype) + '"')
+          \\<fill><patternFill patternType="<<Alltrim(xl_fills.patttype)>>"
           Do Case
           Case xl_fills.fgindexed > 0 And xl_fills.bgindexed > 0
-            Fwrite(lhFile, '>')
-            Fwrite(lhFile, '<fgColor indexed="' + Transform(xl_fills.fgindexed) + '"/>')
-            Fwrite(lhFile, '<bgColor indexed="' + Transform(xl_fills.bgindexed) + '"/>')
-            Fwrite(lhFile, '</patternFill>')
+            \\>
+            \\<fgColor indexed="<<Transform(xl_fills.fgindexed)>>"/>
+            \\<bgColor indexed="<<Transform(xl_fills.bgindexed)>"/>
+            \\</patternFill>
 
           Case xl_fills.fgcolor > 0 And xl_fills.bgindexed > 0
-            Fwrite(lhFile, '>')
-            Fwrite(lhFile, '<fgColor rgb="' + .ConvertColorToHex(xl_fills.fgcolor) + '"/>')
-            Fwrite(lhFile, '<bgColor indexed="' + Transform(xl_fills.bgindexed) + '"/>')
-            Fwrite(lhFile, '</patternFill>')
+            \\>
+            \\<fgColor rgb="<<.ConvertColorToHex(xl_fills.fgcolor)>>"/>
+            \\<bgColor indexed="<<Transform(xl_fills.bgindexed)>>"/>
+            \\</patternFill>
 
           Case xl_fills.bgcolor > 0 And xl_fills.fgindexed > 0
-            Fwrite(lhFile, '>')
-            Fwrite(lhFile, '<fgColor indexed="' + Transform(xl_fills.fgindexed) + '"/>')
-            Fwrite(lhFile, '<bgColor rgb="' + .ConvertColorToHex(xl_fills.bgcolor) + '"/>')
-            Fwrite(lhFile, '</patternFill>')
+            \\>
+            \\<fgColor indexed="<<Transform(xl_fills.fgindexed)>>"/>
+            \\<bgColor rgb="<<.ConvertColorToHex(xl_fills.bgcolor)>>"/>
+            \\</patternFill>')
 
           Case xl_fills.fgcolor > 0 And xl_fills.bgcolor > 0
-            Fwrite(lhFile, '>')
-            Fwrite(lhFile, '<fgColor rgb="' + .ConvertColorToHex(xl_fills.fgcolor) + '"/>')
-            Fwrite(lhFile, '<bgColor rgb="' + .ConvertColorToHex(xl_fills.bgcolor) + '"/>')
-            Fwrite(lhFile, '</patternFill>')
+            \\>
+            \\<fgColor rgb="<<.ConvertColorToHex(xl_fills.fgcolor)>>"/>
+            \\<bgColor rgb="<<.ConvertColorToHex(xl_fills.bgcolor)>>"/>
+            \\</patternFill>
 
           Case xl_fills.Theme > 0
-            Fwrite(lhFile, '>')
-            Fwrite(lhFile, '<fgColor theme="' + Transform(xl_fills.Theme) + '" tint="' + Transform(xl_fills.tint, "99.999999999999999") + '"/>')
-            Fwrite(lhFile, '<bgColor indexed="64"/>')
-            Fwrite(lhFile, '</patternFill>')
+            \\>
+            \\<fgColor theme="<<Transform(xl_fills.Theme)>>" tint="<<Transform(xl_fills.tint, "99.999999999999999")>>"/>
+            \\<bgColor indexed="64"/>')
+            \\</patternFill>')
 
           Otherwise
-            Fwrite(lhFile, '/>')
+            \\/>
           Endcase
-          Fwrite(lhFile, '</fill>')
+          \\</fill>
         Endscan
-        Fwrite(lhFile, '</fills>')
+        \\</fills>
 
 *-*	Write the borders section
         Select xl_borders
         Set Order To Tag sortorder
         Count For workbook = tnWB To lnRecCount
-        Fwrite(lhFile, '<borders count="' + Transform(lnRecCount) + '">')
+        \\<borders count="<<Transform(lnRecCount)>>">
         Scan For workbook = tnWB
-          Fwrite(lhFile, '<border' + Iif(xl_borders.diagdn=1, ' diagonalDown="1"', '') + Iif(xl_borders.diagup=1, ' diagonalUp="1"', '') +'>')
+          \\<border<<Iif(xl_borders.diagdn=1, ' diagonalDown="1"', '') + Iif(xl_borders.diagup=1, ' diagonalUp="1"', '')>>>
           If Empty(xl_borders.lstyle)
-            Fwrite(lhFile, '<left/>')
+            \\<left/>
           Else
             If xl_borders.lstyle = BORDER_STYLE_NONE
-              Fwrite(lhFile, '<left')
+              \\<left
             Else
-              Fwrite(lhFile, '<left style="' + Alltrim(xl_borders.lstyle) + '"')
+              \\<left style="<<Alltrim(xl_borders.lstyle)>>"
             Endif
             Do Case
             Case xl_borders.lcolor > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color rgb="' + .ConvertColorToHex(xl_borders.lcolor) + '"/>')
-              Fwrite(lhFile, '</left>')
+              \\>
+              \\<color rgb="<<.ConvertColorToHex(xl_borders.lcolor)>"/>
+              \\</left>
 
             Case xl_borders.lindexed > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color indexed="' + Transform(xl_borders.lindexed) + '"/>')
-              Fwrite(lhFile, '</left>')
+              \\>
+              \\<color indexed="<<Transform(xl_borders.lindexed)>>"/>
+              \\</left>
 
             Case xl_borders.ltheme > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color theme="' + Transform(xl_borders.ltheme) +'" tint="' + Transform(xl_borders.ltint, "99.999999999999999") + '"/>')
-              Fwrite(lhFile, '</left>')
+              \\>
+              \\<color theme="<<Transform(xl_borders.ltheme)>>" tint="<<Transform(xl_borders.ltint, "99.999999999999999")>>"/>
+              \\</left>
 
             Otherwise
-              Fwrite(lhFile, '/>')
+              \\/>
             Endcase
           Endif
           If Empty(xl_borders.rstyle)
-            Fwrite(lhFile, '<right/>')
+            \\<right/>
           Else
             If xl_borders.rstyle = BORDER_STYLE_NONE
-              Fwrite(lhFile, '<right')
+              \\<right
             Else
-              Fwrite(lhFile, '<right style="' + Alltrim(xl_borders.rstyle) + '"')
+              \\<right style="<<Alltrim(xl_borders.rstyle)>>"
             Endif
             Do Case
             Case xl_borders.rcolor > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color rgb="' + .ConvertColorToHex(xl_borders.rcolor) + '"/>')
-              Fwrite(lhFile, '</right>')
+              \\>
+              \\<color rgb="<<.ConvertColorToHex(xl_borders.rcolor)>>"/>
+              \\</right>
 
             Case xl_borders.rindexed > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color indexed="' + Transform(xl_borders.rindexed) + '"/>')
-              Fwrite(lhFile, '</right>')
+              \\>
+              \\<color indexed="<<Transform(xl_borders.rindexed)>>"/>
+              \\</right>
 
 
             Case xl_borders.rtheme > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color theme="' + Transform(xl_borders.rtheme) +'" tint="' + Transform(xl_borders.rtint, "99.999999999999999") + '"/>')
-              Fwrite(lhFile, '</right>')
+              \\>
+              \\<color theme="<<Transform(xl_borders.rtheme)>>" tint="<<Transform(xl_borders.rtint, "99.999999999999999")>>"/>
+              \\</right>
 
             Otherwise
-              Fwrite(lhFile, '/>')
+              \\/>
             Endcase
           Endif
           If Empty(xl_borders.tstyle)
-            Fwrite(lhFile, '<top/>')
+            \\<top/>
           Else
             If xl_borders.tstyle = BORDER_STYLE_NONE
-              Fwrite(lhFile, '<top')
+              \\<top
             Else
-              Fwrite(lhFile, '<top style="' + Alltrim(xl_borders.tstyle) + '"')
+              \<top style="<<Alltrim(xl_borders.tstyle)>>"
             Endif
             Do Case
             Case xl_borders.tcolor > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color rgb="' + .ConvertColorToHex(xl_borders.tcolor) + '"/>')
-              Fwrite(lhFile, '</top>')
+              \\>
+              \\<color rgb="<<.ConvertColorToHex(xl_borders.tcolor)>>"/>
+              \\</top>')
 
             Case xl_borders.tindexed > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color indexed="' + Transform(xl_borders.tindexed) + '"/>')
-              Fwrite(lhFile, '</top>')
+              \\>
+              \\<color indexed="<<Transform(xl_borders.tindexed)>"/>
+              \\</top>
 
             Case xl_borders.ttheme > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color theme="' + Transform(xl_borders.ttheme) +'" tint="' + Transform(xl_borders.ttint, "99.999999999999999") + '"/>')
-              Fwrite(lhFile, '</top>')
+              \\>
+              \\<color theme="<<Transform(xl_borders.ttheme)>>" tint="<<Transform(xl_borders.ttint, "99.999999999999999")>>"/>
+              \\</top>')
 
             Otherwise
-              Fwrite(lhFile, '/>')
+              \\/>
             Endcase
           Endif
           If Empty(xl_borders.bstyle)
-            Fwrite(lhFile, '<bottom/>')
+            \\<bottom/>
           Else
             If xl_borders.bstyle = BORDER_STYLE_NONE
-              Fwrite(lhFile, '<bottom')
+              \\<bottom
             Else
-              Fwrite(lhFile, '<bottom style="' + Alltrim(xl_borders.bstyle) + '"')
+              \\<bottom style="<<Alltrim(xl_borders.bstyle)>>"
             Endif
             Do Case
             Case xl_borders.bcolor > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color rgb="' + .ConvertColorToHex(xl_borders.bcolor) + '"/>')
-              Fwrite(lhFile, '</bottom>')
+              \\>
+              \\<color rgb="<<.ConvertColorToHex(xl_borders.bcolor)>>"/>
+              \\</bottom>
 
             Case xl_borders.bindexed > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color indexed="' + Transform(xl_borders.bindexed) + '"/>')
-              Fwrite(lhFile, '</bottom>')
+              \\>
+              \\<color indexed="<<Transform(xl_borders.bindexed)>>"/>
+              \\</bottom>
 
             Case xl_borders.btheme > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color theme="' + Transform(xl_borders.btheme) +'" tint="' + Transform(xl_borders.btint, "99.999999999999999") + '"/>')
-              Fwrite(lhFile, '</bottom>')
+              \\>
+              \\<color theme="<<Transform(xl_borders.btheme)>>" tint="<<Transform(xl_borders.btint, "99.999999999999999")>>"/>
+              \\</bottom>
 
             Otherwise
-              Fwrite(lhFile, '/>')
+              \\/>
             Endcase
           Endif
           If Empty(xl_borders.dstyle)
-            Fwrite(lhFile, '<diagonal/>')
+            \\<diagonal/>
           Else
             If xl_borders.dstyle = BORDER_STYLE_NONE
-              Fwrite(lhFile, '<diagonal')
+              \\<diagonal
             Else
-              Fwrite(lhFile, '<diagonal style="' + Alltrim(xl_borders.dstyle) + '"')
+              \\<diagonal style="<<Alltrim(xl_borders.dstyle)>>"
             Endif
             Do Case
             Case xl_borders.dcolor > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color rgb="' + .ConvertColorToHex(xl_borders.dcolor) + '"/>')
-              Fwrite(lhFile, '</diagonal>')
+              \\>
+              \\<color rgb="<<.ConvertColorToHex(xl_borders.dcolor)>>"/>
+              \\</diagonal>
 
             Case xl_borders.dindexed > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color indexed="' + Transform(xl_borders.dindexed) + '"/>')
-              Fwrite(lhFile, '</diagonal>')
+              \\>
+              \\<color indexed="<<Transform(xl_borders.dindexed)>"/>
+              \\</diagonal>
 
             Case xl_borders.dtheme > 0
-              Fwrite(lhFile, '>')
-              Fwrite(lhFile, '<color theme="' + Transform(xl_borders.dtheme) +'" tint="' + Transform(xl_borders.dtint, "99.999999999999999") + '"/>')
-              Fwrite(lhFile, '</diagonal>')
+              \\>
+              \\<color theme="<<Transform(xl_borders.dtheme)>>" tint="<<Transform(xl_borders.dtint, "99.999999999999999")>>"/>
+              \\</diagonal>
 
             Otherwise
-              Fwrite(lhFile, '/>')
+              \\/>
             Endcase
           Endif
-          Fwrite(lhFile, '</border>')
+          \\</border>
         Endscan
-        Fwrite(lhFile, '</borders>')
+        \\</borders>
 *-*	Write the cellStyleXfs section
 
 *-*	Write the cellXfs section
@@ -9242,64 +9186,63 @@ Define Class vfpxworkbookxlsx As Custom
           Else
             lcNumFmtId = Transform(xl_cellxfs.numfmtid)
           Endif
-          Fwrite(lhFile, '<xf numFmtId="' + lcNumFmtId + '" fontId="' + Transform(xl_cellxfs.fontid) + ;
-            '" fillId="' + Transform(xl_cellxfs.fillid) + '" borderId="' + Transform(xl_cellxfs.borderid) + '"' + ;
-            IIF(lcNumFmtId = '0', '', ' applyNumberFormat="1"') + Iif(xl_cellxfs.fontid > 0, ' applyFont="1"', '') + ;
-            IIF(xl_cellxfs.fillid > 0, ' applyFill="1"', '') + Iif(xl_cellxfs.borderid > 0, ' applyBorder="1"', '') + ' applyAlignment="1"')
+          \\<xf numFmtId="<<lcNumFmtId>>" fontId="<<Transform(xl_cellxfs.fontid)>>"
+          \\ fillId="<<Transform(xl_cellxfs.fillid)>>" borderId="<<Transform(xl_cellxfs.borderid)>>"
+          \\<<IIF(lcNumFmtId = '0', '', ' applyNumberFormat="1"') + Iif(xl_cellxfs.fontid > 0, ' applyFont="1"', '') + IIF(xl_cellxfs.fillid > 0, ' applyFill="1"', '') + Iif(xl_cellxfs.borderid > 0, ' applyBorder="1"', '')>> applyAlignment="1"
 
           If !Empty(xl_cellxfs.halign) Or !Empty(xl_cellxfs.valign) Or xl_cellxfs.wraptext > 0 Or xl_cellxfs.indent > 0 Or xl_cellxfs.Rotation > 0
-            Fwrite(lhFile, '><alignment')
+            \\><alignment
             If !Empty(xl_cellxfs.halign)
-              Fwrite(lhFile, ' horizontal="' + Alltrim(xl_cellxfs.halign) + '"')
+              \\ horizontal="<<Alltrim(xl_cellxfs.halign)>>"
             Endif
             If !Empty(xl_cellxfs.valign)
-              Fwrite(lhFile, ' vertical="' + Alltrim(xl_cellxfs.valign) + '"')
+              \\ vertical="<<Alltrim(xl_cellxfs.valign)>>"
             Endif
             If xl_cellxfs.wraptext > 0
-              Fwrite(lhFile, ' wrapText="1"')
+              \\ wrapText="1"
             Endif
             If xl_cellxfs.indent > 0
-              Fwrite(lhFile, ' indent="' + Transform(xl_cellxfs.indent) + '"')
+              \\ indent="<<Transform(xl_cellxfs.indent)>>"
             Endif
             If xl_cellxfs.Rotation != 0
-              Fwrite(lhFile, ' textRotation="' + Transform(xl_cellxfs.Rotation) + '"')
+              \\ textRotation="<<Transform(xl_cellxfs.Rotation)>>"
             Endif
-            Fwrite(lhFile, '/></xf>')
+            \\/></xf>
           Else
-            Fwrite(lhFile, '/>')
+            \\/>
           Endif
         Endscan
-        Fwrite(lhFile, '</cellXfs>')
+        \\</cellXfs>
 
 *-*	Write the colors section
         llIndexedColors = Seek(BinToC(tnWB)+BinToC(1), "xl_ndxcolors", "indexid")
         llMruColors     = Seek(BinToC(tnWB)+BinToC(1), "xl_mrucolors", "indexid")
         If llIndexedColors Or llMruColors
-          Fwrite(lhFile, '<colors>')
+          \\<colors>
           If llIndexedColors
-            Fwrite(lhFile, '<indexedColors>')
+            \\<indexedColors>
             Select xl_ndxcolors
             Set Order To Tag indexid
             Scan For workbook = tnWB
-              Fwrite(lhFile, '<rgbColor rgb="' + xl_ndxcolors.rgbcolor + '"/>')
+              \\<rgbColor rgb="<<xl_ndxcolors.rgbcolor>>"/>
             Endscan
-            Fwrite(lhFile, '</indexedColors>')
+            \\</indexedColors>
           Endif
 
           If llMruColors
-            Fwrite(lhFile, '<mruColors>')
+            \\<mruColors>
             Select xl_mrucolors
             Set Order To Tag indexid
             Scan For workbook = tnWB
-              Fwrite(lhFile, '<color rgb="' + xl_ndxcolors.rgbcolor + '"/>')
+              \\<color rgb="<<xl_ndxcolors.rgbcolor>>"/>
             Endscan
-            Fwrite(lhFile, '</mruColors>')
+            \\</mruColors>
           Endif
-          Fwrite(lhFile, '</colors>')
+          \\</colors>
         Endif
 
 *-*	Close the style sheet
-        Fwrite(lhFile, '</styleSheet>')
+        \\</styleSheet>
         llSuccess = True
 
       Catch To loException
@@ -9309,8 +9252,8 @@ Define Class vfpxworkbookxlsx As Custom
         Raiseevent(This, "OnShowErrorMessage", 17, "Unable to create styles.xml")
 
       Finally
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
       Endtry
       If !Empty(lcAlias)
         Select (lcAlias)
@@ -9322,19 +9265,15 @@ Define Class vfpxworkbookxlsx As Custom
   Protected Procedure WriteSupportXMLs
     Lparameters tnWB, tcPath
     Local llSuccess, loException, lhFile, lnSheet, lnUniqueCnt, lcCurr, lcColor, lnTotCount, lcFileName, lcBaseContentType
-* TODO: заменить на textmerge
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 1)
       Try
-        lhFile  = Fcreate(tcPath + "[Content_Types].xml")
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">')
-        Fwrite(lhFile, '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>')
-        Fwrite(lhFile, '<Default Extension="xml" ContentType="application/xml"/>')
-        Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>')
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+        \\<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+        \\<Default Extension="xml" ContentType="application/xml"/>
+        \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
 
         lcBaseContentType = '<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.'
         Select xl_relationships
@@ -9363,75 +9302,63 @@ Define Class vfpxworkbookxlsx As Custom
           Endcase
         Endscan
 
-        Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>')
-        Fwrite(lhFile, '<Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>')
-        Fwrite(lhFile, '</Types>')
-        Fclose(lhFile)
+        \\<Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
+        \\<Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
+        \\</Types>
+        Set Textmerge To
+        .SaveAsUtf8(tcPath + "[Content_Types].xml", lcOutStr)
 
 *-*	Save the .rels XML
-        lhFile = Fcreate(tcPath + "_rels\.rels")
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">')
-        Fwrite(lhFile, '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>')
-        Fwrite(lhFile, '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>')
-        Fwrite(lhFile, '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>')
-        Fwrite(lhFile, '</Relationships>')
-        Fclose(lhFile)
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+        \\<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+        \\<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+        \\<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+        \\</Relationships>
+        Set Textmerge To
+        .SaveAsUtf8(tcPath + "_rels\.rels", lcOutStr)
 
 *-*	Save the app XML
+        Set Textmerge On To Memvar lcOutStr Noshow
         lcFileName = tcPath + "docProps\app.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">')
-        Fwrite(lhFile, '<Application>ExcelXMLX Release ' + Transform(.ExcelXlsxRelease) + '</Application>')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+        \\<Application>ExcelXMLX Release ' + Transform(.ExcelXlsxRelease) + '</Application>
         If !Empty(.CompanyName)
-          Fwrite(lhFile, '<Company>' + .CompanyName + '</Company>')
+          \\<Company>' + .CompanyName + '</Company>
         Endif
-        Fwrite(lhFile, '</Properties>')
-        Fclose(lhFile)
-        Strtofile(Strconv(Filetostr(lcFileName), 9), lcFileName, 4)      && Save as UTF-8
+        \\</Properties>
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Save the core XML
         lcFileName = tcPath + "docProps\core.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-        Fwrite(lhFile, '<cp:coreProperties ')
-        Fwrite(lhFile, 'xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" ')
-        Fwrite(lhFile, 'xmlns:dc="http://purl.org/dc/elements/1.1/" ')
-        Fwrite(lhFile, 'xmlns:dcterms="http://purl.org/dc/terms/" ')
-        Fwrite(lhFile, 'xmlns:dcmitype="http://purl.org/dc/dcmitype/" ')
-        Fwrite(lhFile, 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">')
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \\<cp:coreProperties
+        \\xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+        \\xmlns:dc="http://purl.org/dc/elements/1.1/"
+        \\xmlns:dcterms="http://purl.org/dc/terms/"
+        \\xmlns:dcmitype="http://purl.org/dc/dcmitype/"
+        \\xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         If !Empty(.Title)
-          Fwrite(lhFile, '<dc:title>' + .GetXMLString(.Title) + '</dc:title>')
+          \\<dc:title>' + .GetXMLString(.Title) + '</dc:title>
         Endif
         If !Empty(.Subject)
-          Fwrite(lhFile, '<dc:subject>' + .GetXMLString(.Subject) + '</dc:subject>')
+          \\<dc:subject>' + .GetXMLString(.Subject) + '</dc:subject>
         Endif
         If !Empty(.CreatorName)
-          Fwrite(lhFile, '<dc:creator>' + .GetXMLString(.CreatorName) + '</dc:creator>')
+          \\<dc:creator>' + .GetXMLString(.CreatorName) + '</dc:creator>
         Endif
         If !Empty(.UserName)
-          Fwrite(lhFile, '<cp:lastModifiedBy>' + .GetXMLString(.UserName) + '</cp:lastModifiedBy>')
+          \\<cp:lastModifiedBy>' + .GetXMLString(.UserName) + '</cp:lastModifiedBy>
         Endif
-        If Version(5) < 900
-          Fwrite(lhFile, '<dcterms:created xsi:type="dcterms:W3CDTF">' + .ttoc3(Datetime()) + 'Z</dcterms:created>')
-          Fwrite(lhFile, '<dcterms:modified xsi:type="dcterms:W3CDTF">' + .ttoc3(Datetime()) + 'Z</dcterms:modified>')
-        Else
-          Fwrite(lhFile, '<dcterms:created xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:created>')
-          Fwrite(lhFile, '<dcterms:modified xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:modified>')
-        Endif
-        Fwrite(lhFile, '</cp:coreProperties>')
-        Fclose(lhFile)
-        Strtofile(Strconv(Filetostr(lcFileName), 9), lcFileName, 4)      && Save as UTF-8
+        \\<dcterms:created xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:created>
+        \\<dcterms:modified xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:modified>
+        \\</cp:coreProperties>
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
 
         llSuccess = True
 
@@ -9448,108 +9375,105 @@ Define Class vfpxworkbookxlsx As Custom
   Protected Procedure WriteWorkbookXML
     Lparameters tnWB, tcPath
     Local lcFileName, lhFile, loException, llSuccess, lcSheetName
-* TODO: заменить на textmerge
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 4)
       Try
         lcFileName = tcPath + "xl\workbook.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+ LF)
-        Fwrite(lhFile, '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">')
+        Set Textmerge On To Memvar lcOutStr Noshow
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        \<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 
 *-*	Write thw sheet information
-        Fwrite(lhFile, '<sheets>')
+        \\<sheets>
         Select xl_relationships
         Set Order To Tag relid
         Scan For workbook = tnWB And reltype = "worksheet"
           If Seek(BinToC(tnWB)+BinToC(xl_relationships.Sheet), "xl_sheets", "sheetndx")
             Do Case
             Case xl_sheets.state = VISIBLE_SHEET_STATE
-              Fwrite(lhFile, '<sheet r:id="rId' + Transform(xl_relationships.relid) + '" sheetId="' + Transform(xl_relationships.Sheet) + '" name="' + Alltrim(xl_sheets.shname) + '"/>')
+              \\<sheet r:id="rId<<Transform(xl_relationships.relid)>>" sheetId="<<Transform(xl_relationships.Sheet)>>" name="<<Alltrim(xl_sheets.shname)>>"/>
 
             Case xl_sheets.state = HIDDEN_SHEET_STATE
-              Fwrite(lhFile, '<sheet r:id="rId' + Transform(xl_relationships.relid) + '" sheetId="' + Transform(xl_relationships.Sheet) + '" state="hidden" name="' + Alltrim(xl_sheets.shname) + '"/>')
+              \\<sheet r:id="rId<<Transform(xl_relationships.relid)>>" sheetId="<<Transform(xl_relationships.Sheet)>>" state="hidden" name="<<Alltrim(xl_sheets.shname)>>"/>
 
             Case xl_sheets.state = VERYHIDDEN_SHEET_STATE
-              Fwrite(lhFile, '<sheet r:id="rId' + Transform(xl_relationships.relid) + '" sheetId="' + Transform(xl_relationships.Sheet) + '" state="veryHidden" name="' + Alltrim(xl_sheets.shname) + '"/>')
+              \\<sheet r:id="rId<<Transform(xl_relationships.relid)>>" sheetId="<<Transform(xl_relationships.Sheet)>>" state="veryHidden" name="<<Alltrim(xl_sheets.shname)>>"/>
             Endcase
           Else
             Throw
           Endif
         Endscan
         Set Order To
-        Fwrite(lhFile, '</sheets>')
+        \\</sheets>
 
 *-*	Write the named range information
         Select xl_namerange
         Locate For workbook = tnWB And !Deleted()
         If Found()
-          Fwrite(lhFile, '<definedNames>')
+          \\<definedNames>
           Scan For workbook = tnWB And !Deleted()
             If (xl_namerange.begcol = 0 And xl_namerange.begrow = 0) Or (xl_namerange.begcol = 0 And xl_namerange.begrow = 0)
               Loop
             Endif
-            Fwrite(lhFile, '<definedName name="' + Alltrim(xl_namerange.rname) + '"')
+            \\<definedName name="<<Alltrim(xl_namerange.rname)>>"
             If !Empty(xl_namerange.Comment)
-              Fwrite(lhFile, ' comment="' + Alltrim(xl_namerange.Comment) + '"')
+              \\ comment="<<Alltrim(xl_namerange.Comment)>>"
             Endif
             If xl_namerange.scope = SCOPE_SH_NAMED_RANGE
-              Fwrite(lhFile, ' localSheetId="' + Transform(xl_namerange.Sheet) + '"')
+              \\ localSheetId="<<Transform(xl_namerange.Sheet)>>"
             Endif
-            Fwrite(lhFile, '>')
+            \\>
 
             lcSheetName = .GetSheetName(tnWB, xl_namerange.Sheet)
             Fwrite(lhFile, Iif(Occurs(" ", lcSheetName)>0, "'", "") + lcSheetName + Iif(Occurs(" ", lcSheetName)>0, "'", ""))
             Do Case
             Case xl_namerange.begcol = 0 And xl_namerange.begrow > 0
-              Fwrite(lhFile, '!$' + Transform(xl_namerange.begrow))
+              \\!$<<Transform(xl_namerange.begrow)>>
 
             Case xl_namerange.begcol > 0 And xl_namerange.begrow = 0
-              Fwrite(lhFile, '!$' + .ColumnIndexToAscii(xl_namerange.begcol))
+              \\!$<<.ColumnIndexToAscii(xl_namerange.begcol)>>
 
             Otherwise
-              Fwrite(lhFile, '!$' + .ColumnIndexToAscii(xl_namerange.begcol) + '$' + Transform(xl_namerange.begrow))
+              \\!$<<.ColumnIndexToAscii(xl_namerange.begcol)>>$<<Transform(xl_namerange.begrow)>>
             Endcase
             Do Case
             Case xl_namerange.endcol = 0 And xl_namerange.endrow > 0
-              Fwrite(lhFile, ':$' + Transform(xl_namerange.endrow))
+              \\:$<<Transform(xl_namerange.endrow)>>
 
             Case xl_namerange.endcol > 0 And xl_namerange.begrow = 0
-              Fwrite(lhFile, ':$' + .ColumnIndexToAscii(xl_namerange.endcol))
+              \\:$<<.ColumnIndexToAscii(xl_namerange.endcol)>>
 
             Otherwise
-              Fwrite(lhFile, ':$' + .ColumnIndexToAscii(xl_namerange.endcol) + '$' + Transform(xl_namerange.endrow))
+              \\:$<<.ColumnIndexToAscii(xl_namerange.endcol)>>$<<Transform(xl_namerange.endrow)>>
             Endcase
-            Fwrite(lhFile, '</definedName>')
+            \\</definedName>
           Endscan
-          Fwrite(lhFile, '</definedNames>')
+          \\</definedNames>
         Endif
 
 *-*	Close the workbook
-        Fwrite(lhFile, '<calcPr calcId="0"/>')
-        Fwrite(lhFile, '</workbook>')
+        \\<calcPr calcId="0"/>
+        \\</workbook>
 
         llSuccess = True
 
       Catch To loException
-        Fclose(lhFile)
         Set Step On
         llSuccess = False
 
       Finally
-        Fclose(lhFile)
-        .SaveAsUtf8(lcFileName)
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
       Endtry
     Endwith
     Return llSuccess
 
   Protected Procedure Destroy
     Set Debugout To
-    This.DestroyWorkingCursors()
-    This.OnDestroy()
+    With This
+      .DestroyWorkingCursors()
+      .OnDestroy()
+    Endwith
 
   Protected Procedure Init
     Lparameters tnCodePage
