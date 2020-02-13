@@ -351,9 +351,9 @@ Define Class vfpxworkbookxlsx As Custom
     Return 0
   Endif
   With This
-    lcPosCode = .ParseString(tcFormatCode, 1, ";")
-    lcNegCode = .ParseString(tcFormatCode, 2, ";")
-    lcZerCode = .ParseString(tcFormatCode, 3, ";")
+    lcPosCode = GetWordNum(tcFormatCode, 1, ";")
+    lcNegCode = GetWordNum(tcFormatCode, 2, ";")
+    lcZerCode = GetWordNum(tcFormatCode, 3, ";")
     Return .AddCustomNumericFormat(tnWB, lcPosCode, lcNegCode, lcZerCode)
   Endwith
 
@@ -4012,33 +4012,6 @@ Define Class vfpxworkbookxlsx As Custom
     Endif
   Endwith
   Return lnWB
-
-*-- Parses a string based on a specified delimiter
-  Procedure ParseString
-  Lparameters tcText, tnPos, tcDelimiter
-* TODO: заменить все это на GetWordNum
-  Local lcWord, lnCnt, lnBeg, lnEnd
-  lnCnt = Occurs(tcDelimiter, tcText) + 1
-  If tnPos <= lnCnt
-    Do Case
-    Case lnCnt = 0
-      lcWord = tcText
-
-    Case tnPos = 1
-      lcWord = Left(tcText, Atc(tcDelimiter, tcText)-1)
-
-    Case tnPos = lnCnt
-      lcWord = Substr(tcText, Ratc(tcDelimiter, tcText)+1)
-
-    Otherwise
-      lnBeg = Atc(tcDelimiter, tcText, tnPos-1) + 1
-      lnEnd = Atc(tcDelimiter, tcText, tnPos)
-      lcWord = Substr(tcText, lnBeg, lnEnd-lnBeg)
-    Endcase
-    Return lcWord
-  Else
-    Return ""
-  Endif
 
 *-- Reads the cell value and format for a sheet
   Protected Procedure ReadCellValueFormat
