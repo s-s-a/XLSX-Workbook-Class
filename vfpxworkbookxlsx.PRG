@@ -144,273 +144,273 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Adds a new custom defined numeric format
   Procedure AddCustomNumericFormat
-  Lparameters tnWB, tcPosFormat, tcNegFormat, tcZeroFormat, tcTextFormat, tlApplyDec
-  Local lnId, lcFormatCode, lnNdx, lcSetPoint, lcSeparator
-  If Vartype(tcPosFormat) != "C"
-    Return 0
-  Endif
-  Do Case
-  Case Pcount() = 1
-    tcNegFormat  = ""
-    tcZeroFormat = ""
-    tcTextFormat = ""
-    tlApplyDec   = False
+    Lparameters tnWB, tcPosFormat, tcNegFormat, tcZeroFormat, tcTextFormat, tlApplyDec
+    Local lnId, lcFormatCode, lnNdx, lcSetPoint, lcSeparator
+    If Vartype(tcPosFormat) != "C"
+      Return 0
+    Endif
+    Do Case
+    Case Pcount() = 1
+      tcNegFormat  = ""
+      tcZeroFormat = ""
+      tcTextFormat = ""
+      tlApplyDec   = False
 
-  Case Pcount() = 2
-    tcZeroFormat = ""
-    tcTextFormat = ""
-    tlApplyDec   = False
+    Case Pcount() = 2
+      tcZeroFormat = ""
+      tcTextFormat = ""
+      tlApplyDec   = False
 
-  Case Pcount() = 3
-    tcTextFormat = ""
-    tlApplyDec   = False
+    Case Pcount() = 3
+      tcTextFormat = ""
+      tlApplyDec   = False
 
-  Case Pcount() = 4
-    tlApplyDec = False
-  Endcase
-  If Vartype(tcNegFormat) != "C"
-    tcNegFormat = ""
-  Endif
-  If Vartype(tcZeroFormat) != "C"
-    tcZeroFormat = ""
-  Endif
-  If Vartype(tcTextFormat) != "C"
-    tcTextFormat = ""
-  Endif
-  If Occurs(";", tcPosFormat) > 0 Or Occurs(";", tcNegFormat) > 0 Or Occurs(";", tcZeroFormat) > 0 Or Occurs(";", tcTextFormat) > 0
-    Return 0
-  Endif
+    Case Pcount() = 4
+      tlApplyDec = False
+    Endcase
+    If Vartype(tcNegFormat) != "C"
+      tcNegFormat = ""
+    Endif
+    If Vartype(tcZeroFormat) != "C"
+      tcZeroFormat = ""
+    Endif
+    If Vartype(tcTextFormat) != "C"
+      tcTextFormat = ""
+    Endif
+    If Occurs(";", tcPosFormat) > 0 Or Occurs(";", tcNegFormat) > 0 Or Occurs(";", tcZeroFormat) > 0 Or Occurs(";", tcTextFormat) > 0
+      Return 0
+    Endif
 *-*	If not US standard for separator and decimal point, then change to US standard
-  lcSetPoint  = Set("POINT")
-  lcSeparator = Set("SEPARATOR")
-  If lcSetPoint != "." Or lcSeparator != ","
-    tcPosFormat = Chrtran(Chrtran(tcPosFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
-    tcNegFormat = Chrtran(Chrtran(tcNegFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
-    tcZeroFormat = Chrtran(Chrtran(tcZeroFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
-    tcTextFormat = Chrtran(Chrtran(tcTextFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
-  Endif
+    lcSetPoint  = Set("POINT")
+    lcSeparator = Set("SEPARATOR")
+    If lcSetPoint != "." Or lcSeparator != ","
+      tcPosFormat = Chrtran(Chrtran(tcPosFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
+      tcNegFormat = Chrtran(Chrtran(tcNegFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
+      tcZeroFormat = Chrtran(Chrtran(tcZeroFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
+      tcTextFormat = Chrtran(Chrtran(tcTextFormat, lcSetPoint + lcSeparator, Tab + CR), Tab + CR, ".,")
+    Endif
 *-*	Build expression from parts
-  lcFormatCode = tcPosFormat
-  If !Empty(tcNegFormat)
-    lcFormatCode = lcFormatCode + ";" + tcNegFormat
-  Endif
-  If !Empty(tcZeroFormat)
-    lcFormatCode = lcFormatCode + ";" + tcZeroFormat
-  Endif
-  If !Empty(tcTextFormat)
-    lcFormatCode = lcFormatCode + ";" + tcTextFormat
-  Endif
-  lnId = This.GetNextId(tnWB, "xl_numfmts")
-  Insert Into xl_numFmts (workbook, Id, formatxml, formatcode, applydec) ;
-    VALUES (tnWB, lnId, This.GetXMLString(lcFormatCode), lcFormatCode, tlApplyDec)
-  Return lnId
+    lcFormatCode = tcPosFormat
+    If !Empty(tcNegFormat)
+      lcFormatCode = lcFormatCode + ";" + tcNegFormat
+    Endif
+    If !Empty(tcZeroFormat)
+      lcFormatCode = lcFormatCode + ";" + tcZeroFormat
+    Endif
+    If !Empty(tcTextFormat)
+      lcFormatCode = lcFormatCode + ";" + tcTextFormat
+    Endif
+    lnId = This.GetNextId(tnWB, "xl_numfmts")
+    Insert Into xl_numFmts (workbook, Id, formatxml, formatcode, applydec) ;
+      VALUES (tnWB, lnId, This.GetXMLString(lcFormatCode), lcFormatCode, tlApplyDec)
+    Return lnId
 
 *-- Adds a new indexed color definition
   Procedure AddIndexColor
-  Lparameters tnWB, tnRGBColor
-  Local lnIndexId, lcHexColor
-  If Pcount() != 2 Or Vartype(tnRGBColor) != "N"
-    Return 0
-  Endif
-  lcHexColor = This.ConvertColorToHex(tnRGBColor)
-  If Seek(BinToC(tnWB)+lcHexColor, "xl_ndxcolors", "rgbcolor")
-    lnIndexId = xl_ndxcolors.indexid
-  Else
-    lnIndexId = This.GetNextId(tnWB, "xl_ndxcolors")
-    Insert Into xl_ndxcolors (workbook, indexid, rgbcolor) Values (tnWB, lnIndexId, lcHexColor)
-  Endif
-  Return lnIndexId
+    Lparameters tnWB, tnRGBColor
+    Local lnIndexId, lcHexColor
+    If Pcount() != 2 Or Vartype(tnRGBColor) != "N"
+      Return 0
+    Endif
+    lcHexColor = This.ConvertColorToHex(tnRGBColor)
+    If Seek(BinToC(tnWB)+lcHexColor, "xl_ndxcolors", "rgbcolor")
+      lnIndexId = xl_ndxcolors.indexid
+    Else
+      lnIndexId = This.GetNextId(tnWB, "xl_ndxcolors")
+      Insert Into xl_ndxcolors (workbook, indexid, rgbcolor) Values (tnWB, lnIndexId, lcHexColor)
+    Endif
+    Return lnIndexId
 
 *-- Adds an object for setting the inline formatting of cell text
   Procedure AddInlineFontObject
-  Lparameters toInline, tnBeg, tnLen, tcFontName, tnFontSize, tnFontColor, tlFontBold, tlFontItalic, tcULine, tlStrkThru, tlSubscript, tlSuperscript
-  Local loCharacter
-  If Pcount() < 4 Or Vartype(toInline) != "O"
-    Return Null
-  Endif
-  Do Case
-  Case Pcount() = 4
-    tnFontSize    = 10
-    tnFontColor   = Rgb(0,0,0)
-    tlFontBold    = False
-    tlFontItalic  = False
-    tcULine       = UNDERLINE_NONE
-    tlStrkThru    = False
-    tlSubscript   = False
-    tlSuperscript = False
+    Lparameters toInline, tnBeg, tnLen, tcFontName, tnFontSize, tnFontColor, tlFontBold, tlFontItalic, tcULine, tlStrkThru, tlSubscript, tlSuperscript
+    Local loCharacter
+    If Pcount() < 4 Or Vartype(toInline) != "O"
+      Return Null
+    Endif
+    Do Case
+    Case Pcount() = 4
+      tnFontSize    = 10
+      tnFontColor   = Rgb(0,0,0)
+      tlFontBold    = False
+      tlFontItalic  = False
+      tcULine       = UNDERLINE_NONE
+      tlStrkThru    = False
+      tlSubscript   = False
+      tlSuperscript = False
 
-  Case Pcount() = 5
-    tnFontColor   = Rgb(0,0,0)
-    tlFontBold    = False
-    tlFontItalic  = False
-    tcULine       = UNDERLINE_NONE
-    tlStrkThru    = False
-    tlSubscript   = False
-    tlSuperscript = False
+    Case Pcount() = 5
+      tnFontColor   = Rgb(0,0,0)
+      tlFontBold    = False
+      tlFontItalic  = False
+      tcULine       = UNDERLINE_NONE
+      tlStrkThru    = False
+      tlSubscript   = False
+      tlSuperscript = False
 
-  Case Pcount() = 6
-    tlFontBold    = False
-    tlFontItalic  = False
-    tcULine       = UNDERLINE_NONE
-    tlStrkThru    = False
-    tlSubscript   = False
-    tlSuperscript = False
+    Case Pcount() = 6
+      tlFontBold    = False
+      tlFontItalic  = False
+      tcULine       = UNDERLINE_NONE
+      tlStrkThru    = False
+      tlSubscript   = False
+      tlSuperscript = False
 
-  Case Pcount() = 7
-    tlFontItalic  = False
-    tcULine       = UNDERLINE_NONE
-    tlStrkThru    = False
-    tlSubscript   = False
-    tlSuperscript = False
+    Case Pcount() = 7
+      tlFontItalic  = False
+      tcULine       = UNDERLINE_NONE
+      tlStrkThru    = False
+      tlSubscript   = False
+      tlSuperscript = False
 
-  Case Pcount() = 8
-    tcULine       = UNDERLINE_NONE
-    tlStrkThru    = False
-    tlSubscript   = False
-    tlSuperscript = False
+    Case Pcount() = 8
+      tcULine       = UNDERLINE_NONE
+      tlStrkThru    = False
+      tlSubscript   = False
+      tlSuperscript = False
 
-  Case Pcount() = 9
-    tlStrkThru    = False
-    tlSubscript   = False
-    tlSuperscript = False
+    Case Pcount() = 9
+      tlStrkThru    = False
+      tlSubscript   = False
+      tlSuperscript = False
 
-  Case Pcount() = 10
-    tlSubscript   = False
-    tlSuperscript = False
+    Case Pcount() = 10
+      tlSubscript   = False
+      tlSuperscript = False
 
-  Case Pcount() = 11
-    tlSuperscript = False
-  Endcase
-  loCharacter = Createobject("Empty")
-  AddProperty(loCharacter, "BegPos", tnBeg)
-  AddProperty(loCharacter, "Length", tnLen)
-  AddProperty(loCharacter, "FontName", tcFontName)
-  AddProperty(loCharacter, "FontSize", tnFontSize)
-  AddProperty(loCharacter, "FontBold", tlFontBold)
-  AddProperty(loCharacter, "FontItalic", tlFontItalic)
-  AddProperty(loCharacter, "FontColor", tnFontColor)
-  AddProperty(loCharacter, "Underline", tcULine)
-  AddProperty(loCharacter, "StrikeThru", tlStrkThru)
-  AddProperty(loCharacter, "SubScript", tlSubscript)
-  AddProperty(loCharacter, "SuperScript", tlSuperscript)
+    Case Pcount() = 11
+      tlSuperscript = False
+    Endcase
+    loCharacter = Createobject("Empty")
+    AddProperty(loCharacter, "BegPos", tnBeg)
+    AddProperty(loCharacter, "Length", tnLen)
+    AddProperty(loCharacter, "FontName", tcFontName)
+    AddProperty(loCharacter, "FontSize", tnFontSize)
+    AddProperty(loCharacter, "FontBold", tlFontBold)
+    AddProperty(loCharacter, "FontItalic", tlFontItalic)
+    AddProperty(loCharacter, "FontColor", tnFontColor)
+    AddProperty(loCharacter, "Underline", tcULine)
+    AddProperty(loCharacter, "StrikeThru", tlStrkThru)
+    AddProperty(loCharacter, "SubScript", tlSubscript)
+    AddProperty(loCharacter, "SuperScript", tlSuperscript)
 
-  toInline.Count = toInline.Count + 1
-  Dimension toInline.Characters[toInline.Count]
-  toInline.Characters[toInline.Count] = loCharacter
+    toInline.Count = toInline.Count + 1
+    Dimension toInline.Characters[toInline.Count]
+    toInline.Characters[toInline.Count] = loCharacter
 
-  Return toInline
+    Return toInline
 
 *-- Adds a custom defined MRU color to the workbook
   Procedure AddMruColor
-  Lparameters tnWB, tnRGBColor
-  Local lnIndexId, lcHexColor
-  If Pcount() != 2 Or Vartype(tnRGBColor) != "N"
-    Return 0
-  Endif
-  With This
-    lcHexColor = .ConvertColorToHex(tnRGBColor)
-    If Seek(BinToC(tnWB)+lcHexColor, "xl_mrucolors", "rgbcolor")
-      lnIndexId = xl_mrucolors.indexid
-    Else
-      lnIndexId = .GetNextId(tnWB, "xl_mrucolors")
-      Insert Into xl_mrucolors (workbook, indexid, rgbcolor) Values (tnWB, lnIndexId, lcHexColor)
+    Lparameters tnWB, tnRGBColor
+    Local lnIndexId, lcHexColor
+    If Pcount() != 2 Or Vartype(tnRGBColor) != "N"
+      Return 0
     Endif
-  Endwith
-  Return lnIndexId
+    With This
+      lcHexColor = .ConvertColorToHex(tnRGBColor)
+      If Seek(BinToC(tnWB)+lcHexColor, "xl_mrucolors", "rgbcolor")
+        lnIndexId = xl_mrucolors.indexid
+      Else
+        lnIndexId = .GetNextId(tnWB, "xl_mrucolors")
+        Insert Into xl_mrucolors (workbook, indexid, rgbcolor) Values (tnWB, lnIndexId, lcHexColor)
+      Endif
+    Endwith
+    Return lnIndexId
 
 *-- Adds a name range to the workbook
   Procedure AddNamedRange
-  Lparameters tnWB, tnSheet, tcName, tnScope, tcComment, tnBegRow, tnBegCol, tnEndRow, tnEndCol
-  Local lcRangeName
-  If Pcount() < 8 Or Vartype(tcName) != "C" Or Len(tcName) > 50 Or Len(tcComment) > 254 Or tnBegRow > tnEndRow Or tnBegCol > tnEndCol
-    Return ""
-  Endif
-  If Vartype(tnScope) != "N"
-    tnScope = 0
-  Endif
-  If Vartype(tcComment) != "C"
-    tcComment = ""
-  Endif
-  lcRangeName = Chrtran(Alltrim(tcName), " !@#$%^&*()+={}[]|<>,.'?/" + Chr(34), Replicate("_", 25))
-  If !Isalpha(lcRangeName) And !Inlist(Left(lcRangeName, 1), "_", "\")
-    lcRangeName = "_" + lcRangeName
-  Endif
-  If Seek(BinToC(tnWB), "xl_workbooks", "workbook") And !Seek(BinToC(tnWB)+Padl(lcRangeName, 254, " "), "xl_namerange", "wbrname")
-    Insert Into xl_namerange (workbook, Sheet, rname, scope, Comment, begrow, begcol, endrow, endcol) ;
-      VALUES (tnWB, tnSheet, lcRangeName, tnScope, tcComment, tnBegRow, tnBegCol, tnEndRow, tnEndCol)
-  Else
-    lcRangeName = ""
-  Endif
-  Return lcRangeName
+    Lparameters tnWB, tnSheet, tcName, tnScope, tcComment, tnBegRow, tnBegCol, tnEndRow, tnEndCol
+    Local lcRangeName
+    If Pcount() < 8 Or Vartype(tcName) != "C" Or Len(tcName) > 50 Or Len(tcComment) > 254 Or tnBegRow > tnEndRow Or tnBegCol > tnEndCol
+      Return ""
+    Endif
+    If Vartype(tnScope) != "N"
+      tnScope = 0
+    Endif
+    If Vartype(tcComment) != "C"
+      tcComment = ""
+    Endif
+    lcRangeName = Chrtran(Alltrim(tcName), " !@#$%^&*()+={}[]|<>,.'?/" + Chr(34), Replicate("_", 25))
+    If !Isalpha(lcRangeName) And !Inlist(Left(lcRangeName, 1), "_", "\")
+      lcRangeName = "_" + lcRangeName
+    Endif
+    If Seek(BinToC(tnWB), "xl_workbooks", "workbook") And !Seek(BinToC(tnWB)+Padl(lcRangeName, 254, " "), "xl_namerange", "wbrname")
+      Insert Into xl_namerange (workbook, Sheet, rname, scope, Comment, begrow, begcol, endrow, endcol) ;
+        VALUES (tnWB, tnSheet, lcRangeName, tnScope, tcComment, tnBegRow, tnBegCol, tnEndRow, tnEndCol)
+    Else
+      lcRangeName = ""
+    Endif
+    Return lcRangeName
 
 *-- Adds a numeric format expression to be used
   Procedure AddNumericFormat
-  Lparameters tnWB, tcFormatCode
-  Local lcPosCode, lcNegCode, lcZerCode
-  If Pcount() < 2 Or (Vartype(tnWB) != "N" And tnWB > 0) Or Vartype(tcFormatCode) != "C"
-    Return 0
-  Endif
-  With This
-    lcPosCode = Getwordnum(tcFormatCode, 1, ";")
-    lcNegCode = Getwordnum(tcFormatCode, 2, ";")
-    lcZerCode = Getwordnum(tcFormatCode, 3, ";")
-    Return .AddCustomNumericFormat(tnWB, lcPosCode, lcNegCode, lcZerCode)
-  Endwith
+    Lparameters tnWB, tcFormatCode
+    Local lcPosCode, lcNegCode, lcZerCode
+    If Pcount() < 2 Or (Vartype(tnWB) != "N" And tnWB > 0) Or Vartype(tcFormatCode) != "C"
+      Return 0
+    Endif
+    With This
+      lcPosCode = Getwordnum(tcFormatCode, 1, ";")
+      lcNegCode = Getwordnum(tcFormatCode, 2, ";")
+      lcZerCode = Getwordnum(tcFormatCode, 3, ";")
+      Return .AddCustomNumericFormat(tnWB, lcPosCode, lcNegCode, lcZerCode)
+    Endwith
 
 *-- Adds a new sheet to the workbook
   Procedure AddSheet
-  Lparameters tnWB, tcSheetName, tnState
-  Local lnShId, lnRelId
-  lnShId = 0
-  With This
-    If Pcount() > 0 And Seek(BinToC(tnWB), "xl_workbooks", "workbook")
-      lnShId = .GetNextId(tnWB, "xl_sheets")
-      Do Case
-      Case Pcount() = 0
+    Lparameters tnWB, tcSheetName, tnState
+    Local lnShId, lnRelId
+    lnShId = 0
+    With This
+      If Pcount() > 0 And Seek(BinToC(tnWB), "xl_workbooks", "workbook")
+        lnShId = .GetNextId(tnWB, "xl_sheets")
+        Do Case
+        Case Pcount() = 0
 
-      Case Pcount() = 1
-        tcSheetName = "Sheet" + Transform(lnShId + 1)        && Bug fix identified by Dan Lauer
-        tnState = VISIBLE_SHEET_STATE
-
-      Case Pcount() = 2
-        If Vartype(tcSheetName) != "C"
-          tcSheetName = "Sheet" + Transform(lnShId + 1)
-        Endif
-        tnState = VISIBLE_SHEET_STATE
-
-      Otherwise
-        If Vartype(tcSheetName) != "C"
-          tcSheetName = "Sheet" + Transform(lnShId + 1)
-        Endif
-        If Vartype(tnState) != "N"
+        Case Pcount() = 1
+          tcSheetName = "Sheet" + Transform(lnShId + 1)        && Bug fix identified by Dan Lauer
           tnState = VISIBLE_SHEET_STATE
-        Endif
-      Endcase
-      If Empty(tcSheetName)
-        tcSheetName = "Sheet" + Transform(lnShId + 1)
-      Endif
-      tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
-      If Len(tcSheetName) > LIMITS_MAX_SH_NAME
-        If .AutoTrimSheetName
-          tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
-        Else
-          .SetLastId(tnWB, lnShId-1, "xl_sheets")
-          Return 0
-        Endif
-      Endif
-      If Seek(BinToC(tnWB)+Upper(Padr(tcSheetName, Len(xl_sheets.shname))), "xl_sheets", "shname")    && Change recommendation by Doug Hennig
-        lnShId = 0
-      Else
-        Insert Into xl_sheets (workbook, Sheet, shname, state, mleft, mright, mtop, mbot, mheader, mfooter, shdeleted, xsplit, ysplit, prnorient, ;
-          papersize, Paperwidth, paperheight, Scale, fittowidth, fittoheight) ;
-          VALUES (tnWB, lnShId, tcSheetName, tnState, 0.75, 0.75, 0.75, 0.75, 0.3, 0.3, False, 0, 0, PORTRAIT_PRINT_ORIENTATION, 0, 0, 0, 100, 0, 0)
 
-        lnRelId = This.GetNextId(tnWB, "xl_relationships")
-        Insert Into xl_relationships (workbook, Sheet, relid, reltype, Target) Values (tnWB, lnShId, lnRelId, "worksheet", "worksheets/sheet" + Transform(lnShId) + ".xml")
+        Case Pcount() = 2
+          If Vartype(tcSheetName) != "C"
+            tcSheetName = "Sheet" + Transform(lnShId + 1)
+          Endif
+          tnState = VISIBLE_SHEET_STATE
+
+        Otherwise
+          If Vartype(tcSheetName) != "C"
+            tcSheetName = "Sheet" + Transform(lnShId + 1)
+          Endif
+          If Vartype(tnState) != "N"
+            tnState = VISIBLE_SHEET_STATE
+          Endif
+        Endcase
+        If Empty(tcSheetName)
+          tcSheetName = "Sheet" + Transform(lnShId + 1)
+        Endif
+        tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
+        If Len(tcSheetName) > LIMITS_MAX_SH_NAME
+          If .AutoTrimSheetName
+            tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
+          Else
+            .SetLastId(tnWB, lnShId-1, "xl_sheets")
+            Return 0
+          Endif
+        Endif
+        If Seek(BinToC(tnWB)+Upper(Padr(tcSheetName, Len(xl_sheets.shname))), "xl_sheets", "shname")    && Change recommendation by Doug Hennig
+          lnShId = 0
+        Else
+          Insert Into xl_sheets (workbook, Sheet, shname, state, mleft, mright, mtop, mbot, mheader, mfooter, shdeleted, xsplit, ysplit, prnorient, ;
+            papersize, Paperwidth, paperheight, Scale, fittowidth, fittoheight) ;
+            VALUES (tnWB, lnShId, tcSheetName, tnState, 0.75, 0.75, 0.75, 0.75, 0.3, 0.3, False, 0, 0, PORTRAIT_PRINT_ORIENTATION, 0, 0, 0, 100, 0, 0)
+
+          lnRelId = This.GetNextId(tnWB, "xl_relationships")
+          Insert Into xl_relationships (workbook, Sheet, relid, reltype, Target) Values (tnWB, lnShId, lnRelId, "worksheet", "worksheets/sheet" + Transform(lnShId) + ".xml")
+        Endif
       Endif
-    Endif
-  Endwith
-  Return lnShId
+    Endwith
+    Return lnShId
 
 *-- Adds a string value to the internal cursor
   Protected Procedure AddStringValue
@@ -441,404 +441,404 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Adds to the cell style a border definition
   Procedure AddStyleBorders
-  Lparameters tnWB, tnCellXfsId, tnBorders, tcStyle, tnColor
-  Local lnDiagDn, lnDiagUp, lcLStyle, lnLColor, lcRStyle, lnRColor, lcTStyle, lnTColor, lcBStyle, lnBColor
-  Local lcDStyle, lnDColor, lnBorderId
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tnBorders) != 'N' Or Empty(tnBorders) Or !Between(tnBorders, 0, 63)
-      tnBorders = 0
+    Lparameters tnWB, tnCellXfsId, tnBorders, tcStyle, tnColor
+    Local lnDiagDn, lnDiagUp, lcLStyle, lnLColor, lcRStyle, lnRColor, lcTStyle, lnTColor, lcBStyle, lnBColor
+    Local lcDStyle, lnDColor, lnBorderId
+    If Pcount() < 3
+      Return False
     Endif
-    If !This.IsValidBorderStyle(tcStyle)
-      tcStyle = BORDER_STYLE_NONE
-    Endif
-    If Vartype(tnColor) != 'N' Or !Between(tnColor, 0, Rgb(255,255,255)) Or Empty(tnColor)
-      tnColor = Rgb(0, 0, 0)
-    Endif
-    Store 0 To lnDiagDn, lnDiagUp
-    Store Rgb(0,0,0) To lnLColor, lnRColor, lnTColor, lnBColor, lnDColor
-    Store BORDER_STYLE_NONE To lcLStyle, lcRStyle, lcTStyle, lcBStyle, lcDStyle
-    If Bittest(tnBorders, 0)
-      lcLStyle = tcStyle
-      lnLColor = tnColor
-    Endif
-    If Bittest(tnBorders, 1)
-      lcRStyle = tcStyle
-      lnRColor = tnColor
-    Endif
-    If Bittest(tnBorders, 2)
-      lcTStyle = tcStyle
-      lnTColor = tnColor
-    Endif
-    If Bittest(tnBorders, 3)
-      lcBStyle = tcStyle
-      lnBColor = tnColor
-    Endif
-    If Bittest(tnBorders, 4)
-      lcDStyle = tcStyle
-      lnDColor = tnColor
-      lnDiagDn = 1
-    Endif
-    If Bittest(tnBorders, 5)
-      lcDStyle = tcStyle
-      lnDColor = tnColor
-      lnDiagUp = 1
-    Endif
-    If This.GetBordersRecord(tnWB, lcLStyle, lnLColor, lcRStyle, lnRColor, lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp)
-      lnBorderId = xl_borders.Id
-    Else
-      lnBorderId = This.GetNextId(tnWB, 'xl_borders')
-      Insert Into xl_borders (workbook, Id, lstyle, lcolor, rstyle, rcolor, tstyle, tcolor, bstyle, bcolor, dstyle, dcolor, diagdn, diagup) ;
-        VALUES (tnWB, lnBorderId, lcLStyle, lnLColor, lcRStyle, lnRColor, lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp)
-    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tnBorders) != 'N' Or Empty(tnBorders) Or !Between(tnBorders, 0, 63)
+        tnBorders = 0
+      Endif
+      If !This.IsValidBorderStyle(tcStyle)
+        tcStyle = BORDER_STYLE_NONE
+      Endif
+      If Vartype(tnColor) != 'N' Or !Between(tnColor, 0, Rgb(255,255,255)) Or Empty(tnColor)
+        tnColor = Rgb(0, 0, 0)
+      Endif
+      Store 0 To lnDiagDn, lnDiagUp
+      Store Rgb(0,0,0) To lnLColor, lnRColor, lnTColor, lnBColor, lnDColor
+      Store BORDER_STYLE_NONE To lcLStyle, lcRStyle, lcTStyle, lcBStyle, lcDStyle
+      If Bittest(tnBorders, 0)
+        lcLStyle = tcStyle
+        lnLColor = tnColor
+      Endif
+      If Bittest(tnBorders, 1)
+        lcRStyle = tcStyle
+        lnRColor = tnColor
+      Endif
+      If Bittest(tnBorders, 2)
+        lcTStyle = tcStyle
+        lnTColor = tnColor
+      Endif
+      If Bittest(tnBorders, 3)
+        lcBStyle = tcStyle
+        lnBColor = tnColor
+      Endif
+      If Bittest(tnBorders, 4)
+        lcDStyle = tcStyle
+        lnDColor = tnColor
+        lnDiagDn = 1
+      Endif
+      If Bittest(tnBorders, 5)
+        lcDStyle = tcStyle
+        lnDColor = tnColor
+        lnDiagUp = 1
+      Endif
+      If This.GetBordersRecord(tnWB, lcLStyle, lnLColor, lcRStyle, lnRColor, lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp)
+        lnBorderId = xl_borders.Id
+      Else
+        lnBorderId = This.GetNextId(tnWB, 'xl_borders')
+        Insert Into xl_borders (workbook, Id, lstyle, lcolor, rstyle, rcolor, tstyle, tcolor, bstyle, bcolor, dstyle, dcolor, diagdn, diagup) ;
+          VALUES (tnWB, lnBorderId, lcLStyle, lnLColor, lcRStyle, lnRColor, lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp)
+      Endif
 *-*	Set the border id to the style definition
-    Replace xl_cellxfs.borderid With lnBorderId In xl_cellxfs
-    Return True
-  Else
-    Return False
-  Endif
+      Replace xl_cellxfs.borderid With lnBorderId In xl_cellxfs
+      Return True
+    Else
+      Return False
+    Endif
 
 *-- Adds to the cell style a fill definition
   Procedure AddStyleFill
-  Lparameters tnWB, tnCellXfsId, tnFColor, tnBColor, tcPatternType
-  Local lnFillId, lnFIndex, lnBIndex
-  Do Case
-  Case Pcount() < 3
-    Return False
+    Lparameters tnWB, tnCellXfsId, tnFColor, tnBColor, tcPatternType
+    Local lnFillId, lnFIndex, lnBIndex
+    Do Case
+    Case Pcount() < 3
+      Return False
 
-  Case Pcount() = 3
-    tnBColor = tnFColor
-    tcPatternType = FILL_STYLE_SOLID
-
-  Case Pcount() = 4
-    tcPatternType = FILL_STYLE_SOLID
-  Endcase
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255))
-      tnFColor = Floor(tnFColor)
-      lnFIndex = 0
-    Else
-      tnFColor = 0
-      lnFIndex = 64
-    Endif
-    If Vartype(tnBColor) = 'N' And Between(tnBColor, 0, Rgb(255, 255, 255))
-      tnBColor = Floor(tnBColor)
-      lnBIndex = 0
-    Else
+    Case Pcount() = 3
       tnBColor = tnFColor
-      lnBIndex = lnFIndex
-    Endif
-    If Vartype(tcPatternType) != "C" Or Empty(tcPatternType)
       tcPatternType = FILL_STYLE_SOLID
-    Endif
+
+    Case Pcount() = 4
+      tcPatternType = FILL_STYLE_SOLID
+    Endcase
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255))
+        tnFColor = Floor(tnFColor)
+        lnFIndex = 0
+      Else
+        tnFColor = 0
+        lnFIndex = 64
+      Endif
+      If Vartype(tnBColor) = 'N' And Between(tnBColor, 0, Rgb(255, 255, 255))
+        tnBColor = Floor(tnBColor)
+        lnBIndex = 0
+      Else
+        tnBColor = tnFColor
+        lnBIndex = lnFIndex
+      Endif
+      If Vartype(tcPatternType) != "C" Or Empty(tcPatternType)
+        tcPatternType = FILL_STYLE_SOLID
+      Endif
 *-*	Get the fill record id
-    If Seek(BinToC(tnWB)+BinToC(tnFColor)+BinToC(tnBColor)+tcPatternType, "xl_fills", "fillcolor")
-      lnFillId = xl_fills.Id
-      Replace xl_fills.Theme     With 0, ;
-        xl_fills.tint      With 0, ;
-        xl_fills.fgindexed With lnFIndex, ;
-        xl_fills.bgindexed With lnBIndex In xl_fills
-    Else
-      lnFillId = This.GetNextId(tnWB, 'xl_fills')
-      Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
-        VALUES (tnWB, lnFillId, tnFColor, tnBColor, tcPatternType, 0, 0, lnFIndex, lnBIndex)
-    Endif
+      If Seek(BinToC(tnWB)+BinToC(tnFColor)+BinToC(tnBColor)+tcPatternType, "xl_fills", "fillcolor")
+        lnFillId = xl_fills.Id
+        Replace xl_fills.Theme     With 0, ;
+          xl_fills.tint      With 0, ;
+          xl_fills.fgindexed With lnFIndex, ;
+          xl_fills.bgindexed With lnBIndex In xl_fills
+      Else
+        lnFillId = This.GetNextId(tnWB, 'xl_fills')
+        Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
+          VALUES (tnWB, lnFillId, tnFColor, tnBColor, tcPatternType, 0, 0, lnFIndex, lnBIndex)
+      Endif
 *-*	Set the fill id to the style definition
-    Replace xl_cellxfs.fillid With lnFillId In xl_cellxfs
-    Return True
-  Else
-    Return False
-  Endif
+      Replace xl_cellxfs.fillid With lnFillId In xl_cellxfs
+      Return True
+    Else
+      Return False
+    Endif
 
 *-- Adds to the cell style a font definition
   Procedure AddStyleFont
-  Lparameters tnWB, tnCellXfsId, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
-  Local lnFontId
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tcFName) != 'C' Or Empty(tcFName)
-      tcFName = 'Calibri'
+    Lparameters tnWB, tnCellXfsId, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
+    Local lnFontId
+    If Pcount() < 3
+      Return False
     Endif
-    tcFName = Proper(Alltrim(tcFName))
-    tnFSize = Iif(Vartype(tnFSize) != 'N' Or Empty(tnFSize) Or tnFSize < 0.5, 11, Int(tnFSize))
-    If Vartype(tlBold) != 'L'
-      tlBold = False
-    Endif
-    If Vartype(tlItalic) != 'L'
-      tlItalic = False
-    Endif
-    tnFColor = Iif(Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255)), Floor(tnFColor), Rgb(0, 0, 0))
-    If Vartype(tlStrikThr) != 'L'
-      tlStrikThr = False
-    Endif
-    If Vartype(tcULine) != 'C' Or !Inlist(tcULine, UNDERLINE_SINGLE, UNDERLINE_DOUBLE, UNDERLINE_SINGLEACCOUNTING, UNDERLINE_DOUBLEACCOUNTING, UNDERLINE_NONE)
-      tcULine = UNDERLINE_NONE
-    Endif
-    If Vartype(tcVPos) != 'C' Or !Inlist(tcVPos, FONT_VERTICAL_BASELINE, FONT_VERTICAL_SUBSCRIPT, FONT_VERTICAL_SUPERSCRIPT)
-      tcVPos = FONT_VERTICAL_BASELINE
-    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tcFName) != 'C' Or Empty(tcFName)
+        tcFName = 'Calibri'
+      Endif
+      tcFName = Proper(Alltrim(tcFName))
+      tnFSize = Iif(Vartype(tnFSize) != 'N' Or Empty(tnFSize) Or tnFSize < 0.5, 11, Int(tnFSize))
+      If Vartype(tlBold) != 'L'
+        tlBold = False
+      Endif
+      If Vartype(tlItalic) != 'L'
+        tlItalic = False
+      Endif
+      tnFColor = Iif(Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255)), Floor(tnFColor), Rgb(0, 0, 0))
+      If Vartype(tlStrikThr) != 'L'
+        tlStrikThr = False
+      Endif
+      If Vartype(tcULine) != 'C' Or !Inlist(tcULine, UNDERLINE_SINGLE, UNDERLINE_DOUBLE, UNDERLINE_SINGLEACCOUNTING, UNDERLINE_DOUBLEACCOUNTING, UNDERLINE_NONE)
+        tcULine = UNDERLINE_NONE
+      Endif
+      If Vartype(tcVPos) != 'C' Or !Inlist(tcVPos, FONT_VERTICAL_BASELINE, FONT_VERTICAL_SUBSCRIPT, FONT_VERTICAL_SUPERSCRIPT)
+        tcVPos = FONT_VERTICAL_BASELINE
+      Endif
 *-*	Get the font record id
-    If Seek(BinToC(tnWB)+Padr(tcFName, 100) + Str(tnFSize, 5, 1) + Transform(tlBold) + Transform(tlItalic) + Padl(tnFColor, 15) + Padr(tcULine, 16) + ;
-        TRANSFORM(tlStrikThr) + Padr(tcVPos, 11), "xl_fonts", "cellformat")
+      If Seek(BinToC(tnWB)+Padr(tcFName, 100) + Str(tnFSize, 5, 1) + Transform(tlBold) + Transform(tlItalic) + Padl(tnFColor, 15) + Padr(tcULine, 16) + ;
+          TRANSFORM(tlStrikThr) + Padr(tcVPos, 11), "xl_fonts", "cellformat")
 
-      lnFontId = xl_fonts.Id
-      Replace xl_fonts.Theme   With 0, ;
-        xl_fonts.tint    With 0, ;
-        xl_fonts.indexed With 0 In xl_fonts
-    Else
-      lnFontId = This.GetNextId(tnWB, 'xl_fonts')
-      Insert Into xl_fonts (workbook, Id, fname, Fsize, fbold, fitalic, fcolor, uline, strkthr, fvpos) ;
-        VALUES (tnWB, lnFontId, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos)
-    Endif
+        lnFontId = xl_fonts.Id
+        Replace xl_fonts.Theme   With 0, ;
+          xl_fonts.tint    With 0, ;
+          xl_fonts.indexed With 0 In xl_fonts
+      Else
+        lnFontId = This.GetNextId(tnWB, 'xl_fonts')
+        Insert Into xl_fonts (workbook, Id, fname, Fsize, fbold, fitalic, fcolor, uline, strkthr, fvpos) ;
+          VALUES (tnWB, lnFontId, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos)
+      Endif
 *-*	Set the font id to the style definition
-    Replace xl_cellxfs.fontid With lnFontId In xl_cellxfs
-    Return True
-  Else
-    Return False
-  Endif
+      Replace xl_cellxfs.fontid With lnFontId In xl_cellxfs
+      Return True
+    Else
+      Return False
+    Endif
 
 *-- Adds to the cell style horizontal cell alignment
   Procedure AddStyleHorizAlignment
-  Lparameters tnWB, tnCellXfsId, tcHorizAlign
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tcHorizAlign) = 'C' And Inlist(tcHorizAlign, CELL_HORIZ_ALIGN_LEFT, CELL_HORIZ_ALIGN_RIGHT, CELL_HORIZ_ALIGN_CENTER)
-      Replace xl_cellxfs.halign With tcHorizAlign In xl_cellxfs
-      Return True
+    Lparameters tnWB, tnCellXfsId, tcHorizAlign
+    If Pcount() < 3
+      Return False
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tcHorizAlign) = 'C' And Inlist(tcHorizAlign, CELL_HORIZ_ALIGN_LEFT, CELL_HORIZ_ALIGN_RIGHT, CELL_HORIZ_ALIGN_CENTER)
+        Replace xl_cellxfs.halign With tcHorizAlign In xl_cellxfs
+        Return True
+      Else
+        Return False
+      Endif
     Else
       Return False
     Endif
-  Else
-    Return False
-  Endif
 
 *-- Adds to the style indent definition
   Procedure AddStyleIndent
-  Lparameters tnWB, tnCellXfsId, tnIndent
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tnIndent) = 'N'
-      Replace xl_cellxfs.indent With tnIndent In xl_cellxfs
-      Return True
+    Lparameters tnWB, tnCellXfsId, tnIndent
+    If Pcount() < 3
+      Return False
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tnIndent) = 'N'
+        Replace xl_cellxfs.indent With tnIndent In xl_cellxfs
+        Return True
+      Else
+        Return False
+      Endif
     Else
       Return False
     Endif
-  Else
-    Return False
-  Endif
 
 *-- Adds to the style definition numeric format
   Procedure AddStyleNumericFormat
-  Lparameters tnWB, tnCellXfsId, tnNumFmtId
-  Local lnNumFmtId
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    Do Case
-    Case Vartype(tnNumFmtId) != 'N'
+    Lparameters tnWB, tnCellXfsId, tnNumFmtId
+    Local lnNumFmtId
+    If Pcount() < 3
       Return False
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      Do Case
+      Case Vartype(tnNumFmtId) != 'N'
+        Return False
 
-    Case tnNumFmtId < START_NUMERIC_FORMAT_ID
-      lnNumFmtId = tnNumFmtId
-
-    Case tnNumFmtId >= START_NUMERIC_FORMAT_ID
-      If Seek(BinToC(tnWB)+BinToC(tnNumFmtId), "xl_numfmts", "id")
-        lnNumFmtId = xl_numFmts.Id
-      Else
-        If !This.AddClassDefinedNumericFormats(tnWB, tnNumFmtId)
-          Return False
-        Endif
+      Case tnNumFmtId < START_NUMERIC_FORMAT_ID
         lnNumFmtId = tnNumFmtId
-      Endif
 
-    Otherwise
+      Case tnNumFmtId >= START_NUMERIC_FORMAT_ID
+        If Seek(BinToC(tnWB)+BinToC(tnNumFmtId), "xl_numfmts", "id")
+          lnNumFmtId = xl_numFmts.Id
+        Else
+          If !This.AddClassDefinedNumericFormats(tnWB, tnNumFmtId)
+            Return False
+          Endif
+          lnNumFmtId = tnNumFmtId
+        Endif
+
+      Otherwise
+        Return False
+      Endcase
+      Replace xl_cellxfs.numfmtid With lnNumFmtId In xl_cellxfs
+      Return True
+    Else
       Return False
-    Endcase
-    Replace xl_cellxfs.numfmtid With lnNumFmtId In xl_cellxfs
-    Return True
-  Else
-    Return False
-  Endif
+    Endif
 
 *-- Adds to the style definition text rotation
   Procedure AddStyleTextRotation
-  Lparameters tnWB, tnCellXfsId, tnRotation
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tnRotation) = 'N' And Between(tnRotation, -90, 90)
-      Replace xl_cellxfs.Rotation With tnRotation In xl_cellxfs
-      Return True
+    Lparameters tnWB, tnCellXfsId, tnRotation
+    If Pcount() < 3
+      Return False
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tnRotation) = 'N' And Between(tnRotation, -90, 90)
+        Replace xl_cellxfs.Rotation With tnRotation In xl_cellxfs
+        Return True
+      Else
+        Return False
+      Endif
     Else
       Return False
     Endif
-  Else
-    Return False
-  Endif
 
 *-- Adds to the cell style vertical cell alignment
   Procedure AddStyleVertAlignment
-  Lparameters tnWB, tnCellXfsId, tcVertAlign
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tcVertAlign) = 'C' And Inlist(tcVertAlign, CELL_VERT_ALIGN_TOP, CELL_VERT_ALIGN_BOTTOM, CELL_VERT_ALIGN_CENTER)
-      Replace xl_cellxfs.valign With tcVertAlign In xl_cellxfs
-      Return True
+    Lparameters tnWB, tnCellXfsId, tcVertAlign
+    If Pcount() < 3
+      Return False
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tcVertAlign) = 'C' And Inlist(tcVertAlign, CELL_VERT_ALIGN_TOP, CELL_VERT_ALIGN_BOTTOM, CELL_VERT_ALIGN_CENTER)
+        Replace xl_cellxfs.valign With tcVertAlign In xl_cellxfs
+        Return True
+      Else
+        Return False
+      Endif
     Else
       Return False
     Endif
-  Else
-    Return False
-  Endif
 
 *-- Adds to the style definition word wrap
   Procedure AddStyleWordWrap
-  Lparameters tnWB, tnCellXfsId, tlWordWrap
-  If Pcount() < 3
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If Vartype(tlWordWrap) = 'L'
-      Replace xl_cellxfs.wraptext With Iif(tlWordWrap, 1, 0) In xl_cellxfs
-      Return True
+    Lparameters tnWB, tnCellXfsId, tlWordWrap
+    If Pcount() < 3
+      Return False
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If Vartype(tlWordWrap) = 'L'
+        Replace xl_cellxfs.wraptext With Iif(tlWordWrap, 1, 0) In xl_cellxfs
+        Return True
+      Else
+        Return False
+      Endif
     Else
       Return False
     Endif
-  Else
-    Return False
-  Endif
 
 *-- Copies the formatting of a source cell to other cells
   Procedure CellFormatPainter
-  Lparameters tnWB, tnSheet, tnSrcRow, tnSrcCol, tnBegRow, tnBegCol, tnEndRow, tnEndCol
-  Local lnCellXfs, lnNumDec, llReturn, lnRow, lnCol
-  Do Case
-  Case Pcount() < 6
-    Return False
+    Lparameters tnWB, tnSheet, tnSrcRow, tnSrcCol, tnBegRow, tnBegCol, tnEndRow, tnEndCol
+    Local lnCellXfs, lnNumDec, llReturn, lnRow, lnCol
+    Do Case
+    Case Pcount() < 6
+      Return False
 
-  Case Pcount() = 6
-    tnEndRow = tnBegRow
-    tnEndCol = tnBegCol
+    Case Pcount() = 6
+      tnEndRow = tnBegRow
+      tnEndCol = tnBegCol
 
-  Case Pcount() = 7
-    tnEndCol = tnBegCol
-  Endcase
-  If This.GetCellRecord(tnWB, tnSheet, tnSrcRow, tnSrcCol)
-    lnCellXfs = xl_cells.cellxfs
-    lnNumDec  = xl_cells.numdec
-    For lnRow=tnBegRow To tnEndRow
-      For lnCol=tnBegCol To tnEndCol
-        If This.GetCellRecord(tnWB, tnSheet, lnRow, lnCol)
-          Replace xl_cells.cellxfs With lnCellXfs, ;
-            xl_cells.numdec  With lnNumDec In xl_cells
-        Else
-          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-            VALUES (tnWB, tnSheet, lnRow, lnCol, DATA_TYPE_NONE, lnCellXfs, False, lnNumDec, 0)
-        Endif
+    Case Pcount() = 7
+      tnEndCol = tnBegCol
+    Endcase
+    If This.GetCellRecord(tnWB, tnSheet, tnSrcRow, tnSrcCol)
+      lnCellXfs = xl_cells.cellxfs
+      lnNumDec  = xl_cells.numdec
+      For lnRow=tnBegRow To tnEndRow
+        For lnCol=tnBegCol To tnEndCol
+          If This.GetCellRecord(tnWB, tnSheet, lnRow, lnCol)
+            Replace xl_cells.cellxfs With lnCellXfs, ;
+              xl_cells.numdec  With lnNumDec In xl_cells
+          Else
+            Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+              VALUES (tnWB, tnSheet, lnRow, lnCol, DATA_TYPE_NONE, lnCellXfs, False, lnNumDec, 0)
+          Endif
+        Endfor
       Endfor
-    Endfor
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  Return llReturn
+      llReturn = True
+    Else
+      llReturn = False
+    Endif
+    Return llReturn
 
 *-- Converts a 'AA444' cell reference to the row and column index values
   Procedure CellRefAsciiToIndex
-  Lparameters tcCellRef
-  Local lnCellCol, lnNdx, lnCellRow, loCellRef
-  lnCellCol = This.ColumnAsciiToIndex(tcCellRef)
-  lnCellRow = 0
-  For lnNdx=1 To Len(tcCellRef)
-    If Isdigit(Substr(tcCellRef, lnNdx))
-      lnCellRow = Int(Val(Substr(tcCellRef, lnNdx)))
-      Exit
-    Endif
-  Endfor
-  loCellRef = Createobject("Empty")
-  AddProperty(loCellRef, "Column", lnCellCol)
-  AddProperty(loCellRef, "Row", lnCellRow)
-  Return loCellRef
+    Lparameters tcCellRef
+    Local lnCellCol, lnNdx, lnCellRow, loCellRef
+    lnCellCol = This.ColumnAsciiToIndex(tcCellRef)
+    lnCellRow = 0
+    For lnNdx=1 To Len(tcCellRef)
+      If Isdigit(Substr(tcCellRef, lnNdx))
+        lnCellRow = Int(Val(Substr(tcCellRef, lnNdx)))
+        Exit
+      Endif
+    Endfor
+    loCellRef = Createobject("Empty")
+    AddProperty(loCellRef, "Column", lnCellCol)
+    AddProperty(loCellRef, "Row", lnCellRow)
+    Return loCellRef
 
 *-- Clears/deletes the named range from the workbook
   Procedure ClearCellValidation
-  Lparameters tnWB, tcName
-  If Pcount() < 2
-    Return False
-  Endif
-  If Vartype(tcName) != "C"
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+Padl(tcName, 254, " "), "xl_namerange", "wbrname")
-    Delete In xl_namerange
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  Return llReturn
+    Lparameters tnWB, tcName
+    If Pcount() < 2
+      Return False
+    Endif
+    If Vartype(tcName) != "C"
+      Return False
+    Endif
+    If Seek(BinToC(tnWB)+Padl(tcName, 254, " "), "xl_namerange", "wbrname")
+      Delete In xl_namerange
+      llReturn = True
+    Else
+      llReturn = False
+    Endif
+    Return llReturn
 
 *-- Clears the cell value
   Procedure ClearCellValue
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local llReturn
-  If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-    Replace xl_cells.celldeleted With True In xl_cells
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  Return llReturn
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local llReturn
+    If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+      Replace xl_cells.celldeleted With True In xl_cells
+      llReturn = True
+    Else
+      llReturn = False
+    Endif
+    Return llReturn
 
 *-- Converts Excel Ascii column value to index value
   Procedure ColumnAsciiToIndex
-  Lparameters tcColIndex
-  Local lnIndex, lnNdx, lnChr
-  lnIndex = 0
-  For lnNdx=1 To Len(tcColIndex)
-    lnChr = Asc(Upper(Substr(tcColIndex, lnNdx, 1)))
-    If Between(lnChr, 65, 90)
-      lnIndex = (lnChr - 64) + (lnIndex * 26)
-    Else
-      Exit
-    Endif
-  Endfor
-  Return lnIndex
+    Lparameters tcColIndex
+    Local lnIndex, lnNdx, lnChr
+    lnIndex = 0
+    For lnNdx=1 To Len(tcColIndex)
+      lnChr = Asc(Upper(Substr(tcColIndex, lnNdx, 1)))
+      If Between(lnChr, 65, 90)
+        lnIndex = (lnChr - 64) + (lnIndex * 26)
+      Else
+        Exit
+      Endif
+    Endfor
+    Return lnIndex
 
 *-- Gets the column ASCII code for the column index
   Procedure ColumnIndexToAscii
-  Lparameters tnCol
-  Local lnRemCol, lcColumn, lnPartCol
-  If Pcount() = 0 Or Vartype(tnCol) != "N"
-    Return ""
-  Endif
-  Try
-    lnRemCol = tnCol
-    lcColumn = ""
-    Do While lnRemCol > 0
-      lnPartCol = Mod(lnRemCol, 26)
-      If lnPartCol = 0
-        lnPartCol = 26
-      Endif
-      lnRemCol = (lnRemCol - lnPartCol) / 26
-      lcColumn = Chr(lnPartCol + 64)  + lcColumn
-    Enddo
+    Lparameters tnCol
+    Local lnRemCol, lcColumn, lnPartCol
+    If Pcount() = 0 Or Vartype(tnCol) != "N"
+      Return ""
+    Endif
+    Try
+      lnRemCol = tnCol
+      lcColumn = ""
+      Do While lnRemCol > 0
+        lnPartCol = Mod(lnRemCol, 26)
+        If lnPartCol = 0
+          lnPartCol = 26
+        Endif
+        lnRemCol = (lnRemCol - lnPartCol) / 26
+        lcColumn = Chr(lnPartCol + 64)  + lcColumn
+      Enddo
 
-  Catch To loException
-    Set Step On
-  Endtry
-  Return lcColumn
+    Catch To loException
+      Set Step On
+    Endtry
+    Return lcColumn
 
 *-- Converts a color value (integer) to Hex representation
   Protected Procedure ConvertColorToHex
@@ -871,8 +871,8 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Converts Pixel measurement to Excel measurement
   Procedure ConvertPixelsToExcelUnits
-  Lparameters tnPixels
-  Return tnPixels * 0.152542
+    Lparameters tnPixels
+    Return tnPixels * 0.152542
 
 *-- Creates the Excel file from the components
   Protected Procedure CreateExcelFile
@@ -970,67 +970,67 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Creates a new format style definition
   Procedure CreateFormatStyle
-  Lparameters tnWB
-  If Pcount() > 0 And Seek(BinToC(tnWB), "xl_workbooks", "workbook")
-    lnId = This.GetNextId(tnWB, "xl_cellxfs")
-    Insert Into xl_cellxfs (workbook, Id, numfmtid, fontid, fillid, borderid, halign, valign, indent, wraptext, Rotation) ;
-      VALUES (tnWB, lnId, 0, 0, 0, 0, "", "", 0, 0, 0)
-    Return lnId
-  Else
-    Return -1
-  Endif
+    Lparameters tnWB
+    If Pcount() > 0 And Seek(BinToC(tnWB), "xl_workbooks", "workbook")
+      lnId = This.GetNextId(tnWB, "xl_cellxfs")
+      Insert Into xl_cellxfs (workbook, Id, numfmtid, fontid, fillid, borderid, halign, valign, indent, wraptext, Rotation) ;
+        VALUES (tnWB, lnId, 0, 0, 0, 0, "", "", 0, 0, 0)
+      Return lnId
+    Else
+      Return -1
+    Endif
 
 *-- Creates an in-line text formatted definition
   Procedure CreateInlineFormatText
-  Lparameters tnWB, tcCellText
-  Local loInline
-  loInline = Createobject("Empty")
-  AddProperty(loInline, "Workbook", tnWB)
-  AddProperty(loInline, "StringId", Null)
-  AddProperty(loInline, "StringValue", tcCellText)
-  AddProperty(loInline, "Count", 0)
-  AddProperty(loInline, "Characters[1]")
-  loInline.Characters[1] = Null
-  Return loInline
+    Lparameters tnWB, tcCellText
+    Local loInline
+    loInline = Createobject("Empty")
+    AddProperty(loInline, "Workbook", tnWB)
+    AddProperty(loInline, "StringId", Null)
+    AddProperty(loInline, "StringValue", tcCellText)
+    AddProperty(loInline, "Count", 0)
+    AddProperty(loInline, "Characters[1]")
+    loInline.Characters[1] = Null
+    Return loInline
 
 *-- Creates a new workbook object
   Procedure CreateWorkbook
-  Lparameters tcName
-  Local lcWBName, lcPath, lnWB
-  If Pcount() = 1
-    tlLoadDefaults = True
-  Endif
-  lcWBName = Juststem(tcName)
-  lcPath   = Justpath(tcName)
-  If Empty(lcPath)
-    lcPath = Sys(5) + Sys(2003)
-    tcName = Addbs(lcPath) + lcWBName + "." + Justext(tcName)
-  Endif
-  With This
-    If Seek(Padr(Upper(tcName), 240, "_"), "xl_workbooks", "fullname")
-      lnWB = 0
-    Else
-      Insert Into xl_workbooks (wbname, filepath, FullName) Values (lcWBName, lcPath, Padr(Upper(tcName), 240, "_"))
-
-      lnWB = xl_workbooks.workbook
-      .SetDefaultFont(lnWB, This.DefaultFont, This.DefaultFontSize)        && Change recommended by Doug Hennig; 2017-06-12
-      .SetDefaultBorder(lnWB, BORDER_STYLE_NONE)
-
-      Insert Into xl_relationships (workbook, relid, reltype, Target) Values (lnWB, 1, "styles", "styles.xml")
-      Insert Into xl_relationships (workbook, relid, reltype, Target) Values (lnWB, 2, "sharedStrings", "sharedStrings.xml")
-      .SetLastId(lnWB, 2, "xl_relationships")
-
-      Insert Into xl_cellxfs (workbook, Id, numfmtid, fontid, fillid, borderid, halign, valign, indent, wraptext) ;
-        VALUES (lnWB, 0, 0, 0, 0, 0, "", "", 0, 0)
-
-      Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
-        VALUES (lnWB, 0, 0, 0, FILL_STYLE_NONE, 0, 0, 0, 0)
-
-      Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
-        VALUES (lnWB, 1, 0, 0, FILL_STYLE_GRAY125, 0, 0, 0, 0)
+    Lparameters tcName
+    Local lcWBName, lcPath, lnWB
+    If Pcount() = 1
+      tlLoadDefaults = True
     Endif
-  Endwith
-  Return lnWB
+    lcWBName = Juststem(tcName)
+    lcPath   = Justpath(tcName)
+    If Empty(lcPath)
+      lcPath = Sys(5) + Sys(2003)
+      tcName = Addbs(lcPath) + lcWBName + "." + Justext(tcName)
+    Endif
+    With This
+      If Seek(Padr(Upper(tcName), 240, "_"), "xl_workbooks", "fullname")
+        lnWB = 0
+      Else
+        Insert Into xl_workbooks (wbname, filepath, FullName) Values (lcWBName, lcPath, Padr(Upper(tcName), 240, "_"))
+
+        lnWB = xl_workbooks.workbook
+        .SetDefaultFont(lnWB, This.DefaultFont, This.DefaultFontSize)        && Change recommended by Doug Hennig; 2017-06-12
+        .SetDefaultBorder(lnWB, BORDER_STYLE_NONE)
+
+        Insert Into xl_relationships (workbook, relid, reltype, Target) Values (lnWB, 1, "styles", "styles.xml")
+        Insert Into xl_relationships (workbook, relid, reltype, Target) Values (lnWB, 2, "sharedStrings", "sharedStrings.xml")
+        .SetLastId(lnWB, 2, "xl_relationships")
+
+        Insert Into xl_cellxfs (workbook, Id, numfmtid, fontid, fillid, borderid, halign, valign, indent, wraptext) ;
+          VALUES (lnWB, 0, 0, 0, 0, 0, "", "", 0, 0)
+
+        Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
+          VALUES (lnWB, 0, 0, 0, FILL_STYLE_NONE, 0, 0, 0, 0)
+
+        Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
+          VALUES (lnWB, 1, 0, 0, FILL_STYLE_GRAY125, 0, 0, 0, 0)
+      Endif
+    Endwith
+    Return lnWB
 
 *-- Internal method for creating a workbook
   Protected Procedure CreateBorkbookEx
@@ -1203,287 +1203,287 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Debugging use for saving the internal cursors to a text file
   Procedure DebugCursorsToFile
-  Lparameters tcStemName
-  Local lnNumFlds, lcField, lcLineText, lnFld, lcFileName
-  Local Array laFields[1, 18]
-  Select xl_workbooks
-  Set Order To Tag workbook
-  lnNumFlds = Afields(laFields, "xl_workbooks")
-  lcFileText = "Cursor: xl_workbooks" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_workbooks.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_workbooks.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Lparameters tcStemName
+    Local lnNumFlds, lcField, lcLineText, lnFld, lcFileName
+    Local Array laFields[1, 18]
+    Select xl_workbooks
+    Set Order To Tag workbook
+    lnNumFlds = Afields(laFields, "xl_workbooks")
+    lcFileText = "Cursor: xl_workbooks" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_workbooks.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_workbooks.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_sheets
-  Set Order To Tag sheetndx
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_sheets")
-  lcFileText = lcFileText + "Cursor: xl_sheets" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_sheets.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_sheets.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_sheets
+    Set Order To Tag sheetndx
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_sheets")
+    lcFileText = lcFileText + "Cursor: xl_sheets" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_sheets.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_sheets.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_cells
-  Set Order To Tag cellindex
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_cells")
-  lcFileText = lcFileText + "Cursor: xl_cells" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_cells.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_cells.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_cells
+    Set Order To Tag cellindex
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_cells")
+    lcFileText = lcFileText + "Cursor: xl_cells" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_cells.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_cells.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_strings
-  Set Order To Tag stringid
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_strings")
-  lcFileText = lcFileText + "Cursor: xl_strings" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_strings.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_strings.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_strings
+    Set Order To Tag stringid
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_strings")
+    lcFileText = lcFileText + "Cursor: xl_strings" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_strings.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_strings.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_mergecells
-  Set Order To Tag mergecell
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_mergecells")
-  lcFileText = lcFileText + "Cursor: xl_mergecells" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_mergecells.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_mergecells.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_mergecells
+    Set Order To Tag mergecell
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_mergecells")
+    lcFileText = lcFileText + "Cursor: xl_mergecells" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_mergecells.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_mergecells.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_colwidths
-  Set Order To Tag shcolumn
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_colwidths")
-  lcFileText = lcFileText + "Cursor: xl_colwidths" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_colwidths.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_colwidths.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_colwidths
+    Set Order To Tag shcolumn
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_colwidths")
+    lcFileText = lcFileText + "Cursor: xl_colwidths" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_colwidths.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_colwidths.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_fonts
-  Set Order To Tag Id
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_fonts")
-  lcFileText = lcFileText + "Cursor: xl_fonts" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_fonts.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_fonts.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_fonts
+    Set Order To Tag Id
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_fonts")
+    lcFileText = lcFileText + "Cursor: xl_fonts" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_fonts.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_fonts.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_fills
-  Set Order To Tag Id
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_fills")
-  lcFileText = lcFileText + "Cursor: xl_fills" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_fills.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_fills.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_fills
+    Set Order To Tag Id
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_fills")
+    lcFileText = lcFileText + "Cursor: xl_fills" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_fills.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_fills.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_numFmts
-  Set Order To Tag Id
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_numfmts")
-  lcFileText = lcFileText + "Cursor: xl_numfmts" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_numFmts.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_numFmts.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_numFmts
+    Set Order To Tag Id
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_numfmts")
+    lcFileText = lcFileText + "Cursor: xl_numfmts" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_numFmts.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_numFmts.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_borders
-  Set Order To Tag Id
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_borders")
-  lcFileText = lcFileText + "Cursor: xl_borders" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_borders.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_borders.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_borders
+    Set Order To Tag Id
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_borders")
+    lcFileText = lcFileText + "Cursor: xl_borders" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_borders.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_borders.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_rowheights
-  Set Order To Tag shrow
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_rowheights")
-  lcFileText = lcFileText + "Cursor: xl_rowheights" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_rowheights.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_rowheights.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_rowheights
+    Set Order To Tag shrow
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_rowheights")
+    lcFileText = lcFileText + "Cursor: xl_rowheights" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_rowheights.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_rowheights.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_hdrfooterdefn
-  Set Order To Tag wbsheet
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_hdrfooterdefn")
-  lcFileText = lcFileText + "Cursor: xl_hdrfooterdefn" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_hdrfooterdefn.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_hdrfooterdefn.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_hdrfooterdefn
+    Set Order To Tag wbsheet
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_hdrfooterdefn")
+    lcFileText = lcFileText + "Cursor: xl_hdrfooterdefn" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_hdrfooterdefn.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_hdrfooterdefn.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  Select xl_hdrfootertext
-  Set Order To Tag hdrfootr
-  lcFileName = tcStemName + " " + Alias() + ".txt"
-  List To File (lcFileName) Noconsole
-  lnNumFlds = Afields(laFields, "xl_hdrfootertext")
-  lcFileText = lcFileText + "Cursor: xl_hdrfootertext" + CRLF
-  Scan
-    lcField = Lower(laFields[1, 1])
-    lcLineText = lcField + ": " + Transform(xl_hdrfootertext.&lcField)
-    For lnFld=2 To lnNumFlds
-      lcField = Lower(laFields[lnFld, 1])
-      lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_hdrfootertext.&lcField)
-    Endfor
-    lcFileText = lcFileText + lcLineText + CRLF
-  Endscan
-  lcFileText = lcFileText + CRLF + CRLF + CRLF
-  Set Order To
+    Select xl_hdrfootertext
+    Set Order To Tag hdrfootr
+    lcFileName = tcStemName + " " + Alias() + ".txt"
+    List To File (lcFileName) Noconsole
+    lnNumFlds = Afields(laFields, "xl_hdrfootertext")
+    lcFileText = lcFileText + "Cursor: xl_hdrfootertext" + CRLF
+    Scan
+      lcField = Lower(laFields[1, 1])
+      lcLineText = lcField + ": " + Transform(xl_hdrfootertext.&lcField)
+      For lnFld=2 To lnNumFlds
+        lcField = Lower(laFields[lnFld, 1])
+        lcLineText = lcLineText + ";  " + lcField + ": " + Transform(xl_hdrfootertext.&lcField)
+      Endfor
+      lcFileText = lcFileText + lcLineText + CRLF
+    Endscan
+    lcFileText = lcFileText + CRLF + CRLF + CRLF
+    Set Order To
 
-  lcFileName = tcStemName + " Cursors.txt"
-  Strtofile(lcFileText, lcFileName)
+    lcFileName = tcStemName + " Cursors.txt"
+    Strtofile(lcFileText, lcFileName)
 
 *-- Limited functions for debugging
   Procedure DebugOutput
-  Local lnWB, lnSh
-  With This
-    lnWB = .CreateWorkbook("ExcelDebug.xlsx")
+    Local lnWB, lnSh
+    With This
+      lnWB = .CreateWorkbook("ExcelDebug.xlsx")
 
-    lnSh = .AddSheet(lnWB, "Debug Output")
+      lnSh = .AddSheet(lnWB, "Debug Output")
 
-    .SetCellValue(lnWB, lnSh, 1, 1, "Test string 1")
-    .SetCellValue(lnWB, lnSh, 2, 1, "Test string 2")
-    .SetCellValue(lnWB, lnSh, 3, 1, "Test string 3")
-    .SetCellValue(lnWB, lnSh, 4, 1, "Test string 4")
-    .SetCellValue(lnWB, lnSh, 5, 1, "Test string 5")
+      .SetCellValue(lnWB, lnSh, 1, 1, "Test string 1")
+      .SetCellValue(lnWB, lnSh, 2, 1, "Test string 2")
+      .SetCellValue(lnWB, lnSh, 3, 1, "Test string 3")
+      .SetCellValue(lnWB, lnSh, 4, 1, "Test string 4")
+      .SetCellValue(lnWB, lnSh, 5, 1, "Test string 5")
 
-    .SetCellValue(lnWB, lnSh, 8, 1, "This is a long Test string for word-wrapping to occur This is a long Test string for word-wrapping to occur")
-    .SetCellWordWrap(lnWB, lnSh, 8, 1, True)
-    .SetRowHeight(lnWB, lnSh, 8, 75)
-    .SetColumnWidth(lnWB, lnSh, 1, 25)
+      .SetCellValue(lnWB, lnSh, 8, 1, "This is a long Test string for word-wrapping to occur This is a long Test string for word-wrapping to occur")
+      .SetCellWordWrap(lnWB, lnSh, 8, 1, True)
+      .SetRowHeight(lnWB, lnSh, 8, 75)
+      .SetColumnWidth(lnWB, lnSh, 1, 25)
 
-    .SetCellValue(lnWB, lnSh, 10, 1, Date(2015, 5, 6))
-    .SetCellValue(lnWB, lnSh, 11, 1, Datetime(2015, 5, 6, 6, 30, 30))
+      .SetCellValue(lnWB, lnSh, 10, 1, Date(2015, 5, 6))
+      .SetCellValue(lnWB, lnSh, 11, 1, Datetime(2015, 5, 6, 6, 30, 30))
 
-    .SetCellFont(lnWB, lnSh, 1, 1, "Arial",                14,   True,         , Rgb(0,0,255))
-    .SetCellFont(lnWB, lnSh, 2, 1, "Times New Roman",        ,       ,         , Rgb(0,0,255))
-    .SetCellFont(lnWB, lnSh, 3, 1, "Consolas"       ,      14,   True)
-    .SetCellFont(lnWB, lnSh, 4, 1, "Arial",                24,   True,     True, Rgb(0,0,255))
-    .SetCellFont(lnWB, lnSh, 5, 1, "Cooper Black"   ,      12,       ,         ,             )
+      .SetCellFont(lnWB, lnSh, 1, 1, "Arial",                14,   True,         , Rgb(0,0,255))
+      .SetCellFont(lnWB, lnSh, 2, 1, "Times New Roman",        ,       ,         , Rgb(0,0,255))
+      .SetCellFont(lnWB, lnSh, 3, 1, "Consolas"       ,      14,   True)
+      .SetCellFont(lnWB, lnSh, 4, 1, "Arial",                24,   True,     True, Rgb(0,0,255))
+      .SetCellFont(lnWB, lnSh, 5, 1, "Cooper Black"   ,      12,       ,         ,             )
 
-    .SetCellBorder(lnWB, lnSh, 2, 1, BORDER_TOP+BORDER_BOTTOM, BORDER_STYLE_THICK,  Rgb(100,150,200))
-    .SetCellBorder(lnWB, lnSh, 5, 1, BORDER_LEFT+BORDER_RIGHT, BORDER_STYLE_DOUBLE, Rgb(255,0,0))
+      .SetCellBorder(lnWB, lnSh, 2, 1, BORDER_TOP+BORDER_BOTTOM, BORDER_STYLE_THICK,  Rgb(100,150,200))
+      .SetCellBorder(lnWB, lnSh, 5, 1, BORDER_LEFT+BORDER_RIGHT, BORDER_STYLE_DOUBLE, Rgb(255,0,0))
 
-    .SetCellFill(lnWB, lnSh, 1, 1, Rgb(255,204,153))
-    .SetCellFill(lnWB, lnSh, 3, 1, Rgb(204,255,255))
+      .SetCellFill(lnWB, lnSh, 1, 1, Rgb(255,204,153))
+      .SetCellFill(lnWB, lnSh, 3, 1, Rgb(204,255,255))
 
-    .SaveWorkbook(lnWB)
-  Endwith
+      .SaveWorkbook(lnWB)
+    Endwith
 
   Procedure Debug_Assign
-  Lparameters tlDebug
-  If tlDebug
-    Set Debugout To "VFPXWorkbookXLSXDebug.txt"
-  Endif
-  This.Debug = tlDebug
+    Lparameters tlDebug
+    If tlDebug
+      Set Debugout To "VFPXWorkbookXLSXDebug.txt"
+    Endif
+    This.Debug = tlDebug
 
 *-- Declares the required support Win32 API
   Protected Procedure DeclareDLL
@@ -1495,246 +1495,246 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Deletes all workbooks
   Procedure DeleteAllWorkbooks
-  Local loException
-  Try
-    With This
-      .DestroyWorkingCursors()
-      .CreateWorkingCursors()
-      .InitalizeIdValues()
-    Endw
+    Local loException
+    Try
+      With This
+        .DestroyWorkingCursors()
+        .CreateWorkingCursors()
+        .InitalizeIdValues()
+      Endw
 
-  Catch To loException
-    Set Step On
-  Endtry
+    Catch To loException
+      Set Step On
+    Endtry
 
 *-- Deletes the sheet from the Workbook
   Procedure DeleteSheet
-  Lparameters tnWB, txSheet
-  Local lnSheet, lxReturn
-  lxReturn = False
-  Do Case
-  Case Vartype(txSheet) = "C"
-    If Seek(BinToC(tnWB)+Upper(txSheet), "xl_sheets", "shname") And Seek(BinToC(tnWB)+BinToC(xl_sheets.Sheet), "xl_relationships", "sheet")
-      lnSheet = xl_sheets.Sheet
-      Replace xl_sheets.shdeleted With True In xl_sheets
-      Delete In xl_sheets
-      Delete In xl_relationships
-      lxReturn = True
-    Endif
+    Lparameters tnWB, txSheet
+    Local lnSheet, lxReturn
+    lxReturn = False
+    Do Case
+    Case Vartype(txSheet) = "C"
+      If Seek(BinToC(tnWB)+Upper(txSheet), "xl_sheets", "shname") And Seek(BinToC(tnWB)+BinToC(xl_sheets.Sheet), "xl_relationships", "sheet")
+        lnSheet = xl_sheets.Sheet
+        Replace xl_sheets.shdeleted With True In xl_sheets
+        Delete In xl_sheets
+        Delete In xl_relationships
+        lxReturn = True
+      Endif
 
-  Case Vartype(txSheet) = "N"
-    If Seek(BinToC(tnWB)+BinToC(txSheet), "xl_sheets", "sheetndx") And Seek(BinToC(tnWB)+BinToC(xl_sheets.Sheet), "xl_relationships", "sheet")
-      lnSheet = txSheet
-      Replace xl_sheets.shdeleted With True In xl_sheets
-      Delete In xl_sheets
-      Delete In xl_relationships
-      lxReturn = True
+    Case Vartype(txSheet) = "N"
+      If Seek(BinToC(tnWB)+BinToC(txSheet), "xl_sheets", "sheetndx") And Seek(BinToC(tnWB)+BinToC(xl_sheets.Sheet), "xl_relationships", "sheet")
+        lnSheet = txSheet
+        Replace xl_sheets.shdeleted With True In xl_sheets
+        Delete In xl_sheets
+        Delete In xl_relationships
+        lxReturn = True
+      Endif
+    Endcase
+    If lxReturn
+      Replace xl_cells.celldeleted With True For workbook = tnWB And Sheet = lnSheet In xl_cells
+      Delete For workbook = tnWB And Sheet = lnSheet In xl_cells
     Endif
-  Endcase
-  If lxReturn
-    Replace xl_cells.celldeleted With True For workbook = tnWB And Sheet = lnSheet In xl_cells
-    Delete For workbook = tnWB And Sheet = lnSheet In xl_cells
-  Endif
-  Return lxReturn
+    Return lxReturn
 
 *-- Deletes the selected workbook
   Procedure DeleteWorkbook
-  Lparameters tnWB
-  Local llSuccess, lnNdx
-  Try
-    Replace xl_sheets.shdeleted  With True For workbook = tnWB In xl_sheets
-    Replace xl_cells.celldeleted With True For workbook = tnWB In xl_cells
-    Delete For workbook = tnWB In xl_workbooks
-    Delete For workbook = tnWB In xl_sheets
-    Delete For workbook = tnWB In xl_cells
-    Delete For workbook = tnWB In xl_strformat
-    Delete For workbook = tnWB In xl_strings
-    Delete For workbook = tnWB In xl_cellxfs
-    Delete For workbook = tnWB In xl_fonts
-    Delete For workbook = tnWB In xl_fills
-    Delete For workbook = tnWB In xl_borders
-    Delete For workbook = tnWB In xl_mergecells
-    Delete For workbook = tnWB In xl_colwidths
-    Delete For workbook = tnWB In xl_hdrfooterdefn
-    Delete For workbook = tnWB In xl_hdrfootertext
-    Delete For workbook = tnWB In xl_rowheights
-    Delete For workbook = tnWB In xl_validation
-    Delete For workbook = tnWB In xl_namerange
-    Delete For workbook = tnWB In xl_numFmts
-    Delete For workbook = tnWB In xl_rows
-    Delete For workbook = tnWB In xl_ndxcolors
-    Delete For workbook = tnWB In xl_mrucolors
-    Delete For workbook = tnWB In xl_relationships
-    Delete For workbook = tnWB In xl_extsheets
-    Delete For workbook = tnWB In xl_extcells
+    Lparameters tnWB
+    Local llSuccess, lnNdx
+    Try
+      Replace xl_sheets.shdeleted  With True For workbook = tnWB In xl_sheets
+      Replace xl_cells.celldeleted With True For workbook = tnWB In xl_cells
+      Delete For workbook = tnWB In xl_workbooks
+      Delete For workbook = tnWB In xl_sheets
+      Delete For workbook = tnWB In xl_cells
+      Delete For workbook = tnWB In xl_strformat
+      Delete For workbook = tnWB In xl_strings
+      Delete For workbook = tnWB In xl_cellxfs
+      Delete For workbook = tnWB In xl_fonts
+      Delete For workbook = tnWB In xl_fills
+      Delete For workbook = tnWB In xl_borders
+      Delete For workbook = tnWB In xl_mergecells
+      Delete For workbook = tnWB In xl_colwidths
+      Delete For workbook = tnWB In xl_hdrfooterdefn
+      Delete For workbook = tnWB In xl_hdrfootertext
+      Delete For workbook = tnWB In xl_rowheights
+      Delete For workbook = tnWB In xl_validation
+      Delete For workbook = tnWB In xl_namerange
+      Delete For workbook = tnWB In xl_numFmts
+      Delete For workbook = tnWB In xl_rows
+      Delete For workbook = tnWB In xl_ndxcolors
+      Delete For workbook = tnWB In xl_mrucolors
+      Delete For workbook = tnWB In xl_relationships
+      Delete For workbook = tnWB In xl_extsheets
+      Delete For workbook = tnWB In xl_extcells
 
-    With This
-      lnNdx = Ascan(.LastBorderId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastBorderId, lnNdx)
-        lnNdx = Alen(.LastBorderId, 1) - 1
+      With This
+        lnNdx = Ascan(.LastBorderId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastBorderId[lnNdx, 2]
-        Else
-          .LastBorderId[1, 1] = 0                                          && Workbook Id
-          .LastBorderId[1, 2] = 0                                          && Last Border Id
+          Adel(.LastBorderId, lnNdx)
+          lnNdx = Alen(.LastBorderId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastBorderId[lnNdx, 2]
+          Else
+            .LastBorderId[1, 1] = 0                                          && Workbook Id
+            .LastBorderId[1, 2] = 0                                          && Last Border Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastCellXfsId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastCellXfsId, lnNdx)
-        lnNdx = Alen(.LastCellXfsId, 1) - 1
+        lnNdx = Ascan(.LastCellXfsId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastCellXfsId[lnNdx, 2]
-        Else
-          .LastCellXfsId[1, 1] = 0                                         && Workbook Id
-          .LastCellXfsId[1, 2] = 0                                         && Last CellXfs Id
+          Adel(.LastCellXfsId, lnNdx)
+          lnNdx = Alen(.LastCellXfsId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastCellXfsId[lnNdx, 2]
+          Else
+            .LastCellXfsId[1, 1] = 0                                         && Workbook Id
+            .LastCellXfsId[1, 2] = 0                                         && Last CellXfs Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastFillId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastFillId, lnNdx)
-        lnNdx = Alen(.LastFillId, 1) - 1
+        lnNdx = Ascan(.LastFillId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastFillId[lnNdx, 2]
-        Else
-          .LastFillId[1, 1] = 0                                            && Workbook Id
-          .LastFillId[1, 2] = 0                                            && Last Fill Id
+          Adel(.LastFillId, lnNdx)
+          lnNdx = Alen(.LastFillId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastFillId[lnNdx, 2]
+          Else
+            .LastFillId[1, 1] = 0                                            && Workbook Id
+            .LastFillId[1, 2] = 0                                            && Last Fill Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastFontId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastFontId, lnNdx)
-        lnNdx = Alen(.LastFontId, 1) - 1
+        lnNdx = Ascan(.LastFontId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastFontId[lnNdx, 2]
-        Else
-          .LastFontId[1, 1] = 0                                            && Workbook Id
-          .LastFontId[1, 2] = 0                                            && Last Font Id
+          Adel(.LastFontId, lnNdx)
+          lnNdx = Alen(.LastFontId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastFontId[lnNdx, 2]
+          Else
+            .LastFontId[1, 1] = 0                                            && Workbook Id
+            .LastFontId[1, 2] = 0                                            && Last Font Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastIndexColorId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastIndexColorId, lnNdx)
-        lnNdx = Alen(.LastIndexColorId, 1) - 1
+        lnNdx = Ascan(.LastIndexColorId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastIndexColorId[lnNdx, 2]
-        Else
-          .LastIndexColorId[1, 1] = 0                                      && Workbook Id
-          .LastIndexColorId[1, 2] = 0                                      && Last IndexColor Id
+          Adel(.LastIndexColorId, lnNdx)
+          lnNdx = Alen(.LastIndexColorId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastIndexColorId[lnNdx, 2]
+          Else
+            .LastIndexColorId[1, 1] = 0                                      && Workbook Id
+            .LastIndexColorId[1, 2] = 0                                      && Last IndexColor Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastMruColorId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastMruColorId, lnNdx)
-        lnNdx = Alen(.LastMruColorId, 1) - 1
+        lnNdx = Ascan(.LastMruColorId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastMruColorId[lnNdx, 2]
-        Else
-          .LastMruColorId[1, 1] = 0                                        && Workbook Id
-          .LastMruColorId[1, 2] = 0                                        && Last mruColor Id
+          Adel(.LastMruColorId, lnNdx)
+          lnNdx = Alen(.LastMruColorId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastMruColorId[lnNdx, 2]
+          Else
+            .LastMruColorId[1, 1] = 0                                        && Workbook Id
+            .LastMruColorId[1, 2] = 0                                        && Last mruColor Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastNumFmtId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastNumFmtId, lnNdx)
-        lnNdx = Alen(.LastNumFmtId, 1) - 1
+        lnNdx = Ascan(.LastNumFmtId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension Ths.LastNumFmtId[lnNdx, 2]
-        Else
-          .LastNumFmtId[1, 1] = 0                                          && Workbook Id
-          .LastNumFmtId[1, 2] = 0                                          && Last NumFmt Id
+          Adel(.LastNumFmtId, lnNdx)
+          lnNdx = Alen(.LastNumFmtId, 1) - 1
+          If lnNdx > 0
+            Dimension Ths.LastNumFmtId[lnNdx, 2]
+          Else
+            .LastNumFmtId[1, 1] = 0                                          && Workbook Id
+            .LastNumFmtId[1, 2] = 0                                          && Last NumFmt Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastRelationId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastRelationId, lnNdx)
-        lnNdx = Alen(.LastRelationId, 1) - 1
+        lnNdx = Ascan(.LastRelationId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastRelationId[lnNdx, 2]
-        Else
-          .LastRelationId[1, 1] = 0                                        && Workbook Id
-          .LastRelationId[1, 2] = 0                                        && Last Relationship Id
+          Adel(.LastRelationId, lnNdx)
+          lnNdx = Alen(.LastRelationId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastRelationId[lnNdx, 2]
+          Else
+            .LastRelationId[1, 1] = 0                                        && Workbook Id
+            .LastRelationId[1, 2] = 0                                        && Last Relationship Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastSheetId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastSheetId, lnNdx)
-        lnNdx = Alen(.LastSheetId, 1) - 1
+        lnNdx = Ascan(.LastSheetId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastSheetId[lnNdx, 2]
-        Else
-          .LastSheetId[1, 1] = 0                                           && Workbook Id
-          .LastSheetId[1, 2] = 0                                           && Last Sheet Id
+          Adel(.LastSheetId, lnNdx)
+          lnNdx = Alen(.LastSheetId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastSheetId[lnNdx, 2]
+          Else
+            .LastSheetId[1, 1] = 0                                           && Workbook Id
+            .LastSheetId[1, 2] = 0                                           && Last Sheet Id
+          Endif
         Endif
-      Endif
 
-      lnNdx = Ascan(.LastStringId, tnWB, 1, -1, 1, 15)
-      If lnNdx > 0
-        Adel(.LastStringId, lnNdx)
-        lnNdx = Alen(.LastStringId, 1) - 1
+        lnNdx = Ascan(.LastStringId, tnWB, 1, -1, 1, 15)
         If lnNdx > 0
-          Dimension .LastStringId[lnNdx, 2]
-        Else
-          .LastStringId[1, 1] = 0                                          && Workbook Id
-          .LastStringId[1, 2] = 0                                          && Last String Id
+          Adel(.LastStringId, lnNdx)
+          lnNdx = Alen(.LastStringId, 1) - 1
+          If lnNdx > 0
+            Dimension .LastStringId[lnNdx, 2]
+          Else
+            .LastStringId[1, 1] = 0                                          && Workbook Id
+            .LastStringId[1, 2] = 0                                          && Last String Id
+          Endif
         Endif
-      Endif
-      llSuccess = True
-    Endwith
+        llSuccess = True
+      Endwith
 
-  Catch To loException
-    Set Step On
-    llSuccess = False
-  Endtry
-  Return llSuccess
+    Catch To loException
+      Set Step On
+      llSuccess = False
+    Endtry
+    Return llSuccess
 
 *-- Demo for the features of this class
   Procedure Demo
-  Local lnWB, lnSh1, lnRow, lnCol, lnSh2, lnSh3, lnSh4, lnCnt, lnFormat, llBoolean, lcNamedRange
-  Local lnSh6, lnSh5, loInline, lnStyle1, lnStyle2, lnBorders, lcString
-  lnWB = This.CreateWorkbook("ExcelTest.xlsx")
-  If lnWB = 0
-    Return False
-  Endif
-
-  With This
-    lnSh1 = .AddSheet(lnWB, "Test Sheet 1")
-    If lnSh1 = 0
+    Local lnWB, lnSh1, lnRow, lnCol, lnSh2, lnSh3, lnSh4, lnCnt, lnFormat, llBoolean, lcNamedRange
+    Local lnSh6, lnSh5, loInline, lnStyle1, lnStyle2, lnBorders, lcString
+    lnWB = This.CreateWorkbook("ExcelTest.xlsx")
+    If lnWB = 0
       Return False
     Endif
-    .FreezePanes(lnWB, lnSh1, 1, 2)
 
-    llBoolean = True
-    For lnRow=1 To 10
-      For lnCol=1 To 9
-        .SetCellValue(lnWB, lnSh1, lnRow, lnCol, Sys(2015))
+    With This
+      lnSh1 = .AddSheet(lnWB, "Test Sheet 1")
+      If lnSh1 = 0
+        Return False
+      Endif
+      .FreezePanes(lnWB, lnSh1, 1, 2)
+
+      llBoolean = True
+      For lnRow=1 To 10
+        For lnCol=1 To 9
+          .SetCellValue(lnWB, lnSh1, lnRow, lnCol, Sys(2015))
+        Endfor
+        llBoolean = !llBoolean
+        .SetCellValue(lnWB, lnSh1, lnRow, 10, llBoolean)
       Endfor
-      llBoolean = !llBoolean
-      .SetCellValue(lnWB, lnSh1, lnRow, 10, llBoolean)
-    Endfor
-    .SetRowHeight(lnWB, lnSh1, 6, 25)
+      .SetRowHeight(lnWB, lnSh1, 6, 25)
 
 *-*	Example of cell styles
-    lnStyle1  = .CreateFormatStyle(lnWB)   && Create the base style definition
-    lnBorders = BORDER_LEFT + BORDER_RIGHT + BORDER_TOP + BORDER_BOTTOM
-    .AddStyleBorders(lnWB, lnStyle1, lnBorders, BORDER_STYLE_THIN, Rgb(16,100,200))
-    .AddStyleFont(lnWB, lnStyle1, "Times New Roman", 14, False, False, Rgb(0,0,255))
-    .SetCellStyleRange(lnWB, lnSh1, 2, 1, 2, 9, lnStyle1)
+      lnStyle1  = .CreateFormatStyle(lnWB)   && Create the base style definition
+      lnBorders = BORDER_LEFT + BORDER_RIGHT + BORDER_TOP + BORDER_BOTTOM
+      .AddStyleBorders(lnWB, lnStyle1, lnBorders, BORDER_STYLE_THIN, Rgb(16,100,200))
+      .AddStyleFont(lnWB, lnStyle1, "Times New Roman", 14, False, False, Rgb(0,0,255))
+      .SetCellStyleRange(lnWB, lnSh1, 2, 1, 2, 9, lnStyle1)
 
-    lnStyle2  = .CreateFormatStyle(lnWB)   && Create the base style definition
-    lnBorders = BORDER_BOTTOM
-    .AddStyleBorders(lnWB, lnStyle2, lnBorders, BORDER_STYLE_THICK, Rgb(16,100,200))
-    .AddStyleFont(lnWB, lnStyle2, "Arial", 16, True, False)
-    .SetCellStyleRange(lnWB, lnSh1, 4, 1, 4, 9, lnStyle2)
+      lnStyle2  = .CreateFormatStyle(lnWB)   && Create the base style definition
+      lnBorders = BORDER_BOTTOM
+      .AddStyleBorders(lnWB, lnStyle2, lnBorders, BORDER_STYLE_THICK, Rgb(16,100,200))
+      .AddStyleFont(lnWB, lnStyle2, "Arial", 16, True, False)
+      .SetCellStyleRange(lnWB, lnSh1, 4, 1, 4, 9, lnStyle2)
 
 *-*	* Indentation examples  [OLD WAY - DEPRICATED METHODS]
 *-*	this.SetCellIndent(lnWb, lnSh1, 2, 6, 3)
@@ -1766,336 +1766,336 @@ Define Class vfpxworkbookxlsx As Custom
 *-*	this.SetCellBorderEx(lnWb, lnSh1, 9, 2, ,,,,'double',255,'thick',RGB(255,0,255))
 
 * Example of setting inline text formatting
-    loInline = .CreateInlineFormatText(lnWB, "This is an in-line formatted text string")
-    loInline = .AddInlineFontObject(loInline, 1, 4, "Arial Black", 16)
-    loInline = .AddInlineFontObject(loInline, 5, 15, "Times New Roman", 14, Rgb(255,0,0), .T.)
-    loInline = .AddInlineFontObject(loInline, 20, 21, "Arial", 12)
-    .SetCellInLineFormatText(lnWB, lnSh1, 16, 1, loInline)
+      loInline = .CreateInlineFormatText(lnWB, "This is an in-line formatted text string")
+      loInline = .AddInlineFontObject(loInline, 1, 4, "Arial Black", 16)
+      loInline = .AddInlineFontObject(loInline, 5, 15, "Times New Roman", 14, Rgb(255,0,0), .T.)
+      loInline = .AddInlineFontObject(loInline, 20, 21, "Arial", 12)
+      .SetCellInLineFormatText(lnWB, lnSh1, 16, 1, loInline)
 
 * Rotated text
-    .SetCellValue(lnWB, lnSh1, 17, 1, "This text is rotated 45 degrees")
-    .SetCellTextRotation(lnWB, lnSh1, 17, 1, 45)
-    .SetCellValue(lnWB, lnSh1, 18, 1, "This text is rotated -45 degrees")
-    .SetCellTextRotation(lnWB, lnSh1, 18, 1, -45)
+      .SetCellValue(lnWB, lnSh1, 17, 1, "This text is rotated 45 degrees")
+      .SetCellTextRotation(lnWB, lnSh1, 17, 1, 45)
+      .SetCellValue(lnWB, lnSh1, 18, 1, "This text is rotated -45 degrees")
+      .SetCellTextRotation(lnWB, lnSh1, 18, 1, -45)
 
 * Similar text
-    .SetCellValue(lnWB, lnSh1, 15, 7, "This text is similar")
-    .SetCellValue(lnWB, lnSh1, 16, 7, "This text is similar to the one above but is longer length")
+      .SetCellValue(lnWB, lnSh1, 15, 7, "This text is similar")
+      .SetCellValue(lnWB, lnSh1, 16, 7, "This text is similar to the one above but is longer length")
 
 *-* Very long text
-    lcString = "Addtionally, there is a new method for reading an existing XLSX file into the working cursors and then supporting methods to extract the individual cell values and formatting.  However, this XLSX read method is still in development "
-    .SetCellValue(lnWB, lnSh1, 22, 1, lcString)
-    lcString = lcString + "and not yet ready for use.  This is the method OpenXlsxWorkbook() - only use if you want to try it but the method will not necessarily read all the numeric"
-    .SetCellValue(lnWB, lnSh1, 23, 1, lcString)
-    lcString = lcString + " or date values correctly at this point.  I did not want to hold this release of VFPxWorkbookXlsx class for the completion of the reading of the XLSX file due to the other bug fixes."
-    .SetCellValue(lnWB, lnSh1, 24, 1, lcString)
+      lcString = "Addtionally, there is a new method for reading an existing XLSX file into the working cursors and then supporting methods to extract the individual cell values and formatting.  However, this XLSX read method is still in development "
+      .SetCellValue(lnWB, lnSh1, 22, 1, lcString)
+      lcString = lcString + "and not yet ready for use.  This is the method OpenXlsxWorkbook() - only use if you want to try it but the method will not necessarily read all the numeric"
+      .SetCellValue(lnWB, lnSh1, 23, 1, lcString)
+      lcString = lcString + " or date values correctly at this point.  I did not want to hold this release of VFPxWorkbookXlsx class for the completion of the reading of the XLSX file due to the other bug fixes."
+      .SetCellValue(lnWB, lnSh1, 24, 1, lcString)
 
 * Text with ASCII > 128
-    .SetCellValue(lnWB, lnSh1, 19, 1, "This text that has ASCII chars > 128:" + CRLF + "Trademark symbol: " + Chr(174) + CRLF + "Copyright symbol: " + Chr(169))
+      .SetCellValue(lnWB, lnSh1, 19, 1, "This text that has ASCII chars > 128:" + CRLF + "Trademark symbol: " + Chr(174) + CRLF + "Copyright symbol: " + Chr(169))
 
 * Column Width examples
-    .SetColumnWidth(lnWB, lnSh1, 1, 25)
-    .SetColumnWidth(lnWB, lnSh1, 2, 15)
-    .SetColumnWidth(lnWB, lnSh1, 3, 15)
-    .SetColumnWidth(lnWB, lnSh1, 4, 20)
-    .SetColumnWidth(lnWB, lnSh1, 5, 15)
-    .SetColumnWidth(lnWB, lnSh1, 6, 25)
-    .SetColumnWidth(lnWB, lnSh1, 9, 15)
+      .SetColumnWidth(lnWB, lnSh1, 1, 25)
+      .SetColumnWidth(lnWB, lnSh1, 2, 15)
+      .SetColumnWidth(lnWB, lnSh1, 3, 15)
+      .SetColumnWidth(lnWB, lnSh1, 4, 20)
+      .SetColumnWidth(lnWB, lnSh1, 5, 15)
+      .SetColumnWidth(lnWB, lnSh1, 6, 25)
+      .SetColumnWidth(lnWB, lnSh1, 9, 15)
 
 *Row inserted
-    .InsertRow(lnWB, lnSh1, 5, INSERT_AFTER)
+      .InsertRow(lnWB, lnSh1, 5, INSERT_AFTER)
 
 *Column inserted
-    .InsertColumn(lnWB, lnSh1, 5, INSERT_RIGHT)
+      .InsertColumn(lnWB, lnSh1, 5, INSERT_RIGHT)
 
 * Sheet setup examples
-    .SetPrintOrientation(lnWB, lnSh1, PORTRAIT_PRINT_ORIENTATION)
-    .SetPaperSize(lnWB, lnSh1, PAPERSIZE_LEGAL)
-    .SetSheetScale(lnWB, lnSh1, 50)
+      .SetPrintOrientation(lnWB, lnSh1, PORTRAIT_PRINT_ORIENTATION)
+      .SetPaperSize(lnWB, lnSh1, PAPERSIZE_LEGAL)
+      .SetSheetScale(lnWB, lnSh1, 50)
 
 *******************************************************************************
 
-    lnSh2 = .AddSheet(lnWB, "Test Sheet 2")
-    If lnSh2 = 0
-      Return False
-    Endif
-    .FreezePanes(lnWB, lnSh2, 1)
+      lnSh2 = .AddSheet(lnWB, "Test Sheet 2")
+      If lnSh2 = 0
+        Return False
+      Endif
+      .FreezePanes(lnWB, lnSh2, 1)
 
-    .SetCellValue(lnWB, lnSh2, 1, 1, "Column Header 1")
-    .SetCellValue(lnWB, lnSh2, 1, 2, "Column Header 2")
-    .SetCellValue(lnWB, lnSh2, 1, 3, "Column Header 3")
-    .SetCellValue(lnWB, lnSh2, 1, 4, "Column Header 4")
-    .SetCellValue(lnWB, lnSh2, 1, 5, "Column Header 5")
+      .SetCellValue(lnWB, lnSh2, 1, 1, "Column Header 1")
+      .SetCellValue(lnWB, lnSh2, 1, 2, "Column Header 2")
+      .SetCellValue(lnWB, lnSh2, 1, 3, "Column Header 3")
+      .SetCellValue(lnWB, lnSh2, 1, 4, "Column Header 4")
+      .SetCellValue(lnWB, lnSh2, 1, 5, "Column Header 5")
 
-    .SetCellFont(lnWB, lnSh2, 1, 1, "Arial", 14, True, False, Rgb(255,255,255))
-    .SetCellFill(lnWB, lnSh2, 1, 1, Rgb(51,102,255))
-    .CellFormatPainter(lnWB, lnSh2, 1, 1, 1, 2, 1, 5)
+      .SetCellFont(lnWB, lnSh2, 1, 1, "Arial", 14, True, False, Rgb(255,255,255))
+      .SetCellFill(lnWB, lnSh2, 1, 1, Rgb(51,102,255))
+      .CellFormatPainter(lnWB, lnSh2, 1, 1, 1, 2, 1, 5)
 
-    .SetColumnWidthRange(lnWB, lnSh2, 1, 5, 24)
+      .SetColumnWidthRange(lnWB, lnSh2, 1, 5, 24)
 
 * Add integer values to cells
-    For lnRow=2 To 6
-      For lnCol=1 To 5
-        .SetCellValue(lnWB, lnSh2, lnRow, lnCol, lnRow*lnCol)
+      For lnRow=2 To 6
+        For lnCol=1 To 5
+          .SetCellValue(lnWB, lnSh2, lnRow, lnCol, lnRow*lnCol)
+        Endfor
       Endfor
-    Endfor
 
 * Add SUM() formula to columns
-    For lnCol=1 To 5
-      lcColumn = .ColumnIndexToAscii(lnCol)
-      .SetCellFormula(lnWB, lnSh2, 7, lnCol, "=SUM(" + lcColumn + "2:" + lcColumn + "6)")
-    Endfor
+      For lnCol=1 To 5
+        lcColumn = .ColumnIndexToAscii(lnCol)
+        .SetCellFormula(lnWB, lnSh2, 7, lnCol, "=SUM(" + lcColumn + "2:" + lcColumn + "6)")
+      Endfor
 
 * Add floating point values to cells
-    For lnRow=10 To 15
-      For lnCol=3 To 5
-        .SetCellValue(lnWB, lnSh2, lnRow, lnCol, lnRow*1.25)
+      For lnRow=10 To 15
+        For lnCol=3 To 5
+          .SetCellValue(lnWB, lnSh2, lnRow, lnCol, lnRow*1.25)
+        Endfor
       Endfor
-    Endfor
 
 * Add AVERAGE(), MAX(), & MIN() formula to columns
-    .SetCellFormula(lnWB, lnSh2, 16, 3, "=AVERAGE(C10:C15)")
-    .SetCellFormula(lnWB, lnSh2, 16, 4, "=MAX(D10:D15)")
-    .SetCellFormula(lnWB, lnSh2, 16, 5, "=MIN(E10:E15)")
+      .SetCellFormula(lnWB, lnSh2, 16, 3, "=AVERAGE(C10:C15)")
+      .SetCellFormula(lnWB, lnSh2, 16, 4, "=MAX(D10:D15)")
+      .SetCellFormula(lnWB, lnSh2, 16, 5, "=MIN(E10:E15)")
 
-    .SetCellValue(lnWB, lnSh2, 16, 1, "This row contains calculated formulas -->")
+      .SetCellValue(lnWB, lnSh2, 16, 1, "This row contains calculated formulas -->")
 
 * Merge some cells
-    .MergeCells(lnWB, lnSh2, 2, 8, 2, 10)
-    .MergeCells(lnWB, lnSh2, 3, 8, 3, 10)
-    .MergeCells(lnWB, lnSh2, 5, 8, 10, 10)
-    .SetCellValue(lnWB, lnSh2, 2, 8, "Merged H2:J2")
-    .SetCellValue(lnWB, lnSh2, 3, 8, "Merged H3:J3")
-    .SetCellValue(lnWB, lnSh2, 5, 8, "Merged H5:J10")
-    .SetCustomPaperSize(lnWB, lnSh2, 841, 1189, "mm")
-    .SetHeaderFooterSetup(lnWB, lnSh2, False, True, False, False)
-    .SetHeaderFooterText(lnWB, lnSh2, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_CENTER, "This is First Page", "Arial", 16, HEADERFOOTER_FONT_STYLE_BOLD, Rgb(255,0,0))
-    .SetHeaderFooterText(lnWB, lnSh2, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_CENTER, "These are Additional Pages", "Arial", 10, HEADERFOOTER_FONT_STYLE_BOLD, Rgb(0,128,0))
-    .SetHeaderFooterText(lnWB, lnSh2, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_CENTER, "Page &amp;P of &amp;N", "Arial", 16, HEADERFOOTER_FONT_STYLE_BOLD)
+      .MergeCells(lnWB, lnSh2, 2, 8, 2, 10)
+      .MergeCells(lnWB, lnSh2, 3, 8, 3, 10)
+      .MergeCells(lnWB, lnSh2, 5, 8, 10, 10)
+      .SetCellValue(lnWB, lnSh2, 2, 8, "Merged H2:J2")
+      .SetCellValue(lnWB, lnSh2, 3, 8, "Merged H3:J3")
+      .SetCellValue(lnWB, lnSh2, 5, 8, "Merged H5:J10")
+      .SetCustomPaperSize(lnWB, lnSh2, 841, 1189, "mm")
+      .SetHeaderFooterSetup(lnWB, lnSh2, False, True, False, False)
+      .SetHeaderFooterText(lnWB, lnSh2, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_CENTER, "This is First Page", "Arial", 16, HEADERFOOTER_FONT_STYLE_BOLD, Rgb(255,0,0))
+      .SetHeaderFooterText(lnWB, lnSh2, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_CENTER, "These are Additional Pages", "Arial", 10, HEADERFOOTER_FONT_STYLE_BOLD, Rgb(0,128,0))
+      .SetHeaderFooterText(lnWB, lnSh2, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_CENTER, "Page &amp;P of &amp;N", "Arial", 16, HEADERFOOTER_FONT_STYLE_BOLD)
 
 *******************************************************************************
 
-    lnSh3 = .AddSheet(lnWB, "Number Formats")
-    If lnSh3 = 0
-      Return False
-    Endif
+      lnSh3 = .AddSheet(lnWB, "Number Formats")
+      If lnSh3 = 0
+        Return False
+      Endif
 
-    lnFormat = .AddNumericFormat(lnWB, '[Green]"$"#,##0.00;[Red]"$"#,##0.00')
+      lnFormat = .AddNumericFormat(lnWB, '[Green]"$"#,##0.00;[Red]"$"#,##0.00')
 *lnFormat = this.AddCustomNumericFormat(lnWb, '[Green]"$"#,##0.00', '[Red]"$"#,##0.00')
-    .SetCellValue(lnWB, lnSh3, 1, 1, 56.558)
-    .SetCellValue(lnWB, lnSh3, 1, 2, "Custom defined format: " + .GetCustomNumericFormat(lnWB, lnFormat))
-    .SetCellNumberFormat(lnWB, lnSh3, 1, 1, lnFormat)
+      .SetCellValue(lnWB, lnSh3, 1, 1, 56.558)
+      .SetCellValue(lnWB, lnSh3, 1, 2, "Custom defined format: " + .GetCustomNumericFormat(lnWB, lnFormat))
+      .SetCellNumberFormat(lnWB, lnSh3, 1, 1, lnFormat)
 
-    .SetColumnWidth(lnWB, lnSh3, 1, 18)
-    .SetColumnWidth(lnWB, lnSh3, 2, 60)
+      .SetColumnWidth(lnWB, lnSh3, 1, 18)
+      .SetColumnWidth(lnWB, lnSh3, 2, 60)
 
-    .SetCellValue(lnWB, lnSh3, 3, 1, 14)
-    .SetCellValue(lnWB, lnSh3, 3, 2, "Integer format")
-    .SetCellNumberFormat(lnWB, lnSh3, 3, 1, CELL_FORMAT_INTEGER)
+      .SetCellValue(lnWB, lnSh3, 3, 1, 14)
+      .SetCellValue(lnWB, lnSh3, 3, 2, "Integer format")
+      .SetCellNumberFormat(lnWB, lnSh3, 3, 1, CELL_FORMAT_INTEGER)
 
-    .SetCellValue(lnWB, lnSh3, 4, 1, 13355.2)
-    .SetCellValue(lnWB, lnSh3, 4, 2, "Float format")
-    .SetCellNumberFormat(lnWB, lnSh3, 4, 1, CELL_FORMAT_FLOAT)
+      .SetCellValue(lnWB, lnSh3, 4, 1, 13355.2)
+      .SetCellValue(lnWB, lnSh3, 4, 2, "Float format")
+      .SetCellNumberFormat(lnWB, lnSh3, 4, 1, CELL_FORMAT_FLOAT)
 
-    .SetCellValue(lnWB, lnSh3, 5, 1, 16898)
-    .SetCellValue(lnWB, lnSh3, 5, 2, "Integer format, comma separated")
-    .SetCellNumberFormat(lnWB, lnSh3, 5, 1, CELL_FORMAT_COMMA_INTEGER)
+      .SetCellValue(lnWB, lnSh3, 5, 1, 16898)
+      .SetCellValue(lnWB, lnSh3, 5, 2, "Integer format, comma separated")
+      .SetCellNumberFormat(lnWB, lnSh3, 5, 1, CELL_FORMAT_COMMA_INTEGER)
 
-    .SetCellValue(lnWB, lnSh3, 6, 1, 13355.20)
-    .SetCellValue(lnWB, lnSh3, 6, 2, "Float format, comma separated")
-    .SetCellNumberFormat(lnWB, lnSh3, 6 , 1, CELL_FORMAT_COMMA_FLOAT)
+      .SetCellValue(lnWB, lnSh3, 6, 1, 13355.20)
+      .SetCellValue(lnWB, lnSh3, 6, 2, "Float format, comma separated")
+      .SetCellNumberFormat(lnWB, lnSh3, 6 , 1, CELL_FORMAT_COMMA_FLOAT)
 
-    .SetCellValue(lnWB, lnSh3, 7, 1, -13355.20)
-    .SetCellValue(lnWB, lnSh3, 7, 2, "Currency format, negative in parenthesis")
-    .SetCellNumberFormat(lnWB, lnSh3, 7, 1, CELL_FORMAT_CURRENCY_PAREN)
+      .SetCellValue(lnWB, lnSh3, 7, 1, -13355.20)
+      .SetCellValue(lnWB, lnSh3, 7, 2, "Currency format, negative in parenthesis")
+      .SetCellNumberFormat(lnWB, lnSh3, 7, 1, CELL_FORMAT_CURRENCY_PAREN)
 
-    .SetCellValue(lnWB, lnSh3, 8, 1, -13355.20)
-    .SetCellValue(lnWB, lnSh3, 8, 2, "Currency format, negative red in parenthesis")
-    .SetCellNumberFormat(lnWB, lnSh3, 8, 1, CELL_FORMAT_CURRENCY_RED_PAREN)
+      .SetCellValue(lnWB, lnSh3, 8, 1, -13355.20)
+      .SetCellValue(lnWB, lnSh3, 8, 2, "Currency format, negative red in parenthesis")
+      .SetCellNumberFormat(lnWB, lnSh3, 8, 1, CELL_FORMAT_CURRENCY_RED_PAREN)
 
-    .SetCellValue(lnWB, lnSh3, 10, 1, 0.55)
-    .SetCellValue(lnWB, lnSh3, 10, 2, "Percent format, integer")
-    .SetCellNumberFormat(lnWB, lnSh3, 10, 1, CELL_FORMAT_PERCENT_INTEGER)
+      .SetCellValue(lnWB, lnSh3, 10, 1, 0.55)
+      .SetCellValue(lnWB, lnSh3, 10, 2, "Percent format, integer")
+      .SetCellNumberFormat(lnWB, lnSh3, 10, 1, CELL_FORMAT_PERCENT_INTEGER)
 
-    .SetCellValue(lnWB, lnSh3, 11, 1, 0.5534)
-    .SetCellValue(lnWB, lnSh3, 11, 2, "Percent format, float")
-    .SetCellNumberFormat(lnWB, lnSh3, 11, 1, CELL_FORMAT_PERCENT_FLOAT)
+      .SetCellValue(lnWB, lnSh3, 11, 1, 0.5534)
+      .SetCellValue(lnWB, lnSh3, 11, 2, "Percent format, float")
+      .SetCellNumberFormat(lnWB, lnSh3, 11, 1, CELL_FORMAT_PERCENT_FLOAT)
 
-    .SetCellValue(lnWB, lnSh3, 13, 1, 456800000.00)
-    .SetCellValue(lnWB, lnSh3, 13, 2, "Exponential format")
-    .SetCellNumberFormat(lnWB, lnSh3, 13, 1, CELL_FORMAT_EXPONENT)
+      .SetCellValue(lnWB, lnSh3, 13, 1, 456800000.00)
+      .SetCellValue(lnWB, lnSh3, 13, 2, "Exponential format")
+      .SetCellNumberFormat(lnWB, lnSh3, 13, 1, CELL_FORMAT_EXPONENT)
 
-    .SetCellValue(lnWB, lnSh3, 15, 1, 0.25)
-    .SetCellValue(lnWB, lnSh3, 15, 2, "Fraction format, single place")
-    .SetCellNumberFormat(lnWB, lnSh3, 15, 1, CELL_FORMAT_FRACTION_1)
+      .SetCellValue(lnWB, lnSh3, 15, 1, 0.25)
+      .SetCellValue(lnWB, lnSh3, 15, 2, "Fraction format, single place")
+      .SetCellNumberFormat(lnWB, lnSh3, 15, 1, CELL_FORMAT_FRACTION_1)
 
-    .SetCellValue(lnWB, lnSh3, 16, 1, 0.3125)
-    .SetCellValue(lnWB, lnSh3, 16, 2, "Fraction format, 2 places")
-    .SetCellNumberFormat(lnWB, lnSh3, 16, 1, CELL_FORMAT_FRACTION_2)
+      .SetCellValue(lnWB, lnSh3, 16, 1, 0.3125)
+      .SetCellValue(lnWB, lnSh3, 16, 2, "Fraction format, 2 places")
+      .SetCellNumberFormat(lnWB, lnSh3, 16, 1, CELL_FORMAT_FRACTION_2)
 
-    .SetCellValue(lnWB, lnSh3, 18, 1, Date())
-    .SetCellValue(lnWB, lnSh3, 18, 2, "Default date format")
-    .SetCellNumberFormat(lnWB, lnSh3, 18, 1, CELL_FORMAT_DATE_DMMMYY)
+      .SetCellValue(lnWB, lnSh3, 18, 1, Date())
+      .SetCellValue(lnWB, lnSh3, 18, 2, "Default date format")
+      .SetCellNumberFormat(lnWB, lnSh3, 18, 1, CELL_FORMAT_DATE_DMMMYY)
 
-    .SetCellValue(lnWB, lnSh3, 19, 1, Date())
-    .SetCellValue(lnWB, lnSh3, 19, 2, "Date format, d-mmm-yy")
-    .SetCellNumberFormat(lnWB, lnSh3, 19, 1, CELL_FORMAT_DATE_DMMMYY)
+      .SetCellValue(lnWB, lnSh3, 19, 1, Date())
+      .SetCellValue(lnWB, lnSh3, 19, 2, "Date format, d-mmm-yy")
+      .SetCellNumberFormat(lnWB, lnSh3, 19, 1, CELL_FORMAT_DATE_DMMMYY)
 
-    .SetCellValue(lnWB, lnSh3, 20, 1, Date())
-    .SetCellValue(lnWB, lnSh3, 20, 2, "Date format, d-mmm")
-    .SetCellNumberFormat(lnWB, lnSh3, 20, 1, CELL_FORMAT_DATE_DMMM)
+      .SetCellValue(lnWB, lnSh3, 20, 1, Date())
+      .SetCellValue(lnWB, lnSh3, 20, 2, "Date format, d-mmm")
+      .SetCellNumberFormat(lnWB, lnSh3, 20, 1, CELL_FORMAT_DATE_DMMM)
 
-    .SetCellValue(lnWB, lnSh3, 21, 1, Date())
-    .SetCellValue(lnWB, lnSh3, 21, 2, "Date format, mmm-yy")
-    .SetCellNumberFormat(lnWB, lnSh3, 21, 1, CELL_FORMAT_DATE_MMMYY)
+      .SetCellValue(lnWB, lnSh3, 21, 1, Date())
+      .SetCellValue(lnWB, lnSh3, 21, 2, "Date format, mmm-yy")
+      .SetCellNumberFormat(lnWB, lnSh3, 21, 1, CELL_FORMAT_DATE_MMMYY)
 
-    .SetCellValue(lnWB, lnSh3, 23, 1, 0.35733796296296294)
-    .SetCellValue(lnWB, lnSh3, 23, 2, "Time format, h:mm AM/PM")
-    .SetCellNumberFormat(lnWB, lnSh3, 23, 1, CELL_FORMAT_TIME_HMMAMPM)
+      .SetCellValue(lnWB, lnSh3, 23, 1, 0.35733796296296294)
+      .SetCellValue(lnWB, lnSh3, 23, 2, "Time format, h:mm AM/PM")
+      .SetCellNumberFormat(lnWB, lnSh3, 23, 1, CELL_FORMAT_TIME_HMMAMPM)
 
-    .SetCellValue(lnWB, lnSh3, 24, 1, 0.35733796296296294)
-    .SetCellValue(lnWB, lnSh3, 24, 2, "Time format, h:mm:ss AM/PM")
-    .SetCellNumberFormat(lnWB, lnSh3, 24, 1, CELL_FORMAT_TIME_HMMSSAMPM)
+      .SetCellValue(lnWB, lnSh3, 24, 1, 0.35733796296296294)
+      .SetCellValue(lnWB, lnSh3, 24, 2, "Time format, h:mm:ss AM/PM")
+      .SetCellNumberFormat(lnWB, lnSh3, 24, 1, CELL_FORMAT_TIME_HMMSSAMPM)
 
-    .SetCellValue(lnWB, lnSh3, 25, 1, 0.35733796296296294)
-    .SetCellValue(lnWB, lnSh3, 25, 2, "Time format, h:mm")
-    .SetCellNumberFormat(lnWB, lnSh3, 25, 1, CELL_FORMAT_TIME_HMM)
+      .SetCellValue(lnWB, lnSh3, 25, 1, 0.35733796296296294)
+      .SetCellValue(lnWB, lnSh3, 25, 2, "Time format, h:mm")
+      .SetCellNumberFormat(lnWB, lnSh3, 25, 1, CELL_FORMAT_TIME_HMM)
 
-    .SetCellValue(lnWB, lnSh3, 26, 1, 0.35733796296296294)
-    .SetCellValue(lnWB, lnSh3, 26, 2, "Time format, h:mm:ss")
-    .SetCellNumberFormat(lnWB, lnSh3, 26, 1, CELL_FORMAT_TIME_HMMSS)
+      .SetCellValue(lnWB, lnSh3, 26, 1, 0.35733796296296294)
+      .SetCellValue(lnWB, lnSh3, 26, 2, "Time format, h:mm:ss")
+      .SetCellNumberFormat(lnWB, lnSh3, 26, 1, CELL_FORMAT_TIME_HMMSS)
 
-    .SetCellValue(lnWB, lnSh3, 28, 1, Datetime())
-    .SetCellValue(lnWB, lnSh3, 28, 2, "Date-Time format, m/d/yy h:mm")
-    .SetCellNumberFormat(lnWB, lnSh3, 28, 1, CELL_FORMAT_DATETIME_MDYYHMM)
+      .SetCellValue(lnWB, lnSh3, 28, 1, Datetime())
+      .SetCellValue(lnWB, lnSh3, 28, 2, "Date-Time format, m/d/yy h:mm")
+      .SetCellNumberFormat(lnWB, lnSh3, 28, 1, CELL_FORMAT_DATETIME_MDYYHMM)
 
-    .SetCellValue(lnWB, lnSh3, 29, 1, Datetime())
-    .SetCellValue(lnWB, lnSh3, 29, 2, "Date-Time format, [$-409]dd/mmm/yyyy\ h:mm\ AM/PM;@")
-    .SetCellNumberFormat(lnWB, lnSh3, 29, 1, CELL_FORMAT_DATETIME_DDMMMYYYY_TTAM)
+      .SetCellValue(lnWB, lnSh3, 29, 1, Datetime())
+      .SetCellValue(lnWB, lnSh3, 29, 2, "Date-Time format, [$-409]dd/mmm/yyyy\ h:mm\ AM/PM;@")
+      .SetCellNumberFormat(lnWB, lnSh3, 29, 1, CELL_FORMAT_DATETIME_DDMMMYYYY_TTAM)
 
-    .SetCellValue(lnWB, lnSh3, 30, 1, Datetime())
-    .SetCellValue(lnWB, lnSh3, 30, 2, "Date-Time format, dd/mmm/yyyy\ h:mm;@")
-    .SetCellNumberFormat(lnWB, lnSh3, 30, 1, CELL_FORMAT_DATETIME_DDMMMYYYY_TT24)
+      .SetCellValue(lnWB, lnSh3, 30, 1, Datetime())
+      .SetCellValue(lnWB, lnSh3, 30, 2, "Date-Time format, dd/mmm/yyyy\ h:mm;@")
+      .SetCellNumberFormat(lnWB, lnSh3, 30, 1, CELL_FORMAT_DATETIME_DDMMMYYYY_TT24)
 
-    .SetCellValue(lnWB, lnSh3, 31, 1, Datetime())
-    .SetCellValue(lnWB, lnSh3, 31, 2, "Date-Time format, [$-409]mmm\ d\,\ yyyy\ h:mm\ AM/PM;@")
-    .SetCellNumberFormat(lnWB, lnSh3, 31, 1, CELL_FORMAT_DATETIME_MMMDDYYYY_TTAM)
+      .SetCellValue(lnWB, lnSh3, 31, 1, Datetime())
+      .SetCellValue(lnWB, lnSh3, 31, 2, "Date-Time format, [$-409]mmm\ d\,\ yyyy\ h:mm\ AM/PM;@")
+      .SetCellNumberFormat(lnWB, lnSh3, 31, 1, CELL_FORMAT_DATETIME_MMMDDYYYY_TTAM)
 
-    .SetCellValue(lnWB, lnSh3, 32, 1, Datetime())
-    .SetCellValue(lnWB, lnSh3, 32, 2, "Date-Time format, [$-409]mmm\ d\,\ yyyy\ h:mm;@")
-    .SetCellNumberFormat(lnWB, lnSh3, 32, 1, CELL_FORMAT_DATETIME_MMMDDYYYY_TT24)
+      .SetCellValue(lnWB, lnSh3, 32, 1, Datetime())
+      .SetCellValue(lnWB, lnSh3, 32, 2, "Date-Time format, [$-409]mmm\ d\,\ yyyy\ h:mm;@")
+      .SetCellNumberFormat(lnWB, lnSh3, 32, 1, CELL_FORMAT_DATETIME_MMMDDYYYY_TT24)
 
-    .SetCellValue(lnWB, lnSh3, 33, 1, Datetime())
-    .SetCellValue(lnWB, lnSh3, 33, 2, "Date-Time format, m/d/yy\ h:mm\ AM/PM;@")
-    .SetCellNumberFormat(lnWB, lnSh3, 33, 1, CELL_FORMAT_DATETIME_MDYY_TTAM)
+      .SetCellValue(lnWB, lnSh3, 33, 1, Datetime())
+      .SetCellValue(lnWB, lnSh3, 33, 2, "Date-Time format, m/d/yy\ h:mm\ AM/PM;@")
+      .SetCellNumberFormat(lnWB, lnSh3, 33, 1, CELL_FORMAT_DATETIME_MDYY_TTAM)
 
-    .SetCellValue(lnWB, lnSh3, 34, 1, Datetime())
-    .SetCellValue(lnWB, lnSh3, 34, 2, "Date-Time format, m/d/yy\ h:mm;@")
-    .SetCellNumberFormat(lnWB, lnSh3, 34, 1, CELL_FORMAT_DATETIME_MDYY_TT24)
+      .SetCellValue(lnWB, lnSh3, 34, 1, Datetime())
+      .SetCellValue(lnWB, lnSh3, 34, 2, "Date-Time format, m/d/yy\ h:mm;@")
+      .SetCellNumberFormat(lnWB, lnSh3, 34, 1, CELL_FORMAT_DATETIME_MDYY_TT24)
 
-    .SetCellValue(lnWB, lnSh3, 36, 1, -89235)
-    .SetCellValue(lnWB, lnSh3, 36, 2, "Numeric format, #,##0;(#,##0)")
-    .SetCellNumberFormat(lnWB, lnSh3, 36, 1, CELL_FORMAT_COMMA_INTEGER_PAREN)
+      .SetCellValue(lnWB, lnSh3, 36, 1, -89235)
+      .SetCellValue(lnWB, lnSh3, 36, 2, "Numeric format, #,##0;(#,##0)")
+      .SetCellNumberFormat(lnWB, lnSh3, 36, 1, CELL_FORMAT_COMMA_INTEGER_PAREN)
 
-    .SetCellValue(lnWB, lnSh3, 37, 1, -12457)
-    .SetCellValue(lnWB, lnSh3, 37, 2, "Numeric format, #,##0;[Red](#,##0)")
-    .SetCellNumberFormat(lnWB, lnSh3, 37, 1, CELL_FORMAT_COMMA_INTEGER_RED_PAREN)
+      .SetCellValue(lnWB, lnSh3, 37, 1, -12457)
+      .SetCellValue(lnWB, lnSh3, 37, 2, "Numeric format, #,##0;[Red](#,##0)")
+      .SetCellNumberFormat(lnWB, lnSh3, 37, 1, CELL_FORMAT_COMMA_INTEGER_RED_PAREN)
 
-    .SetCellValue(lnWB, lnSh3, 38, 1, -1245789.22)
-    .SetCellValue(lnWB, lnSh3, 38, 2, "Numeric format, #,##0.00;(#,##0.00)")
-    .SetCellNumberFormat(lnWB, lnSh3, 38, 1, CELL_FORMAT_COMMA_FLOAT_PAREN)
+      .SetCellValue(lnWB, lnSh3, 38, 1, -1245789.22)
+      .SetCellValue(lnWB, lnSh3, 38, 2, "Numeric format, #,##0.00;(#,##0.00)")
+      .SetCellNumberFormat(lnWB, lnSh3, 38, 1, CELL_FORMAT_COMMA_FLOAT_PAREN)
 
-    .SetCellValue(lnWB, lnSh3, 39, 1, -125896.33)
-    .SetCellValue(lnWB, lnSh3, 39, 2, "Numeric format, #,##0.00;[Red](#,##0.00)")
-    .SetCellNumberFormat(lnWB, lnSh3, 39, 1, CELL_FORMAT_COMMA_FLOAT_RED_PAREN)
+      .SetCellValue(lnWB, lnSh3, 39, 1, -125896.33)
+      .SetCellValue(lnWB, lnSh3, 39, 2, "Numeric format, #,##0.00;[Red](#,##0.00)")
+      .SetCellNumberFormat(lnWB, lnSh3, 39, 1, CELL_FORMAT_COMMA_FLOAT_RED_PAREN)
 
-    .SetCellValue(lnWB, lnSh3, 41, 1, 6.25E-2)
-    .SetCellValue(lnWB, lnSh3, 41, 2, "Time format")
-    .SetCellNumberFormat(lnWB, lnSh3, 41, 1, CELL_FORMAT_TIME_MMSS)
+      .SetCellValue(lnWB, lnSh3, 41, 1, 6.25E-2)
+      .SetCellValue(lnWB, lnSh3, 41, 2, "Time format")
+      .SetCellNumberFormat(lnWB, lnSh3, 41, 1, CELL_FORMAT_TIME_MMSS)
 
-    .SetCellValue(lnWB, lnSh3, 42, 1, 0.35733796296296294)
-    .SetCellValue(lnWB, lnSh3, 42, 2, "Time format, [h]:mm:ss")
-    .SetCellNumberFormat(lnWB, lnSh3, 42, 1, CELL_FORMAT_TIME_H_MMSS)
+      .SetCellValue(lnWB, lnSh3, 42, 1, 0.35733796296296294)
+      .SetCellValue(lnWB, lnSh3, 42, 2, "Time format, [h]:mm:ss")
+      .SetCellNumberFormat(lnWB, lnSh3, 42, 1, CELL_FORMAT_TIME_H_MMSS)
 
-    .SetCellValue(lnWB, lnSh3, 44, 1, -45.55)
-    .SetCellValue(lnWB, lnSh3, 44, 2, "CELL_FORMAT_CURRENCY_RED")
-    .SetCellNumberFormat(lnWB, lnSh3, 44, 1, CELL_FORMAT_CURRENCY_RED)
+      .SetCellValue(lnWB, lnSh3, 44, 1, -45.55)
+      .SetCellValue(lnWB, lnSh3, 44, 2, "CELL_FORMAT_CURRENCY_RED")
+      .SetCellNumberFormat(lnWB, lnSh3, 44, 1, CELL_FORMAT_CURRENCY_RED)
 
-    .SetCellValue(lnWB, lnSh3, 45, 1, -45.55)
-    .SetCellValue(lnWB, lnSh3, 45, 2, "CELL_FORMAT_ACC_CURR_POUNDS")
-    .SetCellNumberFormat(lnWB, lnSh3, 45, 1, CELL_FORMAT_ACC_CURR_POUNDS)
+      .SetCellValue(lnWB, lnSh3, 45, 1, -45.55)
+      .SetCellValue(lnWB, lnSh3, 45, 2, "CELL_FORMAT_ACC_CURR_POUNDS")
+      .SetCellNumberFormat(lnWB, lnSh3, 45, 1, CELL_FORMAT_ACC_CURR_POUNDS)
 
-    .SetCellValue(lnWB, lnSh3, 46, 1, -45.55)
-    .SetCellValue(lnWB, lnSh3, 46, 2, "CELL_FORMAT_ACC_CURR_EURO")
-    .SetCellNumberFormat(lnWB, lnSh3, 46, 1, CELL_FORMAT_ACC_CURR_EURO)
+      .SetCellValue(lnWB, lnSh3, 46, 1, -45.55)
+      .SetCellValue(lnWB, lnSh3, 46, 2, "CELL_FORMAT_ACC_CURR_EURO")
+      .SetCellNumberFormat(lnWB, lnSh3, 46, 1, CELL_FORMAT_ACC_CURR_EURO)
 
-    .SetCellValue(lnWB, lnSh3, 47, 1, -45.55)
-    .SetCellValue(lnWB, lnSh3, 47, 2, "CELL_FORMAT_CURR_EURO_RED")
-    .SetCellNumberFormat(lnWB, lnSh3, 47, 1, CELL_FORMAT_CURR_EURO_RED)
+      .SetCellValue(lnWB, lnSh3, 47, 1, -45.55)
+      .SetCellValue(lnWB, lnSh3, 47, 2, "CELL_FORMAT_CURR_EURO_RED")
+      .SetCellNumberFormat(lnWB, lnSh3, 47, 1, CELL_FORMAT_CURR_EURO_RED)
 
-    .SetCellValue(lnWB, lnSh3, 48, 1, -45.55)
-    .SetCellValue(lnWB, lnSh3, 48, 2, "CELL_FORMAT_CURR_POUNDS_RED")
-    .SetCellNumberFormat(lnWB, lnSh3, 48, 1, CELL_FORMAT_CURR_POUNDS_RED)
+      .SetCellValue(lnWB, lnSh3, 48, 1, -45.55)
+      .SetCellValue(lnWB, lnSh3, 48, 2, "CELL_FORMAT_CURR_POUNDS_RED")
+      .SetCellNumberFormat(lnWB, lnSh3, 48, 1, CELL_FORMAT_CURR_POUNDS_RED)
 
-    .SetPrintOrientation(lnWB, lnSh3, LANDSCAPE_PRINT_ORIENTATION)
+      .SetPrintOrientation(lnWB, lnSh3, LANDSCAPE_PRINT_ORIENTATION)
 *-*	this.SetPrintFitToHeight(lnWb, lnSh3, 2)
 
 *******************************************************************************
 
-    lnSh4 = .AddSheet(lnWB, "Color Sheet")
-    If lnSh4 = 0
-      Return False
-    Endif
+      lnSh4 = .AddSheet(lnWB, "Color Sheet")
+      If lnSh4 = 0
+        Return False
+      Endif
 
-    .SetCellValue(lnWB, lnSh4, 1, 1, "RGB(51,102,255)")
-    .SetCellFill(lnWB, lnSh4, 1, 1, Rgb(51,102,255))
+      .SetCellValue(lnWB, lnSh4, 1, 1, "RGB(51,102,255)")
+      .SetCellFill(lnWB, lnSh4, 1, 1, Rgb(51,102,255))
 
-    .SetCellValue(lnWB, lnSh4, 1, 2, "RGB(255,0,0)")
-    .SetCellFill(lnWB, lnSh4, 1, 2, Rgb(255,0,0))
+      .SetCellValue(lnWB, lnSh4, 1, 2, "RGB(255,0,0)")
+      .SetCellFill(lnWB, lnSh4, 1, 2, Rgb(255,0,0))
 
-    .SetCellAlignmentRange(lnWB, lnSh4, 1, 1, 1, 2, CELL_HORIZ_ALIGN_CENTER, CELL_VERT_ALIGN_CENTER)
+      .SetCellAlignmentRange(lnWB, lnSh4, 1, 1, 1, 2, CELL_HORIZ_ALIGN_CENTER, CELL_VERT_ALIGN_CENTER)
 
-    .SetColumnWidthRange(lnWB, lnSh4, 1, 2, 18)
-    .SetRowHeight(lnWB, lnSh4, 1, 60)
-
-*******************************************************************************
-
-    lnSh5 = .AddSheet(lnWB, "Blank Sheet")
+      .SetColumnWidthRange(lnWB, lnSh4, 1, 2, 18)
+      .SetRowHeight(lnWB, lnSh4, 1, 60)
 
 *******************************************************************************
 
-    lnSh6 = .AddSheet(lnWB, "List Values", HIDDEN_SHEET_STATE)
-    If lnSh6 = 0
-      Return False
-    Endif
+      lnSh5 = .AddSheet(lnWB, "Blank Sheet")
 
-    .SetCellValidation(lnWB, lnSh1, 13, 1, LIST_VALID_TYPE, , , , , , , , , "Yes,No,Maybe")
-    .SetCellValue(lnWB, lnSh1, 13, 2, "The cell to the left has a droplist validation")
+*******************************************************************************
 
-    .SetCellValue(lnWB, lnSh6, 1, 1, "Named Value List")
-    .SetCellValue(lnWB, lnSh6, 2, 1, "Named Value 1")
-    .SetCellValue(lnWB, lnSh6, 3, 1, "Named Value 2")
-    .SetCellValue(lnWB, lnSh6, 4, 1, "Named Value 3")
-    .SetCellValue(lnWB, lnSh6, 5, 1, "Named Value 4")
-    .SetCellValue(lnWB, lnSh6, 6, 1, "Named Value 5")
-    .SetCellValue(lnWB, lnSh6, 7, 1, "Named Value 6")
+      lnSh6 = .AddSheet(lnWB, "List Values", HIDDEN_SHEET_STATE)
+      If lnSh6 = 0
+        Return False
+      Endif
 
-    lcNamedRange = .AddNamedRange(lnWB, lnSh6, "Named Range", SCOPE_WB_NAMED_RANGE, "This is a comment", 2, 1, 7, 1)
+      .SetCellValidation(lnWB, lnSh1, 13, 1, LIST_VALID_TYPE, , , , , , , , , "Yes,No,Maybe")
+      .SetCellValue(lnWB, lnSh1, 13, 2, "The cell to the left has a droplist validation")
 
-    .SetCellValidation(lnWB, lnSh1, 14, 1, LIST_VALID_TYPE, , , , , , , , , "=" + lcNamedRange)
-    .SetCellValue(lnWB, lnSh1, 14, 2, "The cell to the left has a droplist validation based on a Named Range (stored in Hidden Sheet6)")
+      .SetCellValue(lnWB, lnSh6, 1, 1, "Named Value List")
+      .SetCellValue(lnWB, lnSh6, 2, 1, "Named Value 1")
+      .SetCellValue(lnWB, lnSh6, 3, 1, "Named Value 2")
+      .SetCellValue(lnWB, lnSh6, 4, 1, "Named Value 3")
+      .SetCellValue(lnWB, lnSh6, 5, 1, "Named Value 4")
+      .SetCellValue(lnWB, lnSh6, 6, 1, "Named Value 5")
+      .SetCellValue(lnWB, lnSh6, 7, 1, "Named Value 6")
 
-    .InsertCell(lnWB, lnSh1,  9, 9, INSERT_RIGHT)
-    .InsertCell(lnWB, lnSh1, 11, 9, INSERT_BEFORE)
+      lcNamedRange = .AddNamedRange(lnWB, lnSh6, "Named Range", SCOPE_WB_NAMED_RANGE, "This is a comment", 2, 1, 7, 1)
+
+      .SetCellValidation(lnWB, lnSh1, 14, 1, LIST_VALID_TYPE, , , , , , , , , "=" + lcNamedRange)
+      .SetCellValue(lnWB, lnSh1, 14, 2, "The cell to the left has a droplist validation based on a Named Range (stored in Hidden Sheet6)")
+
+      .InsertCell(lnWB, lnSh1,  9, 9, INSERT_RIGHT)
+      .InsertCell(lnWB, lnSh1, 11, 9, INSERT_BEFORE)
 
 *-*  For testing sheet saving only
 *this.DeleteSheet(lnWb, lnSh2)
 
-    .SaveWorkbook(lnWB)
-    If .Debug
-      .DebugCursorsToFile("ExcelTest")
-    Endif
-  Endwith
+      .SaveWorkbook(lnWB)
+      If .Debug
+        .DebugCursorsToFile("ExcelTest")
+      Endif
+    Endwith
 
 *-- Derives the sheet name
   Protected Procedure DeriveSheetName
@@ -2195,29 +2195,29 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Freezes the panes of the sheet
   Procedure FreezePanes
-  Lparameters tnWB, tnSheet, tnTopRowCount, tnSideColCount
-  Local lxReturn
-  Do Case
-  Case Pcount() < 3
-    Return False
+    Lparameters tnWB, tnSheet, tnTopRowCount, tnSideColCount
+    Local lxReturn
+    Do Case
+    Case Pcount() < 3
+      Return False
 
-  Case Pcount() = 3
-    tnSideColCount = 0
-  Endcase
-  If Vartype(tnTopRowCount) != 'N'
-    tnTopRowCount = 0
-  Endif
-  If Vartype(tnSideColCount) != 'N'
-    tnSideColCount = 0
-  Endif
-  If This.GetSheetRecord(tnWB, tnSheet)
-    Replace xl_sheets.xsplit With tnSideColCount, ;
-      xl_sheets.ysplit With tnTopRowCount In xl_sheets
-    lxReturn = True
-  Else
-    lxReturn = False
-  Endif
-  Return lxReturn
+    Case Pcount() = 3
+      tnSideColCount = 0
+    Endcase
+    If Vartype(tnTopRowCount) != 'N'
+      tnTopRowCount = 0
+    Endif
+    If Vartype(tnSideColCount) != 'N'
+      tnSideColCount = 0
+    Endif
+    If This.GetSheetRecord(tnWB, tnSheet)
+      Replace xl_sheets.xsplit With tnSideColCount, ;
+        xl_sheets.ysplit With tnTopRowCount In xl_sheets
+      lxReturn = True
+    Else
+      lxReturn = False
+    Endif
+    Return lxReturn
 
 *-- Returns the position of the alpha and numeric split
   Protected Procedure GetAlphaNumericSplit
@@ -2238,124 +2238,124 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the cell alignment
   Procedure GetCellAlignment
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local loAlignInfo
-  If Pcount() < 4
-    Return Null
-  Endif
-  If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-    loAlignInfo = Createobject("Empty")
-    AddProperty(loAlignInfo, "HorzAlign", xl_cellxfs.halign)
-    AddProperty(loAlignInfo, "VertAlign", xl_cellxfs.valign)
-  Else
-    loAlignInfo = Null
-  Endif
-  Return loAlignInfo
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local loAlignInfo
+    If Pcount() < 4
+      Return Null
+    Endif
+    If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+      loAlignInfo = Createobject("Empty")
+      AddProperty(loAlignInfo, "HorzAlign", xl_cellxfs.halign)
+      AddProperty(loAlignInfo, "VertAlign", xl_cellxfs.valign)
+    Else
+      loAlignInfo = Null
+    Endif
+    Return loAlignInfo
 
 *-- Returns the cell border info
   Procedure GetCellBorders
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local loBdrInfo
-  If Pcount() < 4
-    Return Null
-  Endif
-  With This
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs) And .GetCursorRecord("xl_borders", tnWB, xl_cellxfs.borderid)
-      loBdrInfo = Createobject("Empty")
-      AddProperty(loBdrInfo, "LeftStyle",  xl_borders.lstyle)
-      AddProperty(loBdrInfo, "LeftColor",  xl_borders.lcolor)
-      AddProperty(loBdrInfo, "LeftTheme",  xl_borders.ltheme)
-      AddProperty(loBdrInfo, "LeftTint",   xl_borders.ltint)
-      AddProperty(loBdrInfo, "LeftIndex",  xl_borders.lindexed)
-
-      AddProperty(loBdrInfo, "RightStyle", xl_borders.rstyle)
-      AddProperty(loBdrInfo, "RightColor", xl_borders.rcolor)
-      AddProperty(loBdrInfo, "RightTheme", xl_borders.rtheme)
-      AddProperty(loBdrInfo, "RightTint",  xl_borders.rtint)
-      AddProperty(loBdrInfo, "RightIndex", xl_borders.rindexed)
-
-      AddProperty(loBdrInfo, "TopStyle",   xl_borders.tstyle)
-      AddProperty(loBdrInfo, "TopColor",   xl_borders.tcolor)
-      AddProperty(loBdrInfo, "TopTheme",   xl_borders.ttheme)
-      AddProperty(loBdrInfo, "TopTint",    xl_borders.ttint)
-      AddProperty(loBdrInfo, "TopIndex",   xl_borders.tindexed)
-
-      AddProperty(loBdrInfo, "BotStyle",   xl_borders.bstyle)
-      AddProperty(loBdrInfo, "BotColor",   xl_borders.bcolor)
-      AddProperty(loBdrInfo, "BotTheme",   xl_borders.btheme)
-      AddProperty(loBdrInfo, "BotTint",    xl_borders.btint)
-      AddProperty(loBdrInfo, "BotIndex",   xl_borders.bindexed)
-
-      AddProperty(loBdrInfo, "DiagStyle",  xl_borders.dstyle)
-      AddProperty(loBdrInfo, "DiagColor",  xl_borders.dcolor)
-      AddProperty(loBdrInfo, "DiagTheme",  xl_borders.dtheme)
-      AddProperty(loBdrInfo, "DiagTint",   xl_borders.dtint)
-      AddProperty(loBdrInfo, "DiagIndex",  xl_borders.dindexed)
-
-      AddProperty(loBdrInfo, "DiagDn",     xl_borders.diagdn)
-      AddProperty(loBdrInfo, "DiagUp",     xl_borders.diagup)
-    Else
-      loBdrInfo = Null
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local loBdrInfo
+    If Pcount() < 4
+      Return Null
     Endif
-  Endwith
-  Return loBdrInfo
+    With This
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs) And .GetCursorRecord("xl_borders", tnWB, xl_cellxfs.borderid)
+        loBdrInfo = Createobject("Empty")
+        AddProperty(loBdrInfo, "LeftStyle",  xl_borders.lstyle)
+        AddProperty(loBdrInfo, "LeftColor",  xl_borders.lcolor)
+        AddProperty(loBdrInfo, "LeftTheme",  xl_borders.ltheme)
+        AddProperty(loBdrInfo, "LeftTint",   xl_borders.ltint)
+        AddProperty(loBdrInfo, "LeftIndex",  xl_borders.lindexed)
+
+        AddProperty(loBdrInfo, "RightStyle", xl_borders.rstyle)
+        AddProperty(loBdrInfo, "RightColor", xl_borders.rcolor)
+        AddProperty(loBdrInfo, "RightTheme", xl_borders.rtheme)
+        AddProperty(loBdrInfo, "RightTint",  xl_borders.rtint)
+        AddProperty(loBdrInfo, "RightIndex", xl_borders.rindexed)
+
+        AddProperty(loBdrInfo, "TopStyle",   xl_borders.tstyle)
+        AddProperty(loBdrInfo, "TopColor",   xl_borders.tcolor)
+        AddProperty(loBdrInfo, "TopTheme",   xl_borders.ttheme)
+        AddProperty(loBdrInfo, "TopTint",    xl_borders.ttint)
+        AddProperty(loBdrInfo, "TopIndex",   xl_borders.tindexed)
+
+        AddProperty(loBdrInfo, "BotStyle",   xl_borders.bstyle)
+        AddProperty(loBdrInfo, "BotColor",   xl_borders.bcolor)
+        AddProperty(loBdrInfo, "BotTheme",   xl_borders.btheme)
+        AddProperty(loBdrInfo, "BotTint",    xl_borders.btint)
+        AddProperty(loBdrInfo, "BotIndex",   xl_borders.bindexed)
+
+        AddProperty(loBdrInfo, "DiagStyle",  xl_borders.dstyle)
+        AddProperty(loBdrInfo, "DiagColor",  xl_borders.dcolor)
+        AddProperty(loBdrInfo, "DiagTheme",  xl_borders.dtheme)
+        AddProperty(loBdrInfo, "DiagTint",   xl_borders.dtint)
+        AddProperty(loBdrInfo, "DiagIndex",  xl_borders.dindexed)
+
+        AddProperty(loBdrInfo, "DiagDn",     xl_borders.diagdn)
+        AddProperty(loBdrInfo, "DiagUp",     xl_borders.diagup)
+      Else
+        loBdrInfo = Null
+      Endif
+    Endwith
+    Return loBdrInfo
 
 *-- Returns the data type for the selected cell
   Procedure GetCellDataType
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Return Iif(Pcount() >= 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol), xl_cells.DataType, Null)
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Return Iif(Pcount() >= 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol), xl_cells.DataType, Null)
 
 *-- Returns the fill info for the cell
   Procedure GetCellFill
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local loFillInfo
-  If Pcount() < 4
-    Return Null
-  Endif
-  With This
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs) And .GetCursorRecord("xl_fills", tnWB, xl_cellxfs.fillid)
-      loFillInfo = Createobject("Empty")
-      AddProperty(loFillInfo, "FgColor",   xl_fills.fgcolor)
-      AddProperty(loFillInfo, "BgColor",   xl_fills.bgcolor)
-      AddProperty(loFillInfo, "PatType",   xl_fills.patttype)
-      AddProperty(loFillInfo, "Theme",     xl_fills.Theme)
-      AddProperty(loFillInfo, "Tint",      xl_fills.tint)
-      AddProperty(loFillInfo, "FgIndexed", xl_fills.fgindexed)
-      AddProperty(loFillInfo, "BgIndexed", xl_fills.bgindexed)
-    Else
-      loFillInfo = Null
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local loFillInfo
+    If Pcount() < 4
+      Return Null
     Endif
-  Endwith
-  Return loFillInfo
+    With This
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs) And .GetCursorRecord("xl_fills", tnWB, xl_cellxfs.fillid)
+        loFillInfo = Createobject("Empty")
+        AddProperty(loFillInfo, "FgColor",   xl_fills.fgcolor)
+        AddProperty(loFillInfo, "BgColor",   xl_fills.bgcolor)
+        AddProperty(loFillInfo, "PatType",   xl_fills.patttype)
+        AddProperty(loFillInfo, "Theme",     xl_fills.Theme)
+        AddProperty(loFillInfo, "Tint",      xl_fills.tint)
+        AddProperty(loFillInfo, "FgIndexed", xl_fills.fgindexed)
+        AddProperty(loFillInfo, "BgIndexed", xl_fills.bgindexed)
+      Else
+        loFillInfo = Null
+      Endif
+    Endwith
+    Return loFillInfo
 
 *-- Returns the cell font settings
   Procedure GetCellFont
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local loFontInfo
-  If Pcount() < 4
-    Return Null
-  Endif
-  With This
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs) And .GetCursorRecord("xl_fonts", tnWB, xl_cellxfs.fontid)
-      loFontInfo = Createobject("Empty")
-      AddProperty(loFontInfo, "FontName",        Alltrim(xl_fonts.fname))
-      AddProperty(loFontInfo, "FontSize",        xl_fonts.Fsize)
-      AddProperty(loFontInfo, "FontBold",        xl_fonts.fbold)
-      AddProperty(loFontInfo, "FontItalic",      xl_fonts.fitalic)
-      AddProperty(loFontInfo, "ForeColor",       xl_fonts.fcolor)
-      AddProperty(loFontInfo, "FontUnderline",   Alltrim(xl_fonts.uline))
-      AddProperty(loFontInfo, "FontStrikeThr",   xl_fonts.strkthr)
-      AddProperty(loFontInfo, "FontVerticalPos", Alltrim(xl_fonts.fvpos))
-    Else
-      loFontInfo = Null
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local loFontInfo
+    If Pcount() < 4
+      Return Null
     Endif
-  Endwith
-  Return loFontInfo
+    With This
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs) And .GetCursorRecord("xl_fonts", tnWB, xl_cellxfs.fontid)
+        loFontInfo = Createobject("Empty")
+        AddProperty(loFontInfo, "FontName",        Alltrim(xl_fonts.fname))
+        AddProperty(loFontInfo, "FontSize",        xl_fonts.Fsize)
+        AddProperty(loFontInfo, "FontBold",        xl_fonts.fbold)
+        AddProperty(loFontInfo, "FontItalic",      xl_fonts.fitalic)
+        AddProperty(loFontInfo, "ForeColor",       xl_fonts.fcolor)
+        AddProperty(loFontInfo, "FontUnderline",   Alltrim(xl_fonts.uline))
+        AddProperty(loFontInfo, "FontStrikeThr",   xl_fonts.strkthr)
+        AddProperty(loFontInfo, "FontVerticalPos", Alltrim(xl_fonts.fvpos))
+      Else
+        loFontInfo = Null
+      Endif
+    Endwith
+    Return loFontInfo
 
 *-- Returns the cell formula expression
   Procedure GetCellFormula
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Return Iif(Pcount() >= 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol), Alltrim(xl_cells.cellformula), Null)
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Return Iif(Pcount() >= 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol), Alltrim(xl_cells.cellformula), Null)
 
 *-- Gets the cell formula from the XML node
   Protected Procedure GetCellFormulaFromXml
@@ -2463,41 +2463,41 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the cell indentation
   Procedure GetCellIndent
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local lnIndent
-  If Pcount() != 4
-    Return -1
-  Endif
-  With This
-    lnIndent = Iif(.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs),;
-      xl_cellxfs.indent, 0)
-  Endwith
-  Return lnIndent
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local lnIndent
+    If Pcount() != 4
+      Return -1
+    Endif
+    With This
+      lnIndent = Iif(.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs),;
+        xl_cellxfs.indent, 0)
+    Endwith
+    Return lnIndent
 
 *-- Returns the format code for the selected cell
   Procedure GetCellNumberFormat
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local lnNumFmtId
-  If Pcount() != 4
-    Return -1
-  Endif
-  With This
-    lnNumFmtId = Iif(.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs),;
-      xl_cellxfs.numfmtid, 0)
-  Endwith
-  Return lnNumFmtId
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local lnNumFmtId
+    If Pcount() != 4
+      Return -1
+    Endif
+    With This
+      lnNumFmtId = Iif(.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs),;
+        xl_cellxfs.numfmtid, 0)
+    Endwith
+    Return lnNumFmtId
 
 *-- Returns the selected cell numeric format as text
   Procedure GetCellNumberFormatText
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local lcFormatCode
-  If Pcount() != 4
-    Return ""
-  Endif
-  With This
-    Return Iif(Pcount() >= 4 And .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs), ;
-      xl_cellxfs.formatcode, '')
-  Endwith
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local lcFormatCode
+    If Pcount() != 4
+      Return ""
+    Endif
+    With This
+      Return Iif(Pcount() >= 4 And .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs), ;
+        xl_cellxfs.formatcode, '')
+    Endwith
 
 *-- Positions to the xl_cells record; returns true if found, or false if not found
   Protected Procedure GetCellRecord
@@ -2506,141 +2506,141 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Gets the cell style value
   Procedure GetCellStyle
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Return Iif(Pcount() = 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol), xl_cells.cellxfs, -1)
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Return Iif(Pcount() = 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol), xl_cells.cellxfs, -1)
 
 *-- Gets the cell text rotation value
   Procedure GetCellTextRotation
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local lnRotation
-  If Pcount() != 4
-    Return 99
-  Endif
-  With This
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-      lnRotation = xl_cellxfs.Rotation
-      If lnRotation > 90
-        lnRotation = 90 - lnRotation
-      Endif
-    Else
-      lnRotation = 0
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local lnRotation
+    If Pcount() != 4
+      Return 99
     Endif
-  Endwith
-  Return lnRotation
+    With This
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+        lnRotation = xl_cellxfs.Rotation
+        If lnRotation > 90
+          lnRotation = 90 - lnRotation
+        Endif
+      Else
+        lnRotation = 0
+      Endif
+    Endwith
+    Return lnRotation
 
 *-- Returns the cell validation settings
   Procedure GetCellValidation
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local loValidation
-  loValidation = Createobject("Empty")
-  AddProperty(loValidation, "Type", 0)
-  AddProperty(loValidation, "Style", 0)
-  AddProperty(loValidation, "Operator", 0)
-  AddProperty(loValidation, "AllowBlank", False)
-  AddProperty(loValidation, "ShowInputMsg", False)
-  AddProperty(loValidation, "ShowErrMsg", False)
-  AddProperty(loValidation, "ErrMsg", "")
-  AddProperty(loValidation, "ErrTitle", "")
-  AddProperty(loValidation, "Prompt", "")
-  AddProperty(loValidation, "Formula1", "")
-  AddProperty(loValidation, "Formula2", "")
-  If Pcount() < 4
-    Return loValidation
-  Endif
-  If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And Seek(BinToC(xl_cells.validndx), "xl_validation", "validndx")
-    With loValidation
-      .Type         = xl_validation.vtype
-      .Style        = xl_validation.vstyle
-      .Operator     = xl_validation.voperator
-      .allowblank   = xl_validation.allowblank
-      .ShowInputMsg = xl_validation.showinpmsg
-      .showerrmsg   = xl_validation.showerrmsg
-      .errmsg       = xl_validation.errmsg
-      .errtitle     = xl_validation.errtitle
-      .Prompt       = xl_validation.vprompt
-      .formula1     = xl_validation.formula1
-      .formula2     = xl_validation.formula2
-    Endwith
-  Endif
-  Return loValiation
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local loValidation
+    loValidation = Createobject("Empty")
+    AddProperty(loValidation, "Type", 0)
+    AddProperty(loValidation, "Style", 0)
+    AddProperty(loValidation, "Operator", 0)
+    AddProperty(loValidation, "AllowBlank", False)
+    AddProperty(loValidation, "ShowInputMsg", False)
+    AddProperty(loValidation, "ShowErrMsg", False)
+    AddProperty(loValidation, "ErrMsg", "")
+    AddProperty(loValidation, "ErrTitle", "")
+    AddProperty(loValidation, "Prompt", "")
+    AddProperty(loValidation, "Formula1", "")
+    AddProperty(loValidation, "Formula2", "")
+    If Pcount() < 4
+      Return loValidation
+    Endif
+    If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And Seek(BinToC(xl_cells.validndx), "xl_validation", "validndx")
+      With loValidation
+        .Type         = xl_validation.vtype
+        .Style        = xl_validation.vstyle
+        .Operator     = xl_validation.voperator
+        .allowblank   = xl_validation.allowblank
+        .ShowInputMsg = xl_validation.showinpmsg
+        .showerrmsg   = xl_validation.showerrmsg
+        .errmsg       = xl_validation.errmsg
+        .errtitle     = xl_validation.errtitle
+        .Prompt       = xl_validation.vprompt
+        .formula1     = xl_validation.formula1
+        .formula2     = xl_validation.formula2
+      Endwith
+    Endif
+    Return loValiation
 
 *-- Returns the value of the cell
   Procedure GetCellValue
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local lxValue, lnDays, lnDecimals, lnMSec, lnTime, lnSize, lcType, loException
-  If Pcount() < 4
-    Return Null
-  Endif
-  lxValue = Null
-  With This
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-      lnDecimals = Set("DECIMALS")
-      Try
-        Do Case
-        Case xl_cells.DataType = DATA_TYPE_DATE
-          lnDays  = Cast(xl_cells.cellvalue As I)
-          lxValue = Date(1900, 1, 1) + lnDays - 2
-
-        Case xl_cells.DataType = DATA_TYPE_TIME
-          Set Decimals To 12
-          lnMSec  = Cast(xl_cells.cellvalue As N(20,12))
-          lnTime  = lnMSec * 24 * 60 * 60
-          lxValue = Dtot(Date()) + lnTime
-          lxValue = Transform(Hour(lxValue)) + ":" + Transform(Minute(lxValue)) + ":" + Transform(Sec(lxValue))
-
-        Case xl_cells.DataType = DATA_TYPE_DATETIME
-          Set Decimals To 12
-          lnDays  = Cast(xl_cells.cellvalue As I)
-          lxValue = Date(1900, 1, 1) + lnDays - 2
-          lnMSec  = Cast(xl_cells.cellvalue As N(20,12)) - lnDays
-          lnTime  = lnMSec * 24 * 60 * 60
-          lxValue = Dtot(lxValue) + lnTime
-
-        Case xl_cells.DataType = DATA_TYPE_CHAR
-          lxValue = Iif(.GetCursorRecord("xl_strings", tnWB, xl_cells.stringid), Rtrim(xl_strings.stringval), '')
-
-        Case xl_cells.DataType = DATA_TYPE_INT
-          lxValue = Cast(xl_cells.cellvalue As I)
-          lxValue = Iif(lxValue != Val(xl_cells.cellvalue), Cast(xl_cells.cellvalue As N(20,0)), lxValue)
-
-        Case xl_cells.DataType = DATA_TYPE_FLOAT
-          lnSize = Atc(".", Alltrim(xl_cells.cellvalue))
-          lnSize = Iif(lnSize > 0, lnSize + lnDecimals, Len(Alltrim(xl_cells.cellvalue)) + lnDecimals + 1)
-          lcType  = "N(" + Transform(lnSize) + "," + Transform(lnDecimals) + ")"
-          lxValue = Cast(xl_cells.cellvalue As &lcType)
-
-        Case xl_cells.DataType = DATA_TYPE_CURRENCY
-          lxValue = Cast(xl_cells.cellvalue As Y)
-
-        Case xl_cells.DataType = DATA_TYPE_PERCENT
-          lxValue = Transform(Cast(xl_cells.cellvalue As N(14,8)) * 100) + "%"
-
-        Case xl_cells.DataType = DATA_TYPE_GENERAL
-          lxValue = Alltrim(xl_cells.cellvalue)
-
-        Case xl_cells.DataType = DATA_TYPE_FORMULA
-
-        Case xl_cells.DataType = DATA_TYPE_NONE
-          lxValue = Alltrim(xl_cells.cellvalue)
-
-        Otherwise
-          lxValue = Alltrim(xl_cells.cellvalue)
-        Endcase
-
-      Catch To loException
-        Set Step On
-      Finally
-        Set Decimals To &lnDecimals
-      Endtry
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local lxValue, lnDays, lnDecimals, lnMSec, lnTime, lnSize, lcType, loException
+    If Pcount() < 4
+      Return Null
     Endif
-  Endwith
-  Return lxValue
+    lxValue = Null
+    With This
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+        lnDecimals = Set("DECIMALS")
+        Try
+          Do Case
+          Case xl_cells.DataType = DATA_TYPE_DATE
+            lnDays  = Cast(xl_cells.cellvalue As I)
+            lxValue = Date(1900, 1, 1) + lnDays - 2
+
+          Case xl_cells.DataType = DATA_TYPE_TIME
+            Set Decimals To 12
+            lnMSec  = Cast(xl_cells.cellvalue As N(20,12))
+            lnTime  = lnMSec * 24 * 60 * 60
+            lxValue = Dtot(Date()) + lnTime
+            lxValue = Transform(Hour(lxValue)) + ":" + Transform(Minute(lxValue)) + ":" + Transform(Sec(lxValue))
+
+          Case xl_cells.DataType = DATA_TYPE_DATETIME
+            Set Decimals To 12
+            lnDays  = Cast(xl_cells.cellvalue As I)
+            lxValue = Date(1900, 1, 1) + lnDays - 2
+            lnMSec  = Cast(xl_cells.cellvalue As N(20,12)) - lnDays
+            lnTime  = lnMSec * 24 * 60 * 60
+            lxValue = Dtot(lxValue) + lnTime
+
+          Case xl_cells.DataType = DATA_TYPE_CHAR
+            lxValue = Iif(.GetCursorRecord("xl_strings", tnWB, xl_cells.stringid), Rtrim(xl_strings.stringval), '')
+
+          Case xl_cells.DataType = DATA_TYPE_INT
+            lxValue = Cast(xl_cells.cellvalue As I)
+            lxValue = Iif(lxValue != Val(xl_cells.cellvalue), Cast(xl_cells.cellvalue As N(20,0)), lxValue)
+
+          Case xl_cells.DataType = DATA_TYPE_FLOAT
+            lnSize = Atc(".", Alltrim(xl_cells.cellvalue))
+            lnSize = Iif(lnSize > 0, lnSize + lnDecimals, Len(Alltrim(xl_cells.cellvalue)) + lnDecimals + 1)
+            lcType  = "N(" + Transform(lnSize) + "," + Transform(lnDecimals) + ")"
+            lxValue = Cast(xl_cells.cellvalue As &lcType)
+
+          Case xl_cells.DataType = DATA_TYPE_CURRENCY
+            lxValue = Cast(xl_cells.cellvalue As Y)
+
+          Case xl_cells.DataType = DATA_TYPE_PERCENT
+            lxValue = Transform(Cast(xl_cells.cellvalue As N(14,8)) * 100) + "%"
+
+          Case xl_cells.DataType = DATA_TYPE_GENERAL
+            lxValue = Alltrim(xl_cells.cellvalue)
+
+          Case xl_cells.DataType = DATA_TYPE_FORMULA
+
+          Case xl_cells.DataType = DATA_TYPE_NONE
+            lxValue = Alltrim(xl_cells.cellvalue)
+
+          Otherwise
+            lxValue = Alltrim(xl_cells.cellvalue)
+          Endcase
+
+        Catch To loException
+          Set Step On
+        Finally
+          Set Decimals To &lnDecimals
+        Endtry
+      Endif
+    Endwith
+    Return lxValue
 
 *-- Returns the cell word wrap setting
   Procedure GetCellWordWrap
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Return Iif(Pcount() >= 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs),;
-    xl_cellxfs.wraptext, Null)
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Return Iif(Pcount() >= 4 And This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol) And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs),;
+      xl_cellxfs.wraptext, Null)
 
 *-- Returns the Cell XfsId value
   Protected Procedure GetCellXfsId
@@ -2697,17 +2697,17 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the column width
   Procedure GetColumnWidth
-  Lparameters tnWB, tnSheet, tnColumn
-  Local lxReturn
-  If Pcount() < 3
-    Return Null
-  Endif
-  If This.GetSheetRecord(tnWB, tnSheet)
-    lxReturn = Iif(Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn"), xl_colwidths.Width, -1)
-  Else
-    lxReturn = Null
-  Endif
-  Return lxReturn
+    Lparameters tnWB, tnSheet, tnColumn
+    Local lxReturn
+    If Pcount() < 3
+      Return Null
+    Endif
+    If This.GetSheetRecord(tnWB, tnSheet)
+      lxReturn = Iif(Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn"), xl_colwidths.Width, -1)
+    Else
+      lxReturn = Null
+    Endif
+    Return lxReturn
 
 *-- Gets the key expression for c_colwidths
   Protected Procedure GetColWidthKeyExpr
@@ -2721,22 +2721,22 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the format code for the specified custom numeric format
   Procedure GetCustomNumericFormat
-  Lparameters tnWB, tnNumFormat
-  Return Iif(Seek(BinToC(tnWB)+BinToC(tnNumFormat), "xl_numfmts", "id"), Alltrim(xl_numFmts.formatcode), '')
+    Lparameters tnWB, tnNumFormat
+    Return Iif(Seek(BinToC(tnWB)+BinToC(tnNumFormat), "xl_numfmts", "id"), Alltrim(xl_numFmts.formatcode), '')
 
 *-- Gets the values for the custom paper size
   Procedure GetCustomPaperSize
-  Lparameters tnWB, tnSheet
-  Local loReturn
-  If Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet)
-    loReturn = Createobject("Empty")
-    AddProperty(loReturn, "PaperWidth",  xl_sheets.Paperwidth)
-    AddProperty(loReturn, "PaperHeight", xl_sheets.paperheight)
-    AddProperty(loReturn, "PaperDimen",  xl_sheets.paperdimen)
-  Else
-    loReturn = Null
-  Endif
-  Return loReturn
+    Lparameters tnWB, tnSheet
+    Local loReturn
+    If Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet)
+      loReturn = Createobject("Empty")
+      AddProperty(loReturn, "PaperWidth",  xl_sheets.Paperwidth)
+      AddProperty(loReturn, "PaperHeight", xl_sheets.paperheight)
+      AddProperty(loReturn, "PaperDimen",  xl_sheets.paperdimen)
+    Else
+      loReturn = Null
+    Endif
+    Return loReturn
 
 *-- Gets the key expression for t_format
   Protected Procedure GetFormatKeyExpr
@@ -2750,104 +2750,104 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the inline formatting definition of cell text for each character group
   Procedure GetInlineFontDefinition
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local loSharedString, loInline, lcAlias, lnBegPos, lnLen, loCharacter
-  If Pcount() != 4
-    Return Null
-  Endif
-  loSharedString = This.GetSharedStringId(tnWB, tnSheet, tnCellRow, tnCellCol)
-  If Isnull(loSharedString)
-    Return Null
-  Endif
-  lnBegPos = 1
-  lcAlias  = Alias()
-  loInline = Createobject("Empty")
-  AddProperty(loInline, "Workbook", tnWB)
-  AddProperty(loInline, "StringId", loSharedString.stringid)
-  AddProperty(loInline, "StringValue", loSharedString.StringValue)
-  AddProperty(loInline, "Count", 0)
-  AddProperty(loInline, "Characters[1]")
-  Select xl_strformat
-  Set Order To Tag sortorder
-  Scan For workbook = tnWB And Id = loSharedString.stringid And !Deleted()
-    lnLen = Len(Rtrim(xl_strformat.stringxml))
-    loCharacter = Createobject("Empty")
-    AddProperty(loCharacter, "BegPos", lnBegPos)
-    AddProperty(loCharacter, "Length", lnLen)
-    AddProperty(loCharacter, "FontName", xl_strformat.fname)
-    AddProperty(loCharacter, "FontSize", xl_strformat.Fsize)
-    AddProperty(loCharacter, "FontBold", xl_strformat.fbold)
-    AddProperty(loCharacter, "FontItalic", xl_strformat.fitalic)
-    AddProperty(loCharacter, "FontColor", xl_strformat.fcolor)
-    AddProperty(loCharacter, "Underline", xl_strformat.uline)
-    AddProperty(loCharacter, "StrikeThru", xl_strformat.strkthr)
-    AddProperty(loCharacter, "SubScript", Iif(xl_strformat.fvpos=FONT_VERTICAL_SUBSCRIPT, True, False))
-    AddProperty(loCharacter, "SuperScript", Iif(xl_strformat.fvpos=FONT_VERTICAL_SUPERSCRIPT, True, False))
-    loInline.Count = loInline.Count + 1
-    Dimension loInline.Characters[loInline.Count]
-    loInline.Characters[loInline.Count] = loCharacter
-    lnBegPos = lnBegPos + lnLen
-  Endscan
-  Set Order To
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  If loInline.Count = 0
-    loInline = Null
-  Endif
-  Return loInline
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local loSharedString, loInline, lcAlias, lnBegPos, lnLen, loCharacter
+    If Pcount() != 4
+      Return Null
+    Endif
+    loSharedString = This.GetSharedStringId(tnWB, tnSheet, tnCellRow, tnCellCol)
+    If Isnull(loSharedString)
+      Return Null
+    Endif
+    lnBegPos = 1
+    lcAlias  = Alias()
+    loInline = Createobject("Empty")
+    AddProperty(loInline, "Workbook", tnWB)
+    AddProperty(loInline, "StringId", loSharedString.stringid)
+    AddProperty(loInline, "StringValue", loSharedString.StringValue)
+    AddProperty(loInline, "Count", 0)
+    AddProperty(loInline, "Characters[1]")
+    Select xl_strformat
+    Set Order To Tag sortorder
+    Scan For workbook = tnWB And Id = loSharedString.stringid And !Deleted()
+      lnLen = Len(Rtrim(xl_strformat.stringxml))
+      loCharacter = Createobject("Empty")
+      AddProperty(loCharacter, "BegPos", lnBegPos)
+      AddProperty(loCharacter, "Length", lnLen)
+      AddProperty(loCharacter, "FontName", xl_strformat.fname)
+      AddProperty(loCharacter, "FontSize", xl_strformat.Fsize)
+      AddProperty(loCharacter, "FontBold", xl_strformat.fbold)
+      AddProperty(loCharacter, "FontItalic", xl_strformat.fitalic)
+      AddProperty(loCharacter, "FontColor", xl_strformat.fcolor)
+      AddProperty(loCharacter, "Underline", xl_strformat.uline)
+      AddProperty(loCharacter, "StrikeThru", xl_strformat.strkthr)
+      AddProperty(loCharacter, "SubScript", Iif(xl_strformat.fvpos=FONT_VERTICAL_SUBSCRIPT, True, False))
+      AddProperty(loCharacter, "SuperScript", Iif(xl_strformat.fvpos=FONT_VERTICAL_SUPERSCRIPT, True, False))
+      loInline.Count = loInline.Count + 1
+      Dimension loInline.Characters[loInline.Count]
+      loInline.Characters[loInline.Count] = loCharacter
+      lnBegPos = lnBegPos + lnLen
+    Endscan
+    Set Order To
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    If loInline.Count = 0
+      loInline = Null
+    Endif
+    Return loInline
 
 *-- Returns the last column index in the row
   Procedure GetLastColumnInRow
-  Lparameters tnWB, tnSheet, tnCellRow
-  Local lnMaxCol
-  If Pcount() < 3
-    Return Null
-  Endif
-  lnMaxCol = 0
-  Select Max(tmp.cellcol) As maxcol From xl_cells As tmp ;
-    WHERE workbook = tnWB ;
-    AND tmp.Sheet = tnSheet ;
-    AND tmp.cellrow = tnCellRow ;
-    AND tmp.celldeleted = False ;
-    INTO Cursor t_temp
+    Lparameters tnWB, tnSheet, tnCellRow
+    Local lnMaxCol
+    If Pcount() < 3
+      Return Null
+    Endif
+    lnMaxCol = 0
+    Select Max(tmp.cellcol) As maxcol From xl_cells As tmp ;
+      WHERE workbook = tnWB ;
+      AND tmp.Sheet = tnSheet ;
+      AND tmp.cellrow = tnCellRow ;
+      AND tmp.celldeleted = False ;
+      INTO Cursor t_temp
 
-  If _Tally > 0
-    lnMaxCol = t_temp.maxcol
-  Endif
-  If Used('t_temp')
-    Use In t_temp
-  Endif
-  Return lnMaxCol
+    If _Tally > 0
+      lnMaxCol = t_temp.maxcol
+    Endif
+    If Used('t_temp')
+      Use In t_temp
+    Endif
+    Return lnMaxCol
 
 *-- Returns the last row number in the sheet
   Procedure GetLastRowNumber
-  Lparameters tnWB, tnSheet
-  Local Array laMaxRow[1]
-  If Pcount() < 2
-    Return Null
-  Endif
-  Select Max(cellrow) From xl_cells ;
-    WHERE workbook = tnWB ;
-    AND Sheet = tnSheet ;
-    AND celldeleted = False ;
-    INTO Array laMaxRow
+    Lparameters tnWB, tnSheet
+    Local Array laMaxRow[1]
+    If Pcount() < 2
+      Return Null
+    Endif
+    Select Max(cellrow) From xl_cells ;
+      WHERE workbook = tnWB ;
+      AND Sheet = tnSheet ;
+      AND celldeleted = False ;
+      INTO Array laMaxRow
 
-  Return Iif(_Tally > 0, laMaxRow[1], 0)
+    Return Iif(_Tally > 0, laMaxRow[1], 0)
 
 *-- Returns the max column number for a sheet
   Procedure GetMaxColumnNumber
-  Lparameters tnWB, tnSheet
-  Local Array laMaxCol[1]
-  If Pcount() < 2
-    Return Null
-  Endif
-  Select Max(tmp.maxcol) As maxcol From xl_rows As tmp ;
-    WHERE tmp.workbook = tnWB ;
-    AND tmp.Sheet = tnSheet ;
-    INTO Array laMaxCol
+    Lparameters tnWB, tnSheet
+    Local Array laMaxCol[1]
+    If Pcount() < 2
+      Return Null
+    Endif
+    Select Max(tmp.maxcol) As maxcol From xl_rows As tmp ;
+      WHERE tmp.workbook = tnWB ;
+      AND tmp.Sheet = tnSheet ;
+      INTO Array laMaxCol
 
-  Return Iif(_Tally > 0, laMaxCol[1], 0)
+    Return Iif(_Tally > 0, laMaxCol[1], 0)
 
 *-- Gets the next sequential Id value
   Protected Procedure GetNextId
@@ -3044,21 +3044,21 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the number of sheets for the given workbook
   Procedure GetNumberDfSheets
-  Lparameters tnWB
-  Local lnCount
-  Select xl_sheets
-  Count For xl_sheets.workbook = tnWB And !xl_sheets.shdeleted To lnCount
-  Return lnCount
+    Lparameters tnWB
+    Local lnCount
+    Select xl_sheets
+    Count For xl_sheets.workbook = tnWB And !xl_sheets.shdeleted To lnCount
+    Return lnCount
 
 *-- Gets the paper size for the selected sheet
   Procedure GetPaperSize
-  Lparameters tnWB, tnSheet
-  Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), xl_sheets.Papersize, -1)
+    Lparameters tnWB, tnSheet
+    Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), xl_sheets.Papersize, -1)
 
 *-- Gets the print orientation for the sheet output
   Procedure GetPrintOrientation
-  Lparameters tnWB, tnSheet
-  Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), xl_sheets.prnorient, 0)
+    Lparameters tnWB, tnSheet
+    Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), xl_sheets.prnorient, 0)
 
 *-- Gets the file name for the R:Id value in the relationships XML
   Protected Procedure GetRelationShipFileName
@@ -3067,34 +3067,34 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Gets the specified RGB color value
   Procedure GetRGBValues
-  Lparameters tnColorValue, tcRGB
-  Local lnValue, lnNdx
-  If Pcount() < 2
-    Return -1
-  Endif
-  Do Case
-  Case tcRGB = "R"
-    lnValue = tnColorValue
-    For lnNdx=8 To 31
-      lnValue = Bitclear(lnValue, lnNdx)
-    Endfor
+    Lparameters tnColorValue, tcRGB
+    Local lnValue, lnNdx
+    If Pcount() < 2
+      Return -1
+    Endif
+    Do Case
+    Case tcRGB = "R"
+      lnValue = tnColorValue
+      For lnNdx=8 To 31
+        lnValue = Bitclear(lnValue, lnNdx)
+      Endfor
 
-  Case tcRGB = "G"
-    lnValue = Bitrshift(tnColorValue, 8)
-    For lnNdx=8 To 31
-      lnValue = Bitclear(lnValue, lnNdx)
-    Endfor
+    Case tcRGB = "G"
+      lnValue = Bitrshift(tnColorValue, 8)
+      For lnNdx=8 To 31
+        lnValue = Bitclear(lnValue, lnNdx)
+      Endfor
 
-  Case tcRGB = "B"
-    lnValue = Bitrshift(tnColorValue, 16)
-    For lnNdx=8 To 31
-      lnValue = Bitclear(lnValue, lnNdx)
-    Endfor
+    Case tcRGB = "B"
+      lnValue = Bitrshift(tnColorValue, 16)
+      For lnNdx=8 To 31
+        lnValue = Bitclear(lnValue, lnNdx)
+      Endfor
 
-  Otherwise
-    Return -1
-  Endcase
-  Return Int(lnValue)
+    Otherwise
+      Return -1
+    Endcase
+    Return Int(lnValue)
 
 *-- Gets the key expression for the c_rowheights
   Protected Procedure GetRowHeightKeyExpr
@@ -3116,8 +3116,8 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the selected row maximum column
   Procedure GetRowMaxColumn
-  Lparameters tnWB, tnSheet, tnCellRow
-  Return Iif(Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(tnCellRow), "xl_rows", "id"), xl_rows.maxcol, 0)
+    Lparameters tnWB, tnSheet, tnCellRow
+    Return Iif(Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(tnCellRow), "xl_rows", "id"), xl_rows.maxcol, 0)
 
 *-- Gets the Shared Strings Id value for the cell text
   Protected Procedure GetSharedStringId
@@ -3136,8 +3136,8 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Gets the sheet name
   Procedure GetSheetName
-  Lparameters tnWB, tnSheet
-  Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), Alltrim(xl_sheets.shname), '')
+    Lparameters tnWB, tnSheet
+    Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), Alltrim(xl_sheets.shname), '')
 
 *-- Positions the record in xl_sheets; returns true if record found, or false if not found
   Protected Procedure GetSheetRecord
@@ -3146,41 +3146,41 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the cell values for the given row
   Procedure GetSheetRowValues
-  Lparameters tnWB, tnSheet, tnCellRow
-  Local lnMaxCol, loRow
-  If Pcount() < 3
-    Return Null
-  Endif
-  lnMaxCol = This.GetMaxColumnNumber(tnWB, tnSheet)
-  With This
-    If !Isnull(lnMaxCol) And lnMaxCol > 0
-      loRow = Createobject("Empty")
-      AddProperty(loRow, "Values[lnMaxCol, 2]", "")
-      AddProperty(loRow, "Count", lnMaxCol)
-      loRow.Values = Null
-      Select tmp.cellcol From xl_cells As tmp ;
-        WHERE workbook = tnWB ;
-        AND tmp.Sheet = tnSheet ;
-        AND tmp.cellrow = tnCellRow ;
-        AND tmp.celldeleted = False ;
-        INTO Cursor t_temp
-
-      Select t_temp
-      Scan
-        loRow.Values[t_temp.cellcol, 1] = .GetCellValue(tnWB, tnSheet, tnCellRow, t_temp.cellcol)
-        loRow.Values[t_temp.cellcol, 2] = .GetCellDataType(tnWB, tnSheet, tnCellRow, t_temp.cellcol)
-      Endscan
-      Use In t_temp
-    Else
-      loRow = Null
+    Lparameters tnWB, tnSheet, tnCellRow
+    Local lnMaxCol, loRow
+    If Pcount() < 3
+      Return Null
     Endif
-  Endwith
-  Return loRow
+    lnMaxCol = This.GetMaxColumnNumber(tnWB, tnSheet)
+    With This
+      If !Isnull(lnMaxCol) And lnMaxCol > 0
+        loRow = Createobject("Empty")
+        AddProperty(loRow, "Values[lnMaxCol, 2]", "")
+        AddProperty(loRow, "Count", lnMaxCol)
+        loRow.Values = Null
+        Select tmp.cellcol From xl_cells As tmp ;
+          WHERE workbook = tnWB ;
+          AND tmp.Sheet = tnSheet ;
+          AND tmp.cellrow = tnCellRow ;
+          AND tmp.celldeleted = False ;
+          INTO Cursor t_temp
+
+        Select t_temp
+        Scan
+          loRow.Values[t_temp.cellcol, 1] = .GetCellValue(tnWB, tnSheet, tnCellRow, t_temp.cellcol)
+          loRow.Values[t_temp.cellcol, 2] = .GetCellDataType(tnWB, tnSheet, tnCellRow, t_temp.cellcol)
+        Endscan
+        Use In t_temp
+      Else
+        loRow = Null
+      Endif
+    Endwith
+    Return loRow
 
 *-- Gets the sheet printing scale
   Procedure GetSheetScale
-  Lparameters tnWB, tnSheet
-  Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), xl_sheets.Scale, -1)
+    Lparameters tnWB, tnSheet
+    Return Iif(Pcount() = 2 And This.GetSheetRecord(tnWB, tnSheet), xl_sheets.Scale, -1)
 
 *-- Positions the record pointer to the selected string record
   Protected Procedure GetStringRecord
@@ -3224,91 +3224,91 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Returns the validation definition
   Procedure GetValidation
-  Lparameters tnValidNdx
-  Local loValidation
-  loValidation = Createobject("Empty")
-  AddProperty(loValidation, "Type", 0)
-  AddProperty(loValidation, "Style", 0)
-  AddProperty(loValidation, "Operator", 0)
-  AddProperty(loValidation, "AllowBlank", False)
-  AddProperty(loValidation, "ShowInputMsg", False)
-  AddProperty(loValidation, "ShowErrMsg", False)
-  AddProperty(loValidation, "ErrMsg", "")
-  AddProperty(loValidation, "ErrTitle", "")
-  AddProperty(loValidation, "Prompt", "")
-  AddProperty(loValidation, "Formula1", "")
-  AddProperty(loValidation, "Formula2", "")
-  If Pcount() < 1
+    Lparameters tnValidNdx
+    Local loValidation
+    loValidation = Createobject("Empty")
+    AddProperty(loValidation, "Type", 0)
+    AddProperty(loValidation, "Style", 0)
+    AddProperty(loValidation, "Operator", 0)
+    AddProperty(loValidation, "AllowBlank", False)
+    AddProperty(loValidation, "ShowInputMsg", False)
+    AddProperty(loValidation, "ShowErrMsg", False)
+    AddProperty(loValidation, "ErrMsg", "")
+    AddProperty(loValidation, "ErrTitle", "")
+    AddProperty(loValidation, "Prompt", "")
+    AddProperty(loValidation, "Formula1", "")
+    AddProperty(loValidation, "Formula2", "")
+    If Pcount() < 1
+      Return loValidation
+    Endif
+    If Seek(BinToC(tnValidNdx), "xl_validation", "validndx")
+      With loValidation
+        .Type         = xl_validation.vtype
+        .Style        = xl_validation.vstyle
+        .Operator     = xl_validation.voperator
+        .allowblank   = xl_validation.allowblank
+        .ShowInputMsg = xl_validation.showinpmsg
+        .showerrmsg   = xl_validation.showerrmsg
+        .errmsg       = xl_validation.errmsg
+        .errtitle     = xl_validation.errtitle
+        .Prompt       = xl_validation.vprompt
+        .formula1     = Iif(xl_validation.formula, "=", "") + Alltrim(xl_validation.formula1)
+        .formula2     = Iif(Empty(xl_validation.formula2), "", Iif(xl_validation.formula, "=", "") + Alltrim(xl_validation.formula2))
+      Endwith
+    Endif
     Return loValidation
-  Endif
-  If Seek(BinToC(tnValidNdx), "xl_validation", "validndx")
-    With loValidation
-      .Type         = xl_validation.vtype
-      .Style        = xl_validation.vstyle
-      .Operator     = xl_validation.voperator
-      .allowblank   = xl_validation.allowblank
-      .ShowInputMsg = xl_validation.showinpmsg
-      .showerrmsg   = xl_validation.showerrmsg
-      .errmsg       = xl_validation.errmsg
-      .errtitle     = xl_validation.errtitle
-      .Prompt       = xl_validation.vprompt
-      .formula1     = Iif(xl_validation.formula, "=", "") + Alltrim(xl_validation.formula1)
-      .formula2     = Iif(Empty(xl_validation.formula2), "", Iif(xl_validation.formula, "=", "") + Alltrim(xl_validation.formula2))
-    Endwith
-  Endif
-  Return loValidation
 
 *-- Returns a list of validations for the workbook/sheet
   Procedure GetValidationList
-  Lparameters tnWB, tnSheet
+    Lparameters tnWB, tnSheet
 * TODO: заменить на copy fields vtype, validndx to array loValidation.List
-  Local loValiation, lcAlias
-  lcAlias = Alias()
-  loValidation = Createobject("Empty")
-  AddProperty(loValidation, "List[1]")
-  AddProperty(loValidation, "Count", 0)
-  Select xl_validation
-  Scan For BinToC(workbook)+BinToC(Sheet)
-    loValidation.Count = loValidation.Count + 1
-    Dimension loValidation.List[loValidation.Count, 2]
-    loValidation.List[loValidation.Count, 1] = xl_validation.vtype
-    loValidation.List[loValidation.Count, 2] = xl_validation.validndx
-  Endscan
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return loValidation
+    Local loValiation, lcAlias
+    lcAlias = Alias()
+    loValidation = Createobject("Empty")
+    AddProperty(loValidation, "List[1]")
+    AddProperty(loValidation, "Count", 0)
+    Select xl_validation
+    Scan For BinToC(workbook)+BinToC(Sheet)
+      loValidation.Count = loValidation.Count + 1
+      Dimension loValidation.List[loValidation.Count, 2]
+      loValidation.List[loValidation.Count, 1] = xl_validation.vtype
+      loValidation.List[loValidation.Count, 2] = xl_validation.validndx
+    Endscan
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return loValidation
 
 *-- Gets the workbook Id from the name
   Procedure GetWorkbook
-  Lparameters tcName
-  Return Iif(Seek(Padr(Upper(Juststem(tcName)), 200, "_"), "xl_workbooks", "wbname"), xl_workbooks.workbook, 0)
+    Lparameters tcName
+    Return Iif(Seek(Padr(Upper(Juststem(tcName)), 200, "_"), "xl_workbooks", "wbname"), xl_workbooks.workbook, 0)
 
 *-- Gets the file name for the workbook index
   Procedure GetWorkbookFileName
-  Lparameters tnWB
-  Return Iif(Seek(BinToC(tnWB), "xl_workbooks", "workbook"), ;
-    FORCEEXT(Addbs(Alltrim(xl_workbooks.filepath)) + Alltrim(xl_workbooks.wbname), "xlsx"), '')
+    Lparameters tnWB
+    Return Iif(Seek(BinToC(tnWB), "xl_workbooks", "workbook"), ;
+      FORCEEXT(Addbs(Alltrim(xl_workbooks.filepath)) + Alltrim(xl_workbooks.wbname), "xlsx"), '')
 
 *-- Returns the workbook sheets
   Procedure GetWorkbookSheets
-  Lparameters tnWB
-  Local loSheets
-  loSheets = Createobject("Empty")
-  AddProperty(loSheets, "List[1, 2]")
-  AddProperty(loSheets, "Count", 0)
-  Select xl_sheets
-  Set Order To Tag Sheet
+    Lparameters tnWB
+    Local loSheets
+    loSheets = Createobject("Empty")
+    AddProperty(loSheets, "List[1, 2]")
+    AddProperty(loSheets, "Count", 0)
+    Select xl_sheets
+    Set Order To Tag Sheet
 * TODO: заменить на copy fields Sheet, shname to array loSheets.List
 * TODO: loSheets.Count = RecCount()
-  Scan For workbook = tnWB And !shdeleted
-    loSheets.Count = loSheets.Count + 1
-    Dimension loSheets.List[loSheets.Count, 2]
-    loSheets.List[loSheets.Count, 1] = xl_sheets.Sheet
-    loSheets.List[loSheets.Count, 2] = Alltrim(xl_sheets.shname)
-  Endscan
-  Set Order To
-  Return loSheets
+    Scan For workbook = tnWB And !shdeleted
+      loSheets.Count = loSheets.Count + 1
+      Dimension loSheets.List[loSheets.Count, 2]
+      loSheets.List[loSheets.Count, 1] = xl_sheets.Sheet
+      loSheets.List[loSheets.Count, 2] = Alltrim(xl_sheets.shname)
+    Endscan
+    Set Order To
+    Return loSheets
 
 *-- Returns a XML formatted string for the header and footer text
   Protected Procedure GetXmlHeaderFooterText
@@ -3384,41 +3384,80 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Inserts a new cell into the sheet
   Procedure InsertCell
-  Lparameters tnWB, tnSheet, tnRow, tnCol, tnShift
-  Local llReturn, lnRow
-  If Pcount() < 5
-    Return False
-  Endif
-  With This
-    If .GetSheetRecord(tnWB, tnSheet)
+    Lparameters tnWB, tnSheet, tnRow, tnCol, tnShift
+    Local llReturn, lnRow
+    If Pcount() < 5
+      Return False
+    Endif
+    With This
+      If .GetSheetRecord(tnWB, tnSheet)
+        Select xl_cells
+        Set Order To Tag reverse
+        Do Case
+        Case tnShift = INSERT_LEFT
+          Scan For workbook = tnWB And Sheet = tnSheet And cellcol >= tnCol And cellrow = tnRow
+            Replace xl_cells.cellcol With xl_cells.cellcol + 1 In xl_cells
+            .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
+          Endscan
+          llReturn = True
+
+        Case tnShift = INSERT_RIGHT
+          Scan For workbook = tnWB And Sheet = tnSheet And cellcol > tnCol And cellrow = tnRow
+            Replace xl_cells.cellcol With xl_cells.cellcol + 1 In xl_cells
+            .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
+          Endscan
+          llReturn = True
+
+        Case tnShift = INSERT_BEFORE
+          Scan For workbook = tnWB And Sheet = tnSheet And cellrow >= tnRow And cellcol = tnCol
+            Replace xl_cells.cellrow With xl_cells.cellrow + 1 In xl_cells
+            .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
+          Endscan
+          llReturn = True
+
+        Case tnShift = INSERT_AFTER
+          Scan For workbook = tnWB And Sheet = tnSheet And cellrow > tnRow And cellcol = tnCol
+            Replace xl_cells.cellrow With xl_cells.cellrow + 1 In xl_cells
+            .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
+          Endscan
+          llReturn = True
+
+        Otherwise
+          llReturn = False
+        Endcase
+        Set Order To
+      Else
+        llReturn = False
+      Endif
+    Endwith
+    Return llReturn
+
+*-- Inserts a new column into the sheet
+  Procedure InsertColumn
+    Lparameters tnWB, tnSheet, tnCol, tnShift
+    Local llReturn
+    If Pcount() < 4
+      Return False
+    Endif
+    If This.GetSheetRecord(tnWB, tnSheet)
       Select xl_cells
       Set Order To Tag reverse
       Do Case
       Case tnShift = INSERT_LEFT
-        Scan For workbook = tnWB And Sheet = tnSheet And cellcol >= tnCol And cellrow = tnRow
+        Scan For workbook = tnWB And Sheet = tnSheet And cellcol >= tnCol
           Replace xl_cells.cellcol With xl_cells.cellcol + 1 In xl_cells
-          .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
+          If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(xl_cells.cellrow), "xl_rows", "id") And xl_cells.cellcol > xl_rows.maxcol
+            Replace xl_rows.maxcol With xl_cells.cellcol In xl_rows
+          Endif
         Endscan
         llReturn = True
 
       Case tnShift = INSERT_RIGHT
-        Scan For workbook = tnWB And Sheet = tnSheet And cellcol > tnCol And cellrow = tnRow
+        Scan For workbook = tnWB And Sheet = tnSheet And cellcol > tnCol
           Replace xl_cells.cellcol With xl_cells.cellcol + 1 In xl_cells
-          .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
-        Endscan
-        llReturn = True
-
-      Case tnShift = INSERT_BEFORE
-        Scan For workbook = tnWB And Sheet = tnSheet And cellrow >= tnRow And cellcol = tnCol
-          Replace xl_cells.cellrow With xl_cells.cellrow + 1 In xl_cells
-          .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
-        Endscan
-        llReturn = True
-
-      Case tnShift = INSERT_AFTER
-        Scan For workbook = tnWB And Sheet = tnSheet And cellrow > tnRow And cellcol = tnCol
-          Replace xl_cells.cellrow With xl_cells.cellrow + 1 In xl_cells
-          .SetRowMaxColumn(tnWB, tnSheet, xl_cells.cellrow, xl_cells.cellcol)
+          If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(xl_cells.cellrow), "xl_rows", "id") And xl_cells.cellcol > xl_rows.maxcol
+            Replace xl_rows.maxcol With xl_cells.cellcol In xl_rows
+          Endif
         Endscan
         llReturn = True
 
@@ -3429,99 +3468,60 @@ Define Class vfpxworkbookxlsx As Custom
     Else
       llReturn = False
     Endif
-  Endwith
-  Return llReturn
-
-*-- Inserts a new column into the sheet
-  Procedure InsertColumn
-  Lparameters tnWB, tnSheet, tnCol, tnShift
-  Local llReturn
-  If Pcount() < 4
-    Return False
-  Endif
-  If This.GetSheetRecord(tnWB, tnSheet)
-    Select xl_cells
-    Set Order To Tag reverse
-    Do Case
-    Case tnShift = INSERT_LEFT
-      Scan For workbook = tnWB And Sheet = tnSheet And cellcol >= tnCol
-        Replace xl_cells.cellcol With xl_cells.cellcol + 1 In xl_cells
-        If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(xl_cells.cellrow), "xl_rows", "id") And xl_cells.cellcol > xl_rows.maxcol
-          Replace xl_rows.maxcol With xl_cells.cellcol In xl_rows
-        Endif
-      Endscan
-      llReturn = True
-
-    Case tnShift = INSERT_RIGHT
-      Scan For workbook = tnWB And Sheet = tnSheet And cellcol > tnCol
-        Replace xl_cells.cellcol With xl_cells.cellcol + 1 In xl_cells
-        If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(xl_cells.cellrow), "xl_rows", "id") And xl_cells.cellcol > xl_rows.maxcol
-          Replace xl_rows.maxcol With xl_cells.cellcol In xl_rows
-        Endif
-      Endscan
-      llReturn = True
-
-    Otherwise
-      llReturn = False
-    Endcase
-    Set Order To
-  Else
-    llReturn = False
-  Endif
-  Return llReturn
+    Return llReturn
 
 *-- Inserts a new row into the sheet
   Procedure InsertRow
-  Lparameters tnWB, tnSheet, tnRow, tnShift
-  Local llReturn, lnRow
-  If Pcount() < 4
-    Return False
-  Endif
-  If This.GetSheetRecord(tnWB, tnSheet)
-    Select xl_cells
-    Set Order To Tag reverse
-    Do Case
-    Case tnShift = INSERT_BEFORE
-      Scan For workbook = tnWB And Sheet = tnSheet And cellrow >= tnRow
-        lnRow = xl_cells.cellrow
-        Replace xl_cells.cellrow With lnRow + 1 In xl_cells
-        If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(lnRow), "xl_rows", "id")
-          Replace xl_rows.Row With xl_cells.cellrow In xl_rows
-        Endif
-      Endscan
-      llReturn = True
+    Lparameters tnWB, tnSheet, tnRow, tnShift
+    Local llReturn, lnRow
+    If Pcount() < 4
+      Return False
+    Endif
+    If This.GetSheetRecord(tnWB, tnSheet)
+      Select xl_cells
+      Set Order To Tag reverse
+      Do Case
+      Case tnShift = INSERT_BEFORE
+        Scan For workbook = tnWB And Sheet = tnSheet And cellrow >= tnRow
+          lnRow = xl_cells.cellrow
+          Replace xl_cells.cellrow With lnRow + 1 In xl_cells
+          If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(lnRow), "xl_rows", "id")
+            Replace xl_rows.Row With xl_cells.cellrow In xl_rows
+          Endif
+        Endscan
+        llReturn = True
 
-    Case tnShift = INSERT_AFTER
-      Scan For workbook = tnWB And Sheet = tnSheet And cellrow > tnRow
-        lnRow = xl_cells.cellrow
-        Replace xl_cells.cellrow With lnRow + 1 In xl_cells
-        If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(lnRow), "xl_rows", "id")
-          Replace xl_rows.Row With xl_cells.cellrow In xl_rows
-        Endif
-      Endscan
-      llReturn = True
+      Case tnShift = INSERT_AFTER
+        Scan For workbook = tnWB And Sheet = tnSheet And cellrow > tnRow
+          lnRow = xl_cells.cellrow
+          Replace xl_cells.cellrow With lnRow + 1 In xl_cells
+          If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(lnRow), "xl_rows", "id")
+            Replace xl_rows.Row With xl_cells.cellrow In xl_rows
+          Endif
+        Endscan
+        llReturn = True
 
-    Otherwise
-      llReturn =  False
-    Endcase
-    Set Order To
-  Else
-    llReturn = False
-  Endif
-  Return llReturn
+      Otherwise
+        llReturn =  False
+      Endcase
+      Set Order To
+    Else
+      llReturn = False
+    Endif
+    Return llReturn
 
 *-- Returns True if cell contains a formula
   Procedure IsCellFormula
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
-  Local llFormula
-  If Pcount() < 4
-    Return Null
-  Endif
-  llFormula = False
-  If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-    llFormula = !Empty(xl_cells.cellformula)
-  Endif
-  Return llFormula
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol
+    Local llFormula
+    If Pcount() < 4
+      Return Null
+    Endif
+    llFormula = False
+    If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+      llFormula = !Empty(xl_cells.cellformula)
+    Endif
+    Return llFormula
 
 *-- Checks if the cell reference is invalid (outside of limits)
   Protected Procedure IsCellReferenceInvalid
@@ -3530,56 +3530,56 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Determines if the format is defined as a style
   Procedure IsFormatStyleDefined
-  Lparameters tnWB, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
-  Do Case
-  Case Pcount() < 3
-    Return Null
+    Lparameters tnWB, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
+    Do Case
+    Case Pcount() < 3
+      Return Null
 
-  Case Pcount() = 3
-    tlBold     = False
-    tlItalic   = False
-    tnFColor   = Rgb(0, 0, 0)
-    tcULine    = UNDERLINE_NONE
-    tlStrikThr = False
-    tcVPos     = FONT_VERTICAL_BASELINE
+    Case Pcount() = 3
+      tlBold     = False
+      tlItalic   = False
+      tnFColor   = Rgb(0, 0, 0)
+      tcULine    = UNDERLINE_NONE
+      tlStrikThr = False
+      tcVPos     = FONT_VERTICAL_BASELINE
 
-  Case Pcount() = 4
-    tlItalic   = False
-    tnFColor   = Rgb(0, 0, 0)
-    tcULine    = UNDERLINE_NONE
-    tlStrikThr = False
-    tcVPos     = FONT_VERTICAL_BASELINE
+    Case Pcount() = 4
+      tlItalic   = False
+      tnFColor   = Rgb(0, 0, 0)
+      tcULine    = UNDERLINE_NONE
+      tlStrikThr = False
+      tcVPos     = FONT_VERTICAL_BASELINE
 
-  Case Pcount() = 5
-    tnFColor   = Rgb(0, 0, 0)
-    tcULine    = UNDERLINE_NONE
-    tlStrikThr = False
-    tcVPos     = FONT_VERTICAL_BASELINE
+    Case Pcount() = 5
+      tnFColor   = Rgb(0, 0, 0)
+      tcULine    = UNDERLINE_NONE
+      tlStrikThr = False
+      tcVPos     = FONT_VERTICAL_BASELINE
 
-  Case Pcount() = 6
-    tcULine    = UNDERLINE_NONE
-    tlStrikThr = False
-    tcVPos     = FONT_VERTICAL_BASELINE
+    Case Pcount() = 6
+      tcULine    = UNDERLINE_NONE
+      tlStrikThr = False
+      tcVPos     = FONT_VERTICAL_BASELINE
 
-  Case Pcount() = 7
-    tlStrikThr = False
-    tcVPos     = FONT_VERTICAL_BASELINE
+    Case Pcount() = 7
+      tlStrikThr = False
+      tcVPos     = FONT_VERTICAL_BASELINE
 
-  Case Pcount() = 8
-    tcVPos     = FONT_VERTICAL_BASELINE
-  Endcase
+    Case Pcount() = 8
+      tcVPos     = FONT_VERTICAL_BASELINE
+    Endcase
 
-  If Seek(BinToC(tnWB)+Padr(tcFName, 100) + Str(tnFSize, 5, 1) + Transform(tlBold) + Transform(tlItalic) + Padl(tnFColor, 15) + Padr(tcULine, 16) + ;
-      TRANSFORM(tlStrikThr) + Padr(tcVPos, 11), "xl_fonts", "cellformat")
+    If Seek(BinToC(tnWB)+Padr(tcFName, 100) + Str(tnFSize, 5, 1) + Transform(tlBold) + Transform(tlItalic) + Padl(tnFColor, 15) + Padr(tcULine, 16) + ;
+        TRANSFORM(tlStrikThr) + Padr(tcVPos, 11), "xl_fonts", "cellformat")
 
-    If Seek(BinToC(tnWB)+BinToC(xl_fonts.Id)+BinToC(0)+BinToC(0)+BinToC(0)+BinToC(0)+BinToC(0), "xl_cellxfs", "cellformat")
-      Return xl_cellxfs.Id
+      If Seek(BinToC(tnWB)+BinToC(xl_fonts.Id)+BinToC(0)+BinToC(0)+BinToC(0)+BinToC(0)+BinToC(0), "xl_cellxfs", "cellformat")
+        Return xl_cellxfs.Id
+      Else
+        Return Null
+      Endif
     Else
       Return Null
     Endif
-  Else
-    Return Null
-  Endif
 
 *-- Validates the border style value
   Protected Procedure IsValidBorderStyle
@@ -3594,57 +3594,57 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Merges cells together
   Procedure MergeCells
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol
-  Local lnRow, lnCol, lcCellValue, lnStringIndex, lcDataType, lcCellFormula, llReturn
-  If Pcount() < 6
-    Return False
-  Endif
-  If This.GetSheetRecord(tnWB, tnSheet)
-    If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(tnBegRow)+BinToC(tnBegCol), "xl_mergecells", "mergecell")
-      Replace xl_mergecells.endrow With tnEndRow, ;
-        xl_mergecells.endcol With tnEndCol In xl_mergecells
-    Else
-*-*		Check if a cell being merged is already in a merge group
-      Select xl_mergecells
-      Locate For workbook = tnWB And Sheet = tnSheet And Between(tnBegRow, begrow, endrow) And Between(tnBegCol, begcol, endcol) And !Deleted()
-      If Found()
-        llReturn = False
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol
+    Local lnRow, lnCol, lcCellValue, lnStringIndex, lcDataType, lcCellFormula, llReturn
+    If Pcount() < 6
+      Return False
+    Endif
+    If This.GetSheetRecord(tnWB, tnSheet)
+      If Seek(BinToC(tnWB)+BinToC(tnSheet)+BinToC(tnBegRow)+BinToC(tnBegCol), "xl_mergecells", "mergecell")
+        Replace xl_mergecells.endrow With tnEndRow, ;
+          xl_mergecells.endcol With tnEndCol In xl_mergecells
       Else
-        Locate For workbook = tnWB And Sheet = tnSheet And Between(tnEndRow, begrow, endrow) And Between(tnEndCol, begcol, endcol) And !Deleted()
+*-*		Check if a cell being merged is already in a merge group
+        Select xl_mergecells
+        Locate For workbook = tnWB And Sheet = tnSheet And Between(tnBegRow, begrow, endrow) And Between(tnBegCol, begcol, endcol) And !Deleted()
         If Found()
           llReturn = False
         Else
+          Locate For workbook = tnWB And Sheet = tnSheet And Between(tnEndRow, begrow, endrow) And Between(tnEndCol, begcol, endcol) And !Deleted()
+          If Found()
+            llReturn = False
+          Else
 *-*				Add merged cells
-          Insert Into xl_mergecells (workbook, Sheet, begrow, begcol, endrow, endcol) ;
-            VALUES (tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol)
+            Insert Into xl_mergecells (workbook, Sheet, begrow, begcol, endrow, endcol) ;
+              VALUES (tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol)
 *-*				Get upper left most cell value -> will be value of the merged cells (clear all other cell values)
-          Select xl_cells
-          lcCellValue = Null
-          For lnRow=tnBegRow To tnEndRow
-            For lnCol=tnBegCol To tnEndCol
-              If This.GetCellRecord(tnWB, tnSheet, lnRow, lnCol) And !Empty(xl_cells.cellvalue)
-                If Isnull(lcCellValue) And !xl_cells.celldeleted
-                  lcDataType    = xl_cells.DataType
-                  lcCellValue   = xl_cells.cellvalue
-                  lcCellFormula = xl_cells.cellformula
-                  lnStringIndex = xl_cells.stringid
+            Select xl_cells
+            lcCellValue = Null
+            For lnRow=tnBegRow To tnEndRow
+              For lnCol=tnBegCol To tnEndCol
+                If This.GetCellRecord(tnWB, tnSheet, lnRow, lnCol) And !Empty(xl_cells.cellvalue)
+                  If Isnull(lcCellValue) And !xl_cells.celldeleted
+                    lcDataType    = xl_cells.DataType
+                    lcCellValue   = xl_cells.cellvalue
+                    lcCellFormula = xl_cells.cellformula
+                    lnStringIndex = xl_cells.stringid
+                  Endif
+                  Replace xl_cells.cellvalue   With "", ;
+                    xl_cells.cellformula With "", ;
+                    xl_cells.stringid    With 0, ;
+                    xl_cells.DataType    With "" In xl_cells
                 Endif
-                Replace xl_cells.cellvalue   With "", ;
-                  xl_cells.cellformula With "", ;
-                  xl_cells.stringid    With 0, ;
-                  xl_cells.DataType    With "" In xl_cells
-              Endif
+              Endfor
             Endfor
-          Endfor
-          If !Isnull(lcCellValue)
-            If This.GetCellRecord(tnWB, tnSheet, tnBegRow, tnBegCol)
-              Replace xl_cells.cellvalue   With lcCellValue, ;
-                xl_cells.cellformula With lcCellFormula, ;
-                xl_cells.stringid    With lnStringIndex, ;
-                xl_cells.DataType    With lcDataType, ;
-                xl_cells.celldeleted With False In xl_cells
+            If !Isnull(lcCellValue)
+              If This.GetCellRecord(tnWB, tnSheet, tnBegRow, tnBegCol)
+                Replace xl_cells.cellvalue   With lcCellValue, ;
+                  xl_cells.cellformula With lcCellFormula, ;
+                  xl_cells.stringid    With lnStringIndex, ;
+                  xl_cells.DataType    With lcDataType, ;
+                  xl_cells.celldeleted With False In xl_cells
+              Endif
             Endif
-          Endif
 *-*				If the tnEndCol cell is not a cell already in the row then add the cell to the cursor for the max cells by row determination
 *				SELECT xl_cells
 *				FOR lnRow=tnBegRow TO tnEndRow
@@ -3654,17 +3654,17 @@ Define Class vfpxworkbookxlsx As Custom
 *							VALUES (tnWB, tnSheet, lnRow, tnEndCol, DATA_TYPE_NONE, 0, -1, False)
 *					ENDIF
 *				ENDFOR
-          llReturn = True
+            llReturn = True
+          Endif
         Endif
       Endif
+      For lnRow=tnBegRow To tnEndRow
+        This.SetRowMaxColumn(tnWB, tnSheet, lnRow, tnEndCol)
+      Endfor
+    Else
+      llReturn = False
     Endif
-    For lnRow=tnBegRow To tnEndRow
-      This.SetRowMaxColumn(tnWB, tnSheet, lnRow, tnEndCol)
-    Endfor
-  Else
-    llReturn = False
-  Endif
-  Return llReturn
+    Return llReturn
 
 *-- Called by the Destroy() event - user implementation
   Procedure OnDestroy
@@ -3680,14 +3680,14 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Event for displaying an error message to the user
   Procedure OnShowErrorMessage
-  Lparameters tnErrorId, tcErrMessage
+    Lparameters tnErrorId, tcErrMessage
 *-*
 *-*	TODO: Use BINDEVENTS to bind to this event and display a message to your users
 *-*
 
 *-- Event for displaying a wait message to the user
   Procedure OnShowStatusMessage
-  Lparameters tnMode, tnStage, tnTotStages
+    Lparameters tnMode, tnStage, tnTotStages
 *-*
 *-*	TODO: Use BINDEVENTS to bind to this event and display a message to your users
 *-*
@@ -3721,257 +3721,257 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Opens the XLSX file via Win32 API default program
   Procedure OpenCreatedXlsxFile
-  Lparameters txWB
-  Local lcFileName
-  Do Case
-  Case Pcount() = 0
-    Return False
-
-  Case Vartype(txWB) = "N"
-    lcFileName = This.GetWorkbookFileName(txWB)
-    If Empty(lcFileName) Or !File(lcFileName)
+    Lparameters txWB
+    Local lcFileName
+    Do Case
+    Case Pcount() = 0
       Return False
-    Endif
 
-  Case Vartype(txWB) = "C"
-    If File(txWB)
-      lcFileName = txWB
-    Else
+    Case Vartype(txWB) = "N"
+      lcFileName = This.GetWorkbookFileName(txWB)
+      If Empty(lcFileName) Or !File(lcFileName)
+        Return False
+      Endif
+
+    Case Vartype(txWB) = "C"
+      If File(txWB)
+        lcFileName = txWB
+      Else
+        Return False
+      Endif
+
+    Otherwise
       Return False
-    Endif
+    Endcase
+    Try
+      apiShellExecute(0, "Open", lcFileName, "", "", 5)
 
-  Otherwise
-    Return False
-  Endcase
-  Try
-    apiShellExecute(0, "Open", lcFileName, "", "", 5)
-
-  Catch To loException
-    Raiseevent(This, "OnShowErrorMessage", 99, "Failure to open file: " + loException.Message)
-  Endtry
+    Catch To loException
+      Raiseevent(This, "OnShowErrorMessage", 99, "Failure to open file: " + loException.Message)
+    Endtry
 
 *-- Opens the passed Xlsx workbook and loads the internal cursors with the content
   Procedure OpenXlsxWorkbook
-  Lparameters tcFileName, tlForceTextFormat
-  Local lnWB, lcBaseName, lcTempPath, lcZipName, loShell, lnCnt, lnCntTot, lcRelationsXml, lnNode
-  Local lnRelId, lcRelType, lcTarget, lcWbXmlPath, lcRelation, lcWorkbook, lcSheet, lcShName, lnShRId, lcShFile
-  Local loException, loFS, lcDefinedNames, lcDefinedName, lcRName, lcComment, lnRangeId, lcRange, lnNdx
-  Local lnBegRow, lnBegCol, lnEndRow, lnEndCol, lcExternalRefs, lnExRId, lcExtRef, lcCellRange, lcBegRange
-  Local lcEndRange, loDir, lnLastRelId, lcSheets, lcRelationships, lcShState
-  Local Array laTemp[1]
-  With This
-    Do Case
-    Case Pcount() = 0
-      .ErrorLevelId = 1
-      Raiseevent(This, "OnShowErrorMessage", 1, "Invalid call to OpenXlsxWorkbook() method; must include file name to open")
+    Lparameters tcFileName, tlForceTextFormat
+    Local lnWB, lcBaseName, lcTempPath, lcZipName, loShell, lnCnt, lnCntTot, lcRelationsXml, lnNode
+    Local lnRelId, lcRelType, lcTarget, lcWbXmlPath, lcRelation, lcWorkbook, lcSheet, lcShName, lnShRId, lcShFile
+    Local loException, loFS, lcDefinedNames, lcDefinedName, lcRName, lcComment, lnRangeId, lcRange, lnNdx
+    Local lnBegRow, lnBegCol, lnEndRow, lnEndCol, lcExternalRefs, lnExRId, lcExtRef, lcCellRange, lcBegRange
+    Local lcEndRange, loDir, lnLastRelId, lcSheets, lcRelationships, lcShState
+    Local Array laTemp[1]
+    With This
+      Do Case
+      Case Pcount() = 0
+        .ErrorLevelId = 1
+        Raiseevent(This, "OnShowErrorMessage", 1, "Invalid call to OpenXlsxWorkbook() method; must include file name to open")
 
-    Case Pcount() = 1
-      tlForceTextFormat = False
-    Endcase
-    lnWB = 0
-    If Adir(laTemp, tcFileName) > 0
+      Case Pcount() = 1
+        tlForceTextFormat = False
+      Endcase
+      lnWB = 0
+      If Adir(laTemp, tcFileName) > 0
 *-*	Open the Workbook as an archive (zip) file and extract contents
-      Try
-        lcBaseName = Sys(2015)
-        lcTempPath = Addbs(Sys(2023)) + lcBaseName
-        lcZipName  = lcTempPath + ".zip"
-        Copy File (tcFileName) To (lcZipName)
-        loShell = Createobject("shell.application")
-        Mkdir (lcTempPath)
-        loShell.NameSpace(lcTempPath).CopyHere(loShell.NameSpace(lcZipName).Items, FOF_SILENT)
-        lnCnt = 0
-        lnCntTot = loShell.NameSpace(lcZipName).Items.Count
-        Do While loShell.NameSpace(lcTempPath).Items.Count != lnCntTot
-          lnCnt = lnCnt + 1
-          apiSleep(100)
-          If lnCnt > lnCntTot
-            Set Step On
-          Endif
-        Enddo
-        Erase (lcZipName)
-
-      Catch To loException
-        Set Step On
-        .ErrorLevelId = 2
-        Raiseevent(This, "OnShowErrorMessage", 2, loException.Message)
-        lnWB = Null
-      Endtry
-      If Isnull(lnWB)
-        Return 0
-      Endif
-*-*	Add to the workbook table
-      lnWB = .createworkbookex(tcFileName)
-      If lnWB > 0
-*-*		Verify all required XML files are present
-        lcWbXmlPath = Addbs(lcTempPath)
-        If Adir(laTemp, lcWbXmlPath + "xl\workbook.xml") = 0
-          .ErrorLevelId = 3
-          Raiseevent(This, "OnShowErrorMessage", 3, "Invalid XLSX file - missing workbook.xml")
-          .DeleteWorkbook(lnWB)
-          Return 0
-        Endif
-        If Adir(laTemp, lcWbXmlPath + "xl\_rels\workbook.xml.rels") = 0
-          .ErrorLevelId = 4
-          Raiseevent(This, "OnShowErrorMessage", 4, "Invalid XLSX file - missing workbook.xml.rels")
-          .DeleteWorkbook(lnWB)
-          Return 0
-        Endif
-        If Adir(laTemp, lcWbXmlPath + "xl\styles.xml") = 0
-          .ErrorLevelId = 5
-          Raiseevent(This, "OnShowErrorMessage", 5, "Invalid XLSX file - missing styles.xml")
-          .DeleteWorkbook(lnWB)
-          Return 0
-        Endif
-
-*-*		Process the workbook
-        Raiseevent(This, "OnShowStatusMessage", 1, 1, 6)
         Try
-*-*			Get the shared strings if present
-          If Adir(laTemp, lcWbXmlPath + "xl\sharedStrings.xml") > 0
-            If !This.ReadSharedStringsXML(lcWbXmlPath, lnWB)
-              .ErrorLevelId = 7
-              Raiseevent(This, "OnShowErrorMessage", 7, "Invalid XLSX file - error during shared string loading")
-              Throw
-            Endif
-          Endif
-
-*-*			Get the cell formatting styles
-          .ReadStylesXML(lcWbXmlPath, lnWB)
-
-*-*			Get the defined relationship files for this workbook
-          Raiseevent(This, "OnShowStatusMessage", 1, 3)
-          lcRelationsXml = Filetostr(lcWbXmlPath + "xl\_rels\workbook.xml.rels")
-          lcRelationships = .GetNodeElement(lcRelationsXml, 'Relationships', 1, False, 1)
-
-          lnNode = 1
-          lnLastRelId = 0
-          lcRelation = .GetNodeElement(lcRelationships, 'Relationship', lnNode)
-          Do While !Empty(lcRelation)
-            lnRelId   = Cast(Substr(.GetNodeAttributeValue(lcRelation, "Id"), 4) As I)
-            lcTarget  = .GetNodeAttributeValue(lcRelation, "Target")
-            lcRelType = .GetNodeAttributeValue(lcRelation, "Type")
-            lcRelType = Substr(lcRelType, Ratc("/", lcRelType)+1)
-            If lcRelType != "theme"
-              Insert Into xl_relationships (workbook, relid, reltype, Target) Values (lnWB, lnRelId, lcRelType, lcTarget)
-
-              If lnRelId > lnLastRelId
-                lnLastRelId = lnRelId
-              Endif
-            Endif
-            lnNode = lnNode + 1
-            lcRelation = .GetNodeElement(lcRelationships, 'Relationship', lnNode)
-          Enddo
-          .SetLastId(lnWB, lnLastRelId, "xl_relationships")
-
-*-*			Get the sheets
-          Raiseevent(This, "OnShowStatusMessage", 1, 4)
-          lcWorkbook = Filetostr(lcWbXmlPath + "xl\workbook.xml")
-
-          lcSheets   = .GetNodeElement(lcWorkbook, 'sheets', 1, False, 1)
-          lnNode     = 1
-          lcSheet    = .GetNodeElement(lcSheets, 'sheet', lnNode)
-          Do While !Empty(lcSheet)
-            lcShName  = .GetNodeAttributeValue(lcSheet, "name")
-            lnShRId   = Cast(Substr(.GetNodeAttributeValue(lcSheet, "r:id"), 4) As I)
-            lcShFile  = lcWbXmlPath + "xl\" + .GetRelationShipFileName(lnWB, lnShRId)
-            lcShState = .GetNodeAttributeValue(lcSheet, "state")
-            Do Case
-            Case lcShState = "visible"
-              lnShState = VISIBLE_SHEET_STATE
-
-            Case lcShState = "hidden"
-              lnShState = HIDDEN_SHEET_STATE
-
-            Case lcShState = "veryHidden"
-              lnShState = VERYHIDDEN_SHEET_STATE
-
-            Otherwise
-              lnShState = VISIBLE_SHEET_STATE
-            Endcase
-
-            If Adir(laTemp, lcShFile) = 0 Or !.ReadSheetXML(lcShFile, lnWB, lnNode, lcShName, lnShState, tlForceTextFormat)
-              .ErrorLevelId = 8
-              Raiseevent(This, "OnShowErrorMessage", 8, "Invalid XLSX file - missing sheet or invalid sheet: " + lcShFile)
-              .DeleteWorkbook(lnWB)
-              Throw
-            Endif
-            If Seek(BinToC(lnWB)+BinToC(lnShRId), "xl_relationships", "relid")
-              Replace xl_relationships.Sheet With lnNode In xl_relationships
-            Else
+          lcBaseName = Sys(2015)
+          lcTempPath = Addbs(Sys(2023)) + lcBaseName
+          lcZipName  = lcTempPath + ".zip"
+          Copy File (tcFileName) To (lcZipName)
+          loShell = Createobject("shell.application")
+          Mkdir (lcTempPath)
+          loShell.NameSpace(lcTempPath).CopyHere(loShell.NameSpace(lcZipName).Items, FOF_SILENT)
+          lnCnt = 0
+          lnCntTot = loShell.NameSpace(lcZipName).Items.Count
+          Do While loShell.NameSpace(lcTempPath).Items.Count != lnCntTot
+            lnCnt = lnCnt + 1
+            apiSleep(100)
+            If lnCnt > lnCntTot
               Set Step On
             Endif
-
-            lnNode = lnNode + 1
-            lcSheet = .GetNodeElement(lcSheets, 'sheet', lnNode)
           Enddo
-          .SetLastId(lnWB, lnNode-1, "xl_sheets")
+          Erase (lcZipName)
 
-*-*			Get the defined name ranges
-          Raiseevent(This, "OnShowStatusMessage", 1, 5)
-          lcDefinedNames = .GetNodeElement(lcWorkbook, 'definedNames', 1)
-          If !Empty(lcDefinedNames)
-            lnNode  = 1
-            lcDefinedName = .GetNodeElement(lcDefinedNames, 'definedName', lnNode)
-            Do While !Empty(lcDefinedName)
-              lcRange = .GetNodeElementValue(lcDefinedName)
-              If !Empty(lcRange)
-                lnNdx = Atc("!", lcRange)
-                lcShName = Left(lcRange, lnNdx-1)
-                If !Empty(lcShName)
-                  lcShName = Chrtran(lcShName, "'", "")
-                  If Seek(BinToC(lnWB)+Upper(Padr(lcShName, Len(xl_sheets.shname))), "xl_sheets", "shname")
+        Catch To loException
+          Set Step On
+          .ErrorLevelId = 2
+          Raiseevent(This, "OnShowErrorMessage", 2, loException.Message)
+          lnWB = Null
+        Endtry
+        If Isnull(lnWB)
+          Return 0
+        Endif
+*-*	Add to the workbook table
+        lnWB = .createworkbookex(tcFileName)
+        If lnWB > 0
+*-*		Verify all required XML files are present
+          lcWbXmlPath = Addbs(lcTempPath)
+          If Adir(laTemp, lcWbXmlPath + "xl\workbook.xml") = 0
+            .ErrorLevelId = 3
+            Raiseevent(This, "OnShowErrorMessage", 3, "Invalid XLSX file - missing workbook.xml")
+            .DeleteWorkbook(lnWB)
+            Return 0
+          Endif
+          If Adir(laTemp, lcWbXmlPath + "xl\_rels\workbook.xml.rels") = 0
+            .ErrorLevelId = 4
+            Raiseevent(This, "OnShowErrorMessage", 4, "Invalid XLSX file - missing workbook.xml.rels")
+            .DeleteWorkbook(lnWB)
+            Return 0
+          Endif
+          If Adir(laTemp, lcWbXmlPath + "xl\styles.xml") = 0
+            .ErrorLevelId = 5
+            Raiseevent(This, "OnShowErrorMessage", 5, "Invalid XLSX file - missing styles.xml")
+            .DeleteWorkbook(lnWB)
+            Return 0
+          Endif
 
-                    lcRName   = .GetNodeAttributeValue(lcDefinedName, "name")
-                    lcComment = .GetNodeAttributeValue(lcDefinedName, "comment")
-                    lnRangeId = Cast(.GetNodeAttributeValue(lcDefinedName, "localSheetId") As I)
+*-*		Process the workbook
+          Raiseevent(This, "OnShowStatusMessage", 1, 1, 6)
+          Try
+*-*			Get the shared strings if present
+            If Adir(laTemp, lcWbXmlPath + "xl\sharedStrings.xml") > 0
+              If !.ReadSharedStringsXML(lcWbXmlPath, lnWB)
+                .ErrorLevelId = 7
+                Raiseevent(This, "OnShowErrorMessage", 7, "Invalid XLSX file - error during shared string loading")
+                Throw
+              Endif
+            Endif
 
-                    lcCellRange = Substr(lcRange, lnNdx+1)
-                    lcCellRange = Chrtran(lcCellRange, "$", "")
-                    lcBegRange  = Getwordnum(lcCellRange, 1, ":")
-                    lcEndRange  = Getwordnum(lcCellRange, 2, ":")
+*-*			Get the cell formatting styles
+            .ReadStylesXML(lcWbXmlPath, lnWB)
 
-                    lnNdx = .GetAlphaNumericSplit(lcBegRange)
-                    Do Case
-                    Case lnNdx = 0                  && Column only range
-                      lnBegCol = This.ColumnAsciiToIndex(lcBegRange)
-                      lnBegRow = 0
+*-*			Get the defined relationship files for this workbook
+            Raiseevent(This, "OnShowStatusMessage", 1, 3)
+            lcRelationsXml = Filetostr(lcWbXmlPath + "xl\_rels\workbook.xml.rels")
+            lcRelationships = .GetNodeElement(lcRelationsXml, 'Relationships', 1, False, 1)
 
-                    Case lnNdx = 1                  && Row only range
-                      lnBegCol = 0
-                      lnBegRow = Cast(lcBegRange As I)
+            lnNode = 1
+            lnLastRelId = 0
+            lcRelation = .GetNodeElement(lcRelationships, 'Relationship', lnNode)
+            Do While !Empty(lcRelation)
+              lnRelId   = Cast(Substr(.GetNodeAttributeValue(lcRelation, "Id"), 4) As I)
+              lcTarget  = .GetNodeAttributeValue(lcRelation, "Target")
+              lcRelType = .GetNodeAttributeValue(lcRelation, "Type")
+              lcRelType = Substr(lcRelType, Ratc("/", lcRelType)+1)
+              If lcRelType != "theme"
+                Insert Into xl_relationships (workbook, relid, reltype, Target) Values (lnWB, lnRelId, lcRelType, lcTarget)
 
-                    Otherwise
-                      lnBegCol = .ColumnAsciiToIndex(Left(lcBegRange, lnNdx-1))
-                      lnBegRow = Cast(Substr(lcBegRange, lnNdx) As I)
-                    Endcase
-
-                    lnNdx = .GetAlphaNumericSplit(lcEndRange)
-                    Do Case
-                    Case lnNdx = 0                  && Column only range
-                      lnEndCol = .ColumnAsciiToIndex(lcEndRange)
-                      lnEndRow = 0
-
-                    Case lnNdx = 1                  && Row only range
-                      lnEndCol = 0
-                      lnEndRow = Cast(lcEndRange As I)
-
-                    Otherwise
-                      lnEndCol = .ColumnAsciiToIndex(Left(lcEndRange, lnNdx-1))
-                      lnEndRow = Cast(Substr(lcEndRange, lnNdx) As I)
-                    Endcase
-
-                    Insert Into xl_namerange (workbook, Sheet, rname, scope, Comment, begrow, begcol, endrow, endcol) ;
-                      VALUES (lnWB, xl_sheets.Sheet, lcRName, lnRangeId, lcComment, lnBegRow, lnBegCol, lnEndRow, lnEndCol)
-                  Endif
+                If lnRelId > lnLastRelId
+                  lnLastRelId = lnRelId
                 Endif
               Endif
               lnNode = lnNode + 1
-              lcDefinedName = .GetNodeElement(lcDefinedNames, 'definedName', lnNode)
+              lcRelation = .GetNodeElement(lcRelationships, 'Relationship', lnNode)
             Enddo
-          Endif
+            .SetLastId(lnWB, lnLastRelId, "xl_relationships")
+
+*-*			Get the sheets
+            Raiseevent(This, "OnShowStatusMessage", 1, 4)
+            lcWorkbook = Filetostr(lcWbXmlPath + "xl\workbook.xml")
+
+            lcSheets   = .GetNodeElement(lcWorkbook, 'sheets', 1, False, 1)
+            lnNode     = 1
+            lcSheet    = .GetNodeElement(lcSheets, 'sheet', lnNode)
+            Do While !Empty(lcSheet)
+              lcShName  = .GetNodeAttributeValue(lcSheet, "name")
+              lnShRId   = Cast(Substr(.GetNodeAttributeValue(lcSheet, "r:id"), 4) As I)
+              lcShFile  = lcWbXmlPath + "xl\" + .GetRelationShipFileName(lnWB, lnShRId)
+              lcShState = .GetNodeAttributeValue(lcSheet, "state")
+              Do Case
+              Case lcShState = "visible"
+                lnShState = VISIBLE_SHEET_STATE
+
+              Case lcShState = "hidden"
+                lnShState = HIDDEN_SHEET_STATE
+
+              Case lcShState = "veryHidden"
+                lnShState = VERYHIDDEN_SHEET_STATE
+
+              Otherwise
+                lnShState = VISIBLE_SHEET_STATE
+              Endcase
+
+              If Adir(laTemp, lcShFile) = 0 Or !.ReadSheetXML(lcShFile, lnWB, lnNode, lcShName, lnShState, tlForceTextFormat)
+                .ErrorLevelId = 8
+                Raiseevent(This, "OnShowErrorMessage", 8, "Invalid XLSX file - missing sheet or invalid sheet: " + lcShFile)
+                .DeleteWorkbook(lnWB)
+                Throw
+              Endif
+              If Seek(BinToC(lnWB)+BinToC(lnShRId), "xl_relationships", "relid")
+                Replace xl_relationships.Sheet With lnNode In xl_relationships
+              Else
+                Set Step On
+              Endif
+
+              lnNode = lnNode + 1
+              lcSheet = .GetNodeElement(lcSheets, 'sheet', lnNode)
+            Enddo
+            .SetLastId(lnWB, lnNode-1, "xl_sheets")
+
+*-*			Get the defined name ranges
+            Raiseevent(This, "OnShowStatusMessage", 1, 5)
+            lcDefinedNames = .GetNodeElement(lcWorkbook, 'definedNames', 1)
+            If !Empty(lcDefinedNames)
+              lnNode  = 1
+              lcDefinedName = .GetNodeElement(lcDefinedNames, 'definedName', lnNode)
+              Do While !Empty(lcDefinedName)
+                lcRange = .GetNodeElementValue(lcDefinedName)
+                If !Empty(lcRange)
+                  lnNdx = Atc("!", lcRange)
+                  lcShName = Left(lcRange, lnNdx-1)
+                  If !Empty(lcShName)
+                    lcShName = Chrtran(lcShName, "'", "")
+                    If Seek(BinToC(lnWB)+Upper(Padr(lcShName, Len(xl_sheets.shname))), "xl_sheets", "shname")
+
+                      lcRName   = .GetNodeAttributeValue(lcDefinedName, "name")
+                      lcComment = .GetNodeAttributeValue(lcDefinedName, "comment")
+                      lnRangeId = Cast(.GetNodeAttributeValue(lcDefinedName, "localSheetId") As I)
+
+                      lcCellRange = Substr(lcRange, lnNdx+1)
+                      lcCellRange = Chrtran(lcCellRange, "$", "")
+                      lcBegRange  = Getwordnum(lcCellRange, 1, ":")
+                      lcEndRange  = Getwordnum(lcCellRange, 2, ":")
+
+                      lnNdx = .GetAlphaNumericSplit(lcBegRange)
+                      Do Case
+                      Case lnNdx = 0                  && Column only range
+                        lnBegCol = This.ColumnAsciiToIndex(lcBegRange)
+                        lnBegRow = 0
+
+                      Case lnNdx = 1                  && Row only range
+                        lnBegCol = 0
+                        lnBegRow = Cast(lcBegRange As I)
+
+                      Otherwise
+                        lnBegCol = .ColumnAsciiToIndex(Left(lcBegRange, lnNdx-1))
+                        lnBegRow = Cast(Substr(lcBegRange, lnNdx) As I)
+                      Endcase
+
+                      lnNdx = .GetAlphaNumericSplit(lcEndRange)
+                      Do Case
+                      Case lnNdx = 0                  && Column only range
+                        lnEndCol = .ColumnAsciiToIndex(lcEndRange)
+                        lnEndRow = 0
+
+                      Case lnNdx = 1                  && Row only range
+                        lnEndCol = 0
+                        lnEndRow = Cast(lcEndRange As I)
+
+                      Otherwise
+                        lnEndCol = .ColumnAsciiToIndex(Left(lcEndRange, lnNdx-1))
+                        lnEndRow = Cast(Substr(lcEndRange, lnNdx) As I)
+                      Endcase
+
+                      Insert Into xl_namerange (workbook, Sheet, rname, scope, Comment, begrow, begcol, endrow, endcol) ;
+                        VALUES (lnWB, xl_sheets.Sheet, lcRName, lnRangeId, lcComment, lnBegRow, lnBegCol, lnEndRow, lnEndCol)
+                    Endif
+                  Endif
+                Endif
+                lnNode = lnNode + 1
+                lcDefinedName = .GetNodeElement(lcDefinedNames, 'definedName', lnNode)
+              Enddo
+            Endif
 
 *-*			Get the external references
-          Raiseevent(This, "OnShowStatusMessage", 1, 6)
+            Raiseevent(This, "OnShowStatusMessage", 1, 6)
 *			lcExternalRefs = this.GetNodeElement(lcWorkbook, 'externalReferences', 1)
 *			IF !EMPTY(lcExternalRefs)
 *				lnNode   = 1
@@ -3986,31 +3986,31 @@ Define Class vfpxworkbookxlsx As Custom
 *				ENDDO
 *			ENDIF
 
-        Catch To loException
-          Set Step On
-          .ErrorLevelId = 9
-          Raiseevent(This, "OnShowErrorMessage", 9, "Invalid XLSX file - error reading data; " + loException.Message)
-          .DeleteWorkbook(lnWB)
-          lnWB = 0
-
-        Finally
-          Try
-            loFS = Createobject("Scripting.FileSystemObject")
-            loDir = loFS.GetFolder(lcTempPath)
-            loDir.Delete()
-
           Catch To loException
             Set Step On
+            .ErrorLevelId = 9
+            Raiseevent(This, "OnShowErrorMessage", 9, "Invalid XLSX file - error reading data; " + loException.Message)
+            .DeleteWorkbook(lnWB)
+            lnWB = 0
+
+          Finally
+            Try
+              loFS = Createobject("Scripting.FileSystemObject")
+              loDir = loFS.GetFolder(lcTempPath)
+              loDir.Delete()
+
+            Catch To loException
+              Set Step On
+            Endtry
+            Raiseevent(This, "OnShowStatusMessage", 1, -1)
           Endtry
-          Raiseevent(This, "OnShowStatusMessage", 1, -1)
-        Endtry
-        If .Debug
-          .DebugCursorsToFile("Extract")
+          If .Debug
+            .DebugCursorsToFile("Extract")
+          Endif
         Endif
       Endif
-    Endif
-  Endwith
-  Return lnWB
+    Endwith
+    Return lnWB
 
 *-- Reads the cell value and format for a sheet
   Protected Procedure ReadCellValueFormat
@@ -4887,30 +4887,30 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Renames the selected sheet
   Procedure RenameSheet
-  Lparameters tnWB, txSheet, tcSheetName
-  Local llReturn
-  llReturn = False
-  Do Case
-  Case Vartype(txSheet) = "C"
-    If Seek(BinToC(tnWB)+Upper(txSheet), "xl_sheets", "shname")
-      Replace xl_sheets.shname With tcSheetName In xl_sheets
-      llReturn = True
-    Endif
+    Lparameters tnWB, txSheet, tcSheetName
+    Local llReturn
+    llReturn = False
+    Do Case
+    Case Vartype(txSheet) = "C"
+      If Seek(BinToC(tnWB)+Upper(txSheet), "xl_sheets", "shname")
+        Replace xl_sheets.shname With tcSheetName In xl_sheets
+        llReturn = True
+      Endif
 
-  Case Vartype(txSheet) = "N"
-    If Seek(BinToC(tnWB)+BinToC(txSheet), "xl_sheets", "sheetndx")
-      Replace xl_sheets.shname With tcSheetName In xl_sheets
-      llReturn = True
-    Endif
-  Endcase
-  Return llReturn
+    Case Vartype(txSheet) = "N"
+      If Seek(BinToC(tnWB)+BinToC(txSheet), "xl_sheets", "sheetndx")
+        Replace xl_sheets.shname With tcSheetName In xl_sheets
+        llReturn = True
+      Endif
+    Endcase
+    Return llReturn
 
 *-- Resets the column width to default
   Procedure ResetColumnWidth
-  Lparameters tnWB, tnSheet, tnColumn
-  If Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn")
-    Delete In xl_colwidths
-  Endif
+    Lparameters tnWB, tnSheet, tnColumn
+    If Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn")
+      Delete In xl_colwidths
+    Endif
 
 *-- Saves the file as a UTF-8
   Protected Procedure SaveAsUtf8
@@ -4919,263 +4919,262 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Saves the selected grid to a workbook
   Procedure SaveGridToWorkbook
-  Lparameters toGrid, txWB, tlFreeze, tlSaveWB, tcSheetName, tlInclHiddenCols
-  Local lcAlias, lnCol, lnWB, lnSh, lnRow, lcField, loReturn, loColumn, lnStyle, lnColCount, lnDefStyle
-  Local Array laRowCount[1], laColOrder[1]
-  loReturn = Createobject("Empty")
-  AddProperty(loReturn, "Workbook",  0)
-  AddProperty(loReturn, "Sheet", 0)
-  With This
-    Do Case
-    Case Inlist(Pcount(), 0, 1)
-      Return loReturn
+    Lparameters toGrid, txWB, tlFreeze, tlSaveWB, tcSheetName, tlInclHiddenCols
+    Local lcAlias, lnCol, lnWB, lnSh, lnRow, lcField, loReturn, loColumn, lnStyle, lnColCount, lnDefStyle
+    Local Array laRowCount[1], laColOrder[1]
+    loReturn = Createobject("Empty")
+    AddProperty(loReturn, "Workbook",  0)
+    AddProperty(loReturn, "Sheet", 0)
+    With This
+      Do Case
+      Case Inlist(Pcount(), 0, 1)
+        Return loReturn
 
-    Case Pcount() = 2
-      tlFreeze     = True
-      tlSaveWB     = True
-      tcSheetName  = .DeriveSheetName(txWB)
-      tlInclHiddenCols = True
+      Case Pcount() = 2
+        tlFreeze     = True
+        tlSaveWB     = True
+        tcSheetName  = .DeriveSheetName(txWB)
+        tlInclHiddenCols = True
 
-    Case Pcount() = 3
-      tlSaveWB     = True
-      tcSheetName  = .DeriveSheetName(txWB)
-      tlInclHiddenCols = True
+      Case Pcount() = 3
+        tlSaveWB     = True
+        tcSheetName  = .DeriveSheetName(txWB)
+        tlInclHiddenCols = True
 
-    Case Pcount() = 4
-      tcSheetName  = .DeriveSheetName(txWB)
-      tlInclHiddenCols = True
+      Case Pcount() = 4
+        tcSheetName  = .DeriveSheetName(txWB)
+        tlInclHiddenCols = True
 
-    Case Pcount() = 5
-      tlInclHiddenCols = True
-    Endcase
-    If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
-      tcSheetName = .DeriveSheetName(txWB)
-    Endif
-    tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
-    If Len(tcSheetName) > LIMITS_MAX_SH_NAME
-      If .AutoTrimSheetName
-        tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
-      Else
+      Case Pcount() = 5
+        tlInclHiddenCols = True
+      Endcase
+      If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
+        tcSheetName = .DeriveSheetName(txWB)
+      Endif
+      tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
+      If Len(tcSheetName) > LIMITS_MAX_SH_NAME
+        If .AutoTrimSheetName
+          tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
+        Else
+          Return loReturn
+        Endif
+      Endif
+      If Vartype(toGrid) != "O" And Pemstatus(toGrid, "BaseClass", 5) And Lower(toGrid.BaseClass) != "grid"
         Return loReturn
       Endif
-    Endif
-    If Vartype(toGrid) != "O" And Pemstatus(toGrid, "BaseClass", 5) And Lower(toGrid.BaseClass) != "grid"
-      Return loReturn
-    Endif
-    Do Case
-    Case Vartype(txWB) = "C"
-      lnWB = .CreateWorkbook(txWB)
-      If lnWB = 0
-        lnWB = .GetWorkbook(txWB)
-      Endif
+      Do Case
+      Case Vartype(txWB) = "C"
+        lnWB = .CreateWorkbook(txWB)
+        If lnWB = 0
+          lnWB = .GetWorkbook(txWB)
+        Endif
 
-    Case Vartype(txWB) = "N"
-      If Seek(BinToC(txWB), "xl_workbooks", "workbook")
-        lnWB = txWB
-      Else
+      Case Vartype(txWB) = "N"
+        If Seek(BinToC(txWB), "xl_workbooks", "workbook")
+          lnWB = txWB
+        Else
+          Return loReturn
+        Endif
+
+      Otherwise
         Return loReturn
-      Endif
-
-    Otherwise
-      Return loReturn
-    Endcase
-    If lnWB > 0
-      lnSh = .AddSheet(lnWB, tcSheetName)
-      If lnSh > 0
-        lcAlias = Juststem(toGrid.RecordSource)
+      Endcase
+      If lnWB > 0
+        lnSh = .AddSheet(lnWB, tcSheetName)
+        If lnSh > 0
+          lcAlias = Juststem(toGrid.RecordSource)
 
 *-*		Get the record count and display a status window
-        Select Count(*) From &lcAlias Into Array laRowCount
-        Raiseevent(This, "OnShowStatusMessage", 3, 0, laRowCount[1])
+          Select Count(*) From &lcAlias Into Array laRowCount
+          Raiseevent(This, "OnShowStatusMessage", 3, 0, laRowCount[1])
 
 *-*		Get the number of columns to process and
 *-*		Get the column output order based on grid display order                       && Change requested by Matt Slay to output by grid display order and visible setting
-        If tlInclHiddenCols
-          lnColCount = toGrid.ColumnCount
-          Dimension laColOrder[lnColCount, 2]
-          For lnCol=1 To toGrid.ColumnCount
-            laColOrder[lnCol, 1] = toGrid.Columns(lnCol).ColumnOrder              && Grid display order
-            laColOrder[lnCol, 2] = lnCol                                          && Column property order
-          Endfor
-        Else
-          lnColCount = 0
-          For lnCol=1 To toGrid.ColumnCount
-            If toGrid.Columns(lnCol).Visible
-              lnColCount = lnColCount + 1
-              Dimension laColOrder[lnColCount, 2]
-              laColOrder[lnColCount, 1] = toGrid.Columns(lnCol).ColumnOrder     && Grid display order
-              laColOrder[lnColCount, 2] = lnCol                                 && Column property order
-            Endif
-          Endfor
-        Endif
-        If lnColCount = 0
-          Return False
-        Endif
-        Asort(laColOrder)
+          If tlInclHiddenCols
+            lnColCount = toGrid.ColumnCount
+            Dimension laColOrder[lnColCount, 2]
+            For lnCol=1 To toGrid.ColumnCount
+              laColOrder[lnCol, 1] = toGrid.Columns(lnCol).ColumnOrder              && Grid display order
+              laColOrder[lnCol, 2] = lnCol                                          && Column property order
+            Endfor
+          Else
+            lnColCount = 0
+            For lnCol=1 To toGrid.ColumnCount
+              If toGrid.Columns(lnCol).Visible
+                lnColCount = lnColCount + 1
+                Dimension laColOrder[lnColCount, 2]
+                laColOrder[lnColCount, 1] = toGrid.Columns(lnCol).ColumnOrder     && Grid display order
+                laColOrder[lnColCount, 2] = lnCol                                 && Column property order
+              Endif
+            Endfor
+          Endif
+          If lnColCount = 0
+            Return False
+          Endif
+          Asort(laColOrder)
 
 *-*		Add the header row if defined and set the column widths; get the column font info
-        If toGrid.HeaderHeight > 0                                                    && Change recommendation by Doug Hennig (if no headers, start in first row)
-          lnRow = 1
-          For lnCol=1 To lnColCount
-            loColumn = toGrid.Columns(laColOrder[lnCol, 2])
-            .SetCellValue(lnWB, lnSh, 1, lnCol, loColumn.Header1.Caption)
-            .SetColumnWidth(lnWB, lnSh, lnCol, .ConvertPixelsToExcelUnits(loColumn.Width))
-          Endfor
-        Else
-          lnRow = 0
-          For lnCol=1 To lnColCount
-            loColumn = toGrid.Columns(laColOrder[lnCol, 2])
-            .SetColumnWidth(lnWB, lnSh, lnCol, .ConvertPixelsToExcelUnits(loColumn.Width))
-          Endfor
-        Endif
+          If toGrid.HeaderHeight > 0                                                    && Change recommendation by Doug Hennig (if no headers, start in first row)
+            lnRow = 1
+            For lnCol=1 To lnColCount
+              loColumn = toGrid.Columns(laColOrder[lnCol, 2])
+              .SetCellValue(lnWB, lnSh, 1, lnCol, loColumn.Header1.Caption)
+              .SetColumnWidth(lnWB, lnSh, lnCol, .ConvertPixelsToExcelUnits(loColumn.Width))
+            Endfor
+          Else
+            lnRow = 0
+            For lnCol=1 To lnColCount
+              loColumn = toGrid.Columns(laColOrder[lnCol, 2])
+              .SetColumnWidth(lnWB, lnSh, lnCol, .ConvertPixelsToExcelUnits(loColumn.Width))
+            Endfor
+          Endif
 
 *-*		Add the cell data values
-        Select (lcAlias)
-        Scan
-          lnRow = lnRow + 1
-          Raiseevent(This, "OnShowStatusMessage", 3, lnRow)
+          Select (lcAlias)
+          Scan
+            lnRow = lnRow + 1
+            Raiseevent(This, "OnShowStatusMessage", 3, lnRow)
+            For lnCol=1 To lnColCount
+              loColumn = toGrid.Columns(laColOrder[lnCol, 2])
+              lcField  = loColumn.ControlSource
+              .SetCellValue(lnWB, lnSh, lnRow, lnCol, &lcField)
+            Endfor
+          Endscan
+
+*-*		Set the cell style formatting
+          lnDefStyle = .IsFormatStyleDefined(lnWB, .DefaultFont, .DefaultFontSize)
+          If Isnull(lnDefStyle)
+            lnDefStyle = .CreateFormatStyle(lnWB)
+            .AddStyleFont(lnWB, lnDefStyle, .DefaultFont, .DefaultFontSize)
+          Endif
+
           For lnCol=1 To lnColCount
             loColumn = toGrid.Columns(laColOrder[lnCol, 2])
             lcField  = loColumn.ControlSource
-            .SetCellValue(lnWB, lnSh, lnRow, lnCol, &lcField)
-          Endfor
-        Endscan
-
-*-*		Set the cell style formatting
-        lnDefStyle = .IsFormatStyleDefined(lnWB, .DefaultFont, .DefaultFontSize)
-        If Isnull(lnDefStyle)
-          lnDefStyle = .CreateFormatStyle(lnWB)
-          .AddStyleFont(lnWB, lnDefStyle, .DefaultFont, .DefaultFontSize)
-        Endif
-
-        For lnCol=1 To lnColCount
-          loColumn = toGrid.Columns(laColOrder[lnCol, 2])
-          lcField  = loColumn.ControlSource
-          If Vartype(&lcField) != DATA_TYPE_DATE
-            If .DefaultFont != loColumn.FontName Or .DefaultFontSize != loColumn.FontSize   && Change recommended by Doug Hennig; 2017-06-12
-              lnStyle = .IsFormatStyleDefined(lnWB, loColumn.FontName, loColumn.FontSize)
-              If Isnull(lnStyle)
-                lnStyle = .CreateFormatStyle(lnWB)
-                .AddStyleFont(lnWB, lnStyle, loColumn.FontName, loColumn.FontSize)
+            If type(lcField) != DATA_TYPE_DATE
+              If .DefaultFont != loColumn.FontName Or .DefaultFontSize != loColumn.FontSize   && Change recommended by Doug Hennig; 2017-06-12
+                lnStyle = .IsFormatStyleDefined(lnWB, loColumn.FontName, loColumn.FontSize)
+                If Isnull(lnStyle)
+                  lnStyle = .CreateFormatStyle(lnWB)
+                  .AddStyleFont(lnWB, lnStyle, loColumn.FontName, loColumn.FontSize)
+                Endif
+              Else
+                lnStyle = lnDefStyle
               Endif
-            Else
-              lnStyle = lnDefStyle
+              .SetCellStyleRange(lnWB, lnSh, 1, lnCol, laRowCount[1]+1, lnCol, lnStyle)
             Endif
-            .SetCellStyleRange(lnWB, lnSh, 1, lnCol, laRowCount[1]+1, lnCol, lnStyle)
-          Endif
-        Endfor
+          Endfor
 
 *-*		Freeze the first row if specified
-        If tlFreeze
-          .FreezePanes(lnWB, lnSh, 1, 0)
+          If tlFreeze
+            .FreezePanes(lnWB, lnSh, 1, 0)
+          Endif
+          Raiseevent(This, "OnShowStatusMessage", 3, -1)
+          If tlSaveWB
+            .SaveWorkbook(lnWB)
+          Endif
+          loReturn.Sheet    = lnSh
+          loReturn.workbook = lnWB
         Endif
-        Raiseevent(This, "OnShowStatusMessage", 3, -1)
-        If tlSaveWB
-          .SaveWorkbook(lnWB)
-        Endif
-        loReturn.Sheet    = lnSh
-        loReturn.workbook = lnWB
       Endif
-    Endif
-  Endwith
-  Return loReturn
+    Endwith
+    Return loReturn
 
 *-- Saves the passed grid to a workbook without adding the content to the internal cursors
   Procedure SaveGridToWorkbookEx
-  Lparameters toGrid, tcFileName, tlFreeze, tcSheetName, tlInclHiddenCols
-  Local llError, lcTempPath, lcAlias, lcFileName, lhFile, lcRowDefHt, lnCol, lnRow, lcSETCentury, lxCellValue
-  Local lnColCount, lnColWidth, lcCurAlias
-  Local Array laColOrder[1], laSheetNames[1]
-  llError    = False
-  lcCurAlias = Alias()
-  If Vartype(toGrid) != "O" And Pemstatus(toGrid, "BaseClass", 5) And Lower(toGrid.BaseClass) != "grid"
-    Return False
-  Endif
-  With This
-    Do Case
-    Case Pcount() < 2
+    Lparameters toGrid, tcFileName, tlFreeze, tcSheetName, tlInclHiddenCols
+    Local llError, lcTempPath, lcAlias, lcFileName, lhFile, lcRowDefHt, lnCol, lnRow, lcSETCentury, lxCellValue
+    Local lnColCount, lnColWidth, lcCurAlias
+    Local Array laColOrder[1], laSheetNames[1]
+    llError    = False
+    lcCurAlias = Alias()
+    If Vartype(toGrid) != "O" And Pemstatus(toGrid, "BaseClass", 5) And Lower(toGrid.BaseClass) != "grid"
       Return False
-
-    Case Pcount() = 2
-      tlFreeze     = True
-      tcSheetName  = toGrid.Name
-      tlInclHiddenCols = True
-
-    Case Pcount() = 3
-      tcSheetName  = toGrid.Name
-      tlInclHiddenCols = True
-
-    Case Pcount() = 4
-      tlInclHiddenCols = True
-    Endcase
-    If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
-      tcSheetName = toGrid.Name
     Endif
-    tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
-    If Len(tcSheetName) > LIMITS_MAX_SH_NAME
-      If .AutoTrimSheetName
-        tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
-      Else
+    With This
+      Do Case
+      Case Pcount() < 2
         Return False
+
+      Case Pcount() = 2
+        tlFreeze     = True
+        tcSheetName  = toGrid.Name
+        tlInclHiddenCols = True
+
+      Case Pcount() = 3
+        tcSheetName  = toGrid.Name
+        tlInclHiddenCols = True
+
+      Case Pcount() = 4
+        tlInclHiddenCols = True
+      Endcase
+      If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
+        tcSheetName = toGrid.Name
       Endif
-    Endif
+      tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
+      If Len(tcSheetName) > LIMITS_MAX_SH_NAME
+        If .AutoTrimSheetName
+          tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
+        Else
+          Return False
+        Endif
+      Endif
 
 *-* Set temporary output path
-    lcTempPath = .CreateWorkingDirectories()
-    If Isnull(lcTempPath)
-      Return False
-    Endif
+      lcTempPath = .CreateWorkingDirectories()
+      If Isnull(lcTempPath)
+        Return False
+      Endif
 
 *-*	Save current settings and then set to US formats
-    lcSetPoint  = Set("POINT")
-    lcSeparator = Set("SEPARATOR")
-    If lcSetPoint != "."
-      Set Point To "."
-      Set Separator To ","
-    Endif
+      lcSetPoint  = Set("POINT")
+      lcSeparator = Set("SEPARATOR")
+      If lcSetPoint != "."
+        Set Point To "."
+        Set Separator To ","
+      Endif
 
 *-*	Output the workbook
-    lcAlias = Juststem(toGrid.RecordSource)
+      lcAlias = Juststem(toGrid.RecordSource)
 
 *-*	Get the number of columns to process
 *-*	Get the column output order based on grid display order                          && Change requested by Matt Slay to output by grid display order and visible setting
-    If tlInclHiddenCols
-      lnColCount = toGrid.ColumnCount
-      Dimension laColOrder[lnColCount, 2]
-      For lnCol=1 To toGrid.ColumnCount
-        laColOrder[lnCol, 1] = toGrid.Columns(lnCol).ColumnOrder                     && Grid display order
-        laColOrder[lnCol, 2] = lnCol                                                 && Column property order
-      Endfor
-    Else
-      lnColCount = 0
-      For lnCol=1 To toGrid.ColumnCount
-        If toGrid.Columns(lnCol).Visible
-          lnColCount = lnColCount + 1
-          Dimension laColOrder[lnColCount, 2]
-          laColOrder[lnColCount, 1] = toGrid.Columns(lnCol).ColumnOrder             && Grid display order
-          laColOrder[lnColCount, 2] = lnCol                                         && Column property order
-        Endif
-      Endfor
-    Endif
-    If lnColCount = 0
-      Return False
-    Endif
-    Asort(laColOrder)
+      If tlInclHiddenCols
+        lnColCount = toGrid.ColumnCount
+        Dimension laColOrder[lnColCount, 2]
+        For lnCol=1 To toGrid.ColumnCount
+          laColOrder[lnCol, 1] = toGrid.Columns(lnCol).ColumnOrder                     && Grid display order
+          laColOrder[lnCol, 2] = lnCol                                                 && Column property order
+        Endfor
+      Else
+        lnColCount = 0
+        For lnCol=1 To toGrid.ColumnCount
+          If toGrid.Columns(lnCol).Visible
+            lnColCount = lnColCount + 1
+            Dimension laColOrder[lnColCount, 2]
+            laColOrder[lnColCount, 1] = toGrid.Columns(lnCol).ColumnOrder             && Grid display order
+            laColOrder[lnColCount, 2] = lnCol                                         && Column property order
+          Endif
+        Endfor
+      Endif
+      If lnColCount = 0
+        Return False
+      Endif
+      Asort(laColOrder)
 
-    Dimension laSheetNames[1]
-    laSheetNames[1] = tcSheetName
-    If .WriteDirectXMLs(lcTempPath, @laSheetNames)
+      Dimension laSheetNames[1]
+      laSheetNames[1] = tcSheetName
+      If .WriteDirectXMLs(lcTempPath, @laSheetNames)
 *-*	Write the sheet XML
-* TODO: переделать на textmerge
-      Try
-        lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
-        lhFile = Fcreate(lcFileName)
-        If lhFile < 0
-          Throw
-        Endif
-        Fclose(lhFile)
+*ssa*	        Try
+          lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
+          lhFile = Fcreate(lcFileName)
+          If lhFile < 0
+            Throw
+          Endif
+          Fclose(lhFile)
 
-        Set Textmerge On To Memvar lcOutStr Noshow
+          Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -5185,230 +5184,231 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*		Write the sheet view information which includes the freeze pane information
         \\<dimension ref="A1:<<.ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1)>>"/>
-        If tlFreeze
+          If tlFreeze
           \\<sheetViews><sheetView workbookViewId="0">
           \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
           \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
           \\</sheetView></sheetViews>')
-        Endif
+          Endif
         \\<sheetFormatPr defaultRowHeight="15"/>
 
 *-*		Write sheet Column widths
         \\<cols>
-        For lnCol=1 To lnColCount
-          lnColWidth = .ConvertPixelsToExcelUnits(toGrid.Columns(laColOrder[lnCol, 2]).Width)
+          For lnCol=1 To lnColCount
+            lnColWidth = .ConvertPixelsToExcelUnits(toGrid.Columns(laColOrder[lnCol, 2]).Width)
           \\<col min="<<Transform(lnCol)>>" max="<<Transform(lnCol)>>" width="<<Transform(lnColWidth+0.7109375)>>" customWidth="1"/>
-        Endfor
+          Endfor
         \\</cols>')
 
 *-*		Write sheet cell data values
-        lcRowDefHt = ' ht="30"'
+          lcRowDefHt = ' ht="30"'
         \\<sheetData>
 
 *-*		Place field names in the first row
-        If toGrid.HeaderHeight > 0  && Change recommendation by Doug Hennig (if no headers, then no output)
+          If toGrid.HeaderHeight > 0  && Change recommendation by Doug Hennig (if no headers, then no output)
           \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >')
-          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-            For lnCol=1 To lnColCount
-              .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-            Endfor
-          Else
-            For lnCol=1 To lnColCount
-              .WriteAsInLineFormattedString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-            Endfor
-          Endif
+            If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+              For lnCol=1 To lnColCount
+                .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              Endfor
+            Else
+              For lnCol=1 To lnColCount
+                .WriteAsInLineFormattedString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              Endfor
+            Endif
           \\</row>
-          lnRow = 1
-        Else
-          lnRow = 0
-        Endif
+            lnRow = 1
+          Else
+            lnRow = 0
+          Endif
 
 *-*		Write the grid field values to cells
-        lcSETCentury = Set("CENTURY")
-        Set Century On
-        Select (lcAlias)
-        If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-          Scan
-            lnRow = lnRow + 1
+          lcSETCentury = Set("CENTURY")
+          Set Century On
+          Select (lcAlias)
+          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+            Scan
+              lnRow = lnRow + 1
             \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
-            For lnCol=1 To lnColCount
-              lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-              .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
-            Endfor
+              For lnCol=1 To lnColCount
+                lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+                .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
+              Endfor
             \\</Row>
-          Endscan
-        Else
-          Scan
-            lnRow = lnRow + 1
+            Endscan
+          Else
+            Scan
+              lnRow = lnRow + 1
             \\<Row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
-            For lnCol=1 To lnColCount
-              lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-              .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
-            Endfor
+              For lnCol=1 To lnColCount
+                lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+                .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
+              Endfor
             \\</Row>
-          Endscan
-        Endif
-        Set Century &lcSETCentury
+            Endscan
+          Endif
+          Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
        \\</sheetData>
        \\<pageMargins Left="0.7" Right="0.7" Top="0.75" Bottom="0.75" Header="0.3" Footer="0.3"/>
        \\</worksheet>
 
-      Catch To loException
-        Set Step On
-        llError = True
-        .ErrorLevelId = 14
-        Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
+*ssa*	        Catch To loException
+*ssa*	          Set Step On
+*ssa*	          llError = True
+*ssa*	          .ErrorLevelId = 14
+*ssa*	          Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
 
-      Finally
-        .SaveAsUtf8(lcFileName, lcOutStr)
-      Endtry
-      If llError
-        llSuccess = False
+*ssa*	        Finally
+          Set Textmerge to
+          .SaveAsUtf8(lcFileName, lcOutStr)
+*ssa*	        Endtry
+        If llError
+          llSuccess = False
+        Else
+          llSuccess = .CreateExcelFile(lcTempPath, Justpath(tcFileName), Juststem(tcFileName))    && Change recommendation by Doug Hennig [placement of code after ELSE]
+        Endif
+        .RemoveWorkingDirectories(lcTempPath)
+
       Else
-        llSuccess = .CreateExcelFile(lcTempPath, Justpath(tcFileName), Juststem(tcFileName))    && Change recommendation by Doug Hennig [placement of code after ELSE]
+        llSuccess = False
       Endif
-      .RemoveWorkingDirectories(lcTempPath)
-
-    Else
-      llSuccess = False
-    Endif
-    If !Empty(lcCurAlias)
-      Select (lcCurAlias)
-    Endif
+      If !Empty(lcCurAlias)
+        Select (lcCurAlias)
+      Endif
 
 *-*	Restore default settings
-    If lcSetPoint != "."
-      Set Point To (lcSetPoint)
-      Set Separator To (lcSeparator)
-    Endif
-  Endwith
-  Return llSuccess
+      If lcSetPoint != "."
+        Set Point To (lcSetPoint)
+        Set Separator To (lcSeparator)
+      Endif
+    Endwith
+    Return llSuccess
 
 *-- Same as SaveGridToWorkbookEx() method but handles multiple grids being passed
   Procedure SaveMultiGridtoWorkbookEx
-  Lparameters toGrids, tcFileName
-  Local llError, lcTempPath, lcAlias, lcFileName, lhFile, lcRowDefHt, lnCol, lnRow, lcSETCentury, lxCellValue
-  Local lnColCount, lnColWidth, lcCurAlias, lnGrid, loGrid, loException, lcSheetName
-  Local Array laColOrder[1], laSheetNames[1]
-  llError    = False
-  lcCurAlias = Alias()
-  If Pcount() < 2
-    Return False
-  Endif
-  With This
-    If Vartype(toGrids) = "O"
-      If Pemstatus(toGrids, "Count", 5) And Vartype(toGrids.Count) != "N"
-        Return False
-      Else
-        If toGrids.Count < 1
+    Lparameters toGrids, tcFileName
+    Local llError, lcTempPath, lcAlias, lcFileName, lhFile, lcRowDefHt, lnCol, lnRow, lcSETCentury, lxCellValue
+    Local lnColCount, lnColWidth, lcCurAlias, lnGrid, loGrid, loException, lcSheetName
+    Local Array laColOrder[1], laSheetNames[1]
+    llError    = False
+    lcCurAlias = Alias()
+    If Pcount() < 2
+      Return False
+    Endif
+    With This
+      If Vartype(toGrids) = "O"
+        If Pemstatus(toGrids, "Count", 5) And Vartype(toGrids.Count) != "N"
           Return False
-        Endif
-      Endif
-
-      If Pemstatus(toGrids, "List", 5)
-        llError = False
-        Try
-          If Alen(toGrids.List, 2) != 4   && Column 1 Grid; Column 2  SheetName; Column 3 Freeze indicator, Column 4 HiddenCols indicator
-            Throw
-          Endif
-        Catch To loException
-          llError = True
-        Endtry
-        If llError
-          Return False
-        Endif
-        For lnGrid=1 To toGrids.Count
-*-*			Validate grid object
-          loGrid = toGrids.List[lnGrid, 1]
-          If Vartype(loGrid) != "O" And Pemstatus(loGrid, "BaseClass", 5) And Lower(loGrid.BaseClass) != "grid"
+        Else
+          If toGrids.Count < 1
             Return False
           Endif
-*-*			Validate sheet name
-          lcSheetName = toGrids.List[lnGrid, 2]
-          If Vartype(lcSheetName) != 'C' Or Empty(lcSheetName)
-            lcSheetName = loGrid.Name
+        Endif
+
+        If Pemstatus(toGrids, "List", 5)
+          llError = False
+          Try
+            If Alen(toGrids.List, 2) != 4   && Column 1 Grid; Column 2  SheetName; Column 3 Freeze indicator, Column 4 HiddenCols indicator
+              Throw
+            Endif
+          Catch To loException
+            llError = True
+          Endtry
+          If llError
+            Return False
           Endif
-          lcSheetName = Chrtran(lcSheetName, ":\/?*", "_____")
-          If Len(lcSheetName) > LIMITS_MAX_SH_NAME
-            If .AutoTrimSheetName
-              lcSheetName = Left(Alltrim(lcSheetName), LIMITS_MAX_SH_NAME)
-            Else
+          For lnGrid=1 To toGrids.Count
+*-*			Validate grid object
+            loGrid = toGrids.List[lnGrid, 1]
+            If Vartype(loGrid) != "O" And Pemstatus(loGrid, "BaseClass", 5) And Lower(loGrid.BaseClass) != "grid"
               Return False
             Endif
-          Endif
-          toGrids.List[lnGrid, 2] = lcSheetName
+*-*			Validate sheet name
+            lcSheetName = toGrids.List[lnGrid, 2]
+            If Vartype(lcSheetName) != 'C' Or Empty(lcSheetName)
+              lcSheetName = loGrid.Name
+            Endif
+            lcSheetName = Chrtran(lcSheetName, ":\/?*", "_____")
+            If Len(lcSheetName) > LIMITS_MAX_SH_NAME
+              If .AutoTrimSheetName
+                lcSheetName = Left(Alltrim(lcSheetName), LIMITS_MAX_SH_NAME)
+              Else
+                Return False
+              Endif
+            Endif
+            toGrids.List[lnGrid, 2] = lcSheetName
 *-*			Validate freeze indicator
-          If Vartype(toGrids.List[lnGrid, 3]) != 'L'
-            toGrids.List[lnGrid, 3] = False
-          Endif
+            If Vartype(toGrids.List[lnGrid, 3]) != 'L'
+              toGrids.List[lnGrid, 3] = False
+            Endif
 *-*			Validate hidden column indicator
-          If Vartype(toGrids.List[lnGrid, 4]) != 'L'
-            toGrids.List[lnGrid, 4] = False
-          Endif
-        Endfor
+            If Vartype(toGrids.List[lnGrid, 4]) != 'L'
+              toGrids.List[lnGrid, 4] = False
+            Endif
+          Endfor
+        Endif
+      Else
+        Return False
       Endif
-    Else
-      Return False
-    Endif
 
 *-* Set temporary output path
-    lcTempPath = .CreateWorkingDirectories()
-    If Isnull(lcTempPath)
-      Return False
-    Endif
+      lcTempPath = .CreateWorkingDirectories()
+      If Isnull(lcTempPath)
+        Return False
+      Endif
 
 *-*	Save current settings and then set to US formats
-    lcSetPoint  = Set("POINT")
-    lcSeparator = Set("SEPARATOR")
-    If lcSetPoint != "."
-      Set Point To "."
-      Set Separator To ","
-    Endif
+      lcSetPoint  = Set("POINT")
+      lcSeparator = Set("SEPARATOR")
+      If lcSetPoint != "."
+        Set Point To "."
+        Set Separator To ","
+      Endif
 
 *-*	Output the workbook
-    Dimension laSheetNames[toGrids.Count]
-    For lnGrid=1 To toGrids.Count
-      laSheetNames[lnGrid] = toGrids.List[lnGrid, 2]
-    Endfor
-    If !.WriteDirectXMLs(lcTempPath, @laSheetNames)
-      Return False
-    Endif
+      Dimension laSheetNames[toGrids.Count]
+      For lnGrid=1 To toGrids.Count
+        laSheetNames[lnGrid] = toGrids.List[lnGrid, 2]
+      Endfor
+      If !.WriteDirectXMLs(lcTempPath, @laSheetNames)
+        Return False
+      Endif
 
 *-*	Write the sheet xml for each grid
-    For lnGrid=1 To toGrids.Count
-      loGrid  = toGrids.List[lnGrid, 1]
-      lcAlias = Juststem(loGrid.RecordSource)
+      For lnGrid=1 To toGrids.Count
+        loGrid  = toGrids.List[lnGrid, 1]
+        lcAlias = Juststem(loGrid.RecordSource)
 
 *-*	Get the number of columns to process
 *-*	Get the column output order based on grid display order       && Change requested by Matt Slay to output by grid display order and visible setting
-      If toGrids.List[lnGrid, 4]
-        lnColCount = loGrid.ColumnCount
-        Dimension laColOrder[lnColCount, 2]
-        For lnCol=1 To loGrid.ColumnCount
-          laColOrder[lnCol, 1] = loGrid.Columns(lnCol).ColumnOrder     && Grid display order
-          laColOrder[lnCol, 2] = lnCol                                 && Column property order
-        Endfor
-      Else
-        lnColCount = 0
-        For lnCol=1 To loGrid.ColumnCount
-          If loGrid.Columns(lnCol).Visible
-            lnColCount = lnColCount + 1
-            Dimension laColOrder[lnColCount, 2]
-            laColOrder[lnColCount, 1] = loGrid.Columns(lnCol).ColumnOrder   && Grid display order
-            laColOrder[lnColCount, 2] = lnCol                        && Column property order
-          Endif
-        Endfor
-      Endif
-      If lnColCount = 0
-        Return False
-      Endif
-      Asort(laColOrder)
+        If toGrids.List[lnGrid, 4]
+          lnColCount = loGrid.ColumnCount
+          Dimension laColOrder[lnColCount, 2]
+          For lnCol=1 To loGrid.ColumnCount
+            laColOrder[lnCol, 1] = loGrid.Columns(lnCol).ColumnOrder     && Grid display order
+            laColOrder[lnCol, 2] = lnCol                                 && Column property order
+          Endfor
+        Else
+          lnColCount = 0
+          For lnCol=1 To loGrid.ColumnCount
+            If loGrid.Columns(lnCol).Visible
+              lnColCount = lnColCount + 1
+              Dimension laColOrder[lnColCount, 2]
+              laColOrder[lnColCount, 1] = loGrid.Columns(lnCol).ColumnOrder   && Grid display order
+              laColOrder[lnColCount, 2] = lnCol                        && Column property order
+            Endif
+          Endfor
+        Endif
+        If lnColCount = 0
+          Return False
+        Endif
+        Asort(laColOrder)
 
-      Try
-        lcFileName = lcTempPath + "xl\worksheets\sheet" + Transform(lnGrid) + ".xml"
-        Set Textmerge On To Memvar lcOutStr Noshow
+*ssa*	        Try
+          lcFileName = lcTempPath + "xl\worksheets\sheet" + Transform(lnGrid) + ".xml"
+          Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
         \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -5418,94 +5418,435 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*		Write the sheet view information which includes the freeze pane information
         \\<dimension ref="A1:' + .ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1) + '"/>
-        If toGrids.List[lnGrid, 3]
+          If toGrids.List[lnGrid, 3]
           \\<sheetViews><sheetView workbookViewId="0">
           \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
           \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
           \\</sheetView></sheetViews>
-        Endif
+          Endif
         \\<sheetFormatPr defaultRowHeight="15"/>
 
 *-*		Write sheet Column widths
         \\<cols>
-        For lnCol=1 To lnColCount
-          lnColWidth = .ConvertPixelsToExcelUnits(loGrid.Columns(laColOrder[lnCol, 2]).Width)
+          For lnCol=1 To lnColCount
+            lnColWidth = .ConvertPixelsToExcelUnits(loGrid.Columns(laColOrder[lnCol, 2]).Width)
           \\<col min="<<Transform(lnCol)>>" max="<<Transform(lnCol)>>" width="<<Transform(lnColWidth+0.7109375)>>" customWidth="1"/>
-        Endfor
+          Endfor
         \\</cols>
 
 *-*		Write sheet cell data values
-        lcRowDefHt = ' ht="30"'
+          lcRowDefHt = ' ht="30"'
         \\<sheetData>
 
 *-*		Place field names in the first row
-        If loGrid.HeaderHeight > 0                                   && Change recommendation by Doug Hennig (if no headers, then no output)
+          If loGrid.HeaderHeight > 0                                   && Change recommendation by Doug Hennig (if no headers, then no output)
           \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
-          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-            For lnCol=1 To lnColCount
-              .WriteAsInLineString(lhFile, 1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-            Endfor
-          Else
-            For lnCol=1 To lnColCount
-              .WriteAsInLineFormattedString(lhFile, 1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-            Endfor
-          Endif
+            If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+              For lnCol=1 To lnColCount
+                .WriteAsInLineString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              Endfor
+            Else
+              For lnCol=1 To lnColCount
+                .WriteAsInLineFormattedString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              Endfor
+            Endif
           \\</row>
-          lnRow = 1
-        Else
-          lnRow = 0
-        Endif
+            lnRow = 1
+          Else
+            lnRow = 0
+          Endif
 
 *-*		Write the grid field values to cells
-        lcSETCentury = Set("CENTURY")
-        Set Century On
-        Select (lcAlias)
-        If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-          Scan
-            lnRow = lnRow + 1
+          lcSETCentury = Set("CENTURY")
+          Set Century On
+          Select (lcAlias)
+          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+            Scan
+              lnRow = lnRow + 1
             \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
-            For lnCol=1 To lnColCount
-              lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-              .WriteDirectCellValue(lhFile, lnRow, lnCol, lxCellValue)
-            Endfor
+              For lnCol=1 To lnColCount
+                lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+                .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
+              Endfor
             \\</row>
-          Endscan
-        Else
-          Scan
-            lnRow = lnRow + 1
+            Endscan
+          Else
+            Scan
+              lnRow = lnRow + 1
             \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
-            For lnCol=1 To lnColCount
-              lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-              .WriteDirectCellFormattedValue(lhFile, lnRow, lnCol, lxCellValue)
-            Endfor
+              For lnCol=1 To lnColCount
+                lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+                .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
+              Endfor
             \\</row>
-          Endscan
-        Endif
-        Set Century &lcSETCentury
+            Endscan
+          Endif
+          Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
         \\</sheetData>
         \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
         \\</worksheet>
 
-      Catch To loException
-        Set Step On
-        llError = True
-        .ErrorLevelId = 14
-        Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
+*ssa*	        Catch To loException
+*ssa*	          Set Step On
+*ssa*	          llError = True
+*ssa*	          .ErrorLevelId = 14
+*ssa*	          Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
 
-      Finally
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
-      Endtry
-    Endfor
-    If llError
-      llSuccess = False
-    Else
-      llSuccess = .CreateExcelFile(lcTempPath, Justpath(tcFileName), Juststem(tcFileName))   && Change recommendation by Doug Hennig [placement of code after ELSE]
-    Endif
+*ssa*	        Finally
+          Set Textmerge To
+          .SaveAsUtf8(lcFileName, lcOutStr)
+*ssa*	        Endtry
+      Endfor
+      If llError
+        llSuccess = False
+      Else
+        llSuccess = .CreateExcelFile(lcTempPath, Justpath(tcFileName), Juststem(tcFileName))   && Change recommendation by Doug Hennig [placement of code after ELSE]
+      Endif
 *-*	Cleanup
-    .RemoveWorkingDirectories(lcTempPath)
+      .RemoveWorkingDirectories(lcTempPath)
+      If !Empty(lcCurAlias)
+        Select (lcCurAlias)
+      Endif
+
+*-*	Restore default settings
+      If lcSetPoint != "."
+        Set Point To (lcSetPoint)
+        Set Separator To (lcSeparator)
+      Endif
+    Endwith
+    Return llSuccess
+
+*-- Saves the table passed (alias) as a workbook sheet
+  Procedure SaveTableToWorkbook
+    Lparameters tcAlias, tnWB, tlFreeze, tlSaveWB, tcSheetName
+    Local lcAlias, lnCol, lnWB, lnSh, lnRow, lcField, lnFldCnt, llError, llOpenedTbl, loException, lcCurAlias, loReturn
+    Local lnNdx, lcCaption
+    Local Array laFields[1], laRowCount[1]
+    loReturn = Createobject("Empty")
+    AddProperty(loReturn, "Workbook",  0)
+    AddProperty(loReturn, "Sheet", 0)
+    Do Case
+    Case Pcount() < 2
+      Return loReturn
+
+    Case Pcount() = 2
+      tlFreeze = True
+      tlSaveWB = False
+      tcSheetName = Juststem(tcAlias)
+
+    Case Pcount() = 3
+      tlSaveWB = False
+      tcSheetName = Juststem(tcAlias)
+
+    Case Pcount() = 4
+      tcSheetName = Juststem(tcAlias)
+    Endcase
+    If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
+      tcSheetName = This.DeriveSheetName(tnWB)
+    Endif
+    tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
+    If Len(tcSheetName) > LIMITS_MAX_SH_NAME
+      If This.AutoTrimSheetName
+        tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
+      Else
+        Return loReturn
+      Endif
+    Endif
+    Do Case
+    Case Used(tcAlias)
+      lcCurAlias  = Alias()
+      llOpenedTbl = False
+      lcAlias = tcAlias
+
+    Case Occurs("\", tcAlias) > 0
+      Try
+        lcAlias = Juststem(tcAlias)
+        Use (tcAlias) In 0 Alias (lcAlias) Shared
+        llOpenedTbl = True
+
+      Catch To loException
+        llError = True
+      Endtry
+      If llError
+        Return loReturn
+      Endif
+
+    Otherwise
+      Return loReturn
+    Endcase
+    Do Case
+    Case Vartype(tnWB) = "C"
+      lnWB = This.CreateWorkbook(tnWB)
+      If lnWB = 0
+        lnWB = This.GetWorkbook(tnWB)
+      Endif
+
+    Case Vartype(tnWB) = "N"
+      If Seek(BinToC(tnWB), "xl_workbooks", "workbook")
+        lnWB = tnWB
+      Else
+        Return loReturn
+      Endif
+
+    Otherwise
+      Return loReturn
+    Endcase
+    If lnWB > 0
+      lnSh = This.AddSheet(lnWB, tcSheetName)
+      If lnSh > 0
+*-*		Get the record count and display a status window
+        Select Count(*) From &lcAlias Into Array laRowCount
+        Raiseevent(This, "OnShowStatusMessage", 3, 0, laRowCount[1])
+
+        Select (lcAlias)
+        lnFldCnt = Afields(laFields, lcAlias)
+        For lnNdx=1 To lnFldCnt
+          Try
+            lcCaption = DBGetProp(lcAlias + "." + laFields[lnNdx, 1], "FIELD", "CAPTION")
+            laFields[lnNdx, 3] = Iif(Empty(lcCaption), laFields[lnNdx, 1], lcCaption)
+
+          Catch To loException
+            laFields[lnNdx, 3] = laFields[lnNdx, 1]
+          Endtry
+        Endfor
+
+*-*		Place field names in the first row
+        For lnCol=1 To lnFldCnt
+          This.SetCellValue(lnWB, lnSh, 1, lnCol, laFields[lnCol, 3])
+        Endfor
+*-*		Populate next rows with data
+        lnRow = 0
+        Scan
+          lnRow = lnRow + 1
+          Raiseevent(This, "OnShowStatusMessage", 3, lnRow)
+          For lnCol=1 To lnFldCnt
+            If laFields[lnCol, 2] = "G"
+              This.SetCellValue(lnWB, lnSh, 1 + lnRow, lnCol, "General")
+            Else
+              This.SetCellValue(lnWB, lnSh, 1 + lnRow, lnCol, Evaluate(lcAlias + '.' + laFields[lnCol, 1]))
+            Endif
+          Endfor
+        Endscan
+
+        If tlFreeze
+          This.FreezePanes(lnWB, lnSh, 1, 0)
+        Endif
+        Raiseevent(This, "OnShowStatusMessage", 3, -1)
+        If tlSaveWB
+          This.SaveWorkbook(lnWB)
+        Endif
+      Else
+        lnWB = 0
+        lnSh = 0
+      Endif
+    Else
+      lnSh = 0
+      lnWB = 0
+    Endif
+    If llOpenedTbl
+      Use In (lcAlias)
+    Else
+      lnSh = 0
+      lnWB = 0
+      If !Empty(lcCurAlias)
+        Select (lcCurAlias)
+      Endif
+    Endif
+    loReturn.Sheet    = lnSh
+    loReturn.workbook = lnWB
+    Return loReturn
+
+*-- Creates a new workbook from a table; direct write to XLSX file without loading internal cursors
+  Procedure SaveTableToWorkbookEx
+    Lparameters tcAlias, tcXlsxName, taFields, tlFreeze, tcSheetName
+    Local lcCurAlias, llOpenedTbl, lcAlias, llError, loException, lhFile, lnCol, lcRowDefHt
+    Local lnFldCnt, lnRow, lxCellValue, lcTempPath, lcFileName, lcSETCentry, lcCaption, llSuccess, lcSetPoint
+    Local lcSeparator
+    Local Array laSheetNames[1]
+    External Array taFields
+    llError = False
+    Do Case
+    Case Pcount() < 2
+      Return False
+
+    Case Pcount() = 2
+      Dimension taFields[1, 2]
+      taFields[1, 1] = Null
+      tlFreeze       = True
+      tcSheetName    = Juststem(tcAlias)
+
+    Case Pcount() = 3
+      tlFreeze    = True
+      tcSheetName = Juststem(tcAlias)
+
+    Case Pcount() = 4
+      tcSheetName = Juststem(tcAlias)
+    Endcase
+    If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
+      tcSheetName = Juststem(tcAlias)
+    Endif
+    tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
+    If Len(tcSheetName) > LIMITS_MAX_SH_NAME
+      If This.AutoTrimSheetName
+        tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
+      Else
+        Return False
+      Endif
+    Endif
+    lcCurAlias = Alias()
+    lcAlias    = Juststem(tcAlias)
+    Do Case
+    Case Used(lcAlias)
+      llOpenedTbl = False
+
+    Case Occurs("\", tcAlias) > 0
+      Try
+        Use (tcAlias) In 0 Alias (lcAlias) Shared
+        llOpenedTbl = True
+
+      Catch To loException
+        llError = True
+      Endtry
+      If llError
+        Return False
+      Endif
+
+    Otherwise
+      Return False
+    Endcase
+*-*	Get the table fields to export if not passed as a parameter
+    Select (lcAlias)
+    If Isnull(taFields) Or Empty(taFields[1])
+      Dimension taFields[1, 5]
+      taFields = ""
+      lnFldCnt = Afields(taFields, lcAlias)
+      For lnCol=1 To lnFldCnt
+        Try
+          lcCaption = DBGetProp(lcAlias + "." + taFields[lnCol, 1], "FIELD", "CAPTION")
+          taFields[lnCol, 2] = Iif(Empty(lcCaption), taFields[lnCol, 1], lcCaption)
+
+        Catch To loException
+          taFields[lnCol, 2] = taFields[lnCol, 1]
+        Endtry
+      Endfor
+    Else
+      lnFldCnt = Alen(taFields, 1)
+      If Alen(taFields, 2) < 2 Or Vartype(taFields[1, 2]) != "C"
+        Return False
+      Endif
+    Endif
+
+    With This
+*-* Set temporary output path
+      lcTempPath = .CreateWorkingDirectories()
+      If Isnull(lcTempPath)
+        Return False
+      Endif
+
+*-*	Save current settings and then set to US formats
+      lcSetPoint  = Set("POINT")
+      lcSeparator = Set("SEPARATOR")
+      If lcSetPoint != "."
+        Set Point To "."
+        Set Separator To ","
+      Endif
+
+      Dimension laSheetNames[1]
+      laSheetNames[1] = tcSheetName
+      If .WriteDirectXMLs(lcTempPath, @laSheetNames)
+*-*	Write the sheet XML
+*ssa*	        Try
+          lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
+          Set Textmerge On To Memvar lcOutStr Noshow
+*-*		Write sheet XML header information
+      \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+      \\ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+      \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"
+      \\ xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
+
+*-*		Write the sheet view information which includes the freeze pane information
+        \\<Dimension ref="A1:<<.ColumnIndexToAscii(lnFldCnt) + Transform(Reccount(lcAlias)+1)>>"/>
+          If tlFreeze
+        \\<sheetViews><sheetView workbookViewId="0">
+        \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
+        \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
+          Endif
+      \\</sheetView></sheetViews>
+      \\<sheetFormatPr defaultRowHeight="15"/>
+
+*-*		Write sheet cell data values
+      \\<sheetData>
+
+*-*		Place field names in the first row
+          lcRowDefHt = ' ht="30"'
+      \\<row r="1" spans="1:<<Transform(lnFldCnt)>>"<<lcRowDefHt>>>
+          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+            For lnCol=1 To lnFldCnt
+              .WriteAsInLineString(1, lnCol, taFields[lnCol, 2])
+            Endfor
+          Else
+            For lnCol=1 To lnFldCnt
+              .WriteAsInLineFormattedString(1, lnCol, taFields[lnCol, 2])
+            Endfor
+          Endif
+      \\</row>
+
+*-*		Write the table field values to cells
+          lcSETCentry = Set("CENTURY")
+          Set Century On
+          lnRow = 1
+          If This.DefaultFont = "Calibri" And This.DefaultFontSize = 11
+            Scan
+              lnRow = lnRow + 1
+          \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnFldCnt)>>"<<lcRowDefHt>>>
+              For lnCol=1 To lnFldCnt
+                lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
+                .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
+              Endfor
+          \\</row>
+            Endscan
+          Else
+            Scan
+              lnRow = lnRow + 1
+          \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnFldCnt)>>"<<lcRowDefHt>>>
+              For lnCol=1 To lnFldCnt
+                lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
+                .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
+              Endfor
+          \\</row>
+            Endscan
+          Endif
+          Set Century &lcSETCentry
+
+*-*		End the sheet cell data values and worksheet
+      \\</sheetData>
+      \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+      \\</worksheet>
+
+*ssa*	        Catch To loException
+*ssa*	          Set Step On
+*ssa*	          llError = True
+*ssa*	          .ErrorLevelId = 14
+*ssa*	          Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
+
+*ssa*	        Finally
+          Set Textmerge To
+          .SaveAsUtf8(lcFileName, lcOutStr)
+*ssa*	        Endtry
+        If llError
+          llSuccess = False
+        Else
+*-*		Create the XLSX file
+          llSuccess = .CreateExcelFile(lcTempPath, Justpath(tcXlsxName), Juststem(tcXlsxName))    && Change recommendation by Doug Hennig [placement of code after ELSE]
+        Endif
+        .RemoveWorkingDirectories(lcTempPath)
+      Else
+        llSuccess = False
+      Endif
+    Endwith
     If !Empty(lcCurAlias)
       Select (lcCurAlias)
     Endif
@@ -5515,724 +5856,602 @@ Define Class vfpxworkbookxlsx As Custom
       Set Point To (lcSetPoint)
       Set Separator To (lcSeparator)
     Endif
-  Endwith
-  Return llSuccess
-
-*-- Saves the table passed (alias) as a workbook sheet
-  Procedure SaveTableToWorkbook
-  Lparameters tcAlias, tnWB, tlFreeze, tlSaveWB, tcSheetName
-  Local lcAlias, lnCol, lnWB, lnSh, lnRow, lcField, lnFldCnt, llError, llOpenedTbl, loException, lcCurAlias, loReturn
-  Local lnNdx, lcCaption
-  Local Array laFields[1], laRowCount[1]
-  loReturn = Createobject("Empty")
-  AddProperty(loReturn, "Workbook",  0)
-  AddProperty(loReturn, "Sheet", 0)
-  Do Case
-  Case Pcount() < 2
-    Return loReturn
-
-  Case Pcount() = 2
-    tlFreeze = True
-    tlSaveWB = False
-    tcSheetName = Juststem(tcAlias)
-
-  Case Pcount() = 3
-    tlSaveWB = False
-    tcSheetName = Juststem(tcAlias)
-
-  Case Pcount() = 4
-    tcSheetName = Juststem(tcAlias)
-  Endcase
-  If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
-    tcSheetName = This.DeriveSheetName(tnWB)
-  Endif
-  tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
-  If Len(tcSheetName) > LIMITS_MAX_SH_NAME
-    If This.AutoTrimSheetName
-      tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
-    Else
-      Return loReturn
-    Endif
-  Endif
-  Do Case
-  Case Used(tcAlias)
-    lcCurAlias  = Alias()
-    llOpenedTbl = False
-    lcAlias = tcAlias
-
-  Case Occurs("\", tcAlias) > 0
-    Try
-      lcAlias = Juststem(tcAlias)
-      Use (tcAlias) In 0 Alias (lcAlias) Shared
-      llOpenedTbl = True
-
-    Catch To loException
-      llError = True
-    Endtry
-    If llError
-      Return loReturn
-    Endif
-
-  Otherwise
-    Return loReturn
-  Endcase
-  Do Case
-  Case Vartype(tnWB) = "C"
-    lnWB = This.CreateWorkbook(tnWB)
-    If lnWB = 0
-      lnWB = This.GetWorkbook(tnWB)
-    Endif
-
-  Case Vartype(tnWB) = "N"
-    If Seek(BinToC(tnWB), "xl_workbooks", "workbook")
-      lnWB = tnWB
-    Else
-      Return loReturn
-    Endif
-
-  Otherwise
-    Return loReturn
-  Endcase
-  If lnWB > 0
-    lnSh = This.AddSheet(lnWB, tcSheetName)
-    If lnSh > 0
-*-*		Get the record count and display a status window
-      Select Count(*) From &lcAlias Into Array laRowCount
-      Raiseevent(This, "OnShowStatusMessage", 3, 0, laRowCount[1])
-
-      Select (lcAlias)
-      lnFldCnt = Afields(laFields, lcAlias)
-      For lnNdx=1 To lnFldCnt
-        Try
-          lcCaption = DBGetProp(lcAlias + "." + laFields[lnNdx, 1], "FIELD", "CAPTION")
-          laFields[lnNdx, 3] = Iif(Empty(lcCaption), laFields[lnNdx, 1], lcCaption)
-
-        Catch To loException
-          laFields[lnNdx, 3] = laFields[lnNdx, 1]
-        Endtry
-      Endfor
-
-*-*		Place field names in the first row
-      For lnCol=1 To lnFldCnt
-        This.SetCellValue(lnWB, lnSh, 1, lnCol, laFields[lnCol, 3])
-      Endfor
-*-*		Populate next rows with data
-      lnRow = 0
-      Scan
-        lnRow = lnRow + 1
-        Raiseevent(This, "OnShowStatusMessage", 3, lnRow)
-        For lnCol=1 To lnFldCnt
-          If laFields[lnCol, 2] = "G"
-            This.SetCellValue(lnWB, lnSh, 1 + lnRow, lnCol, "General")
-          Else
-            This.SetCellValue(lnWB, lnSh, 1 + lnRow, lnCol, Evaluate(lcAlias + '.' + laFields[lnCol, 1]))
-          Endif
-        Endfor
-      Endscan
-
-      If tlFreeze
-        This.FreezePanes(lnWB, lnSh, 1, 0)
-      Endif
-      Raiseevent(This, "OnShowStatusMessage", 3, -1)
-      If tlSaveWB
-        This.SaveWorkbook(lnWB)
-      Endif
-    Else
-      lnWB = 0
-      lnSh = 0
-    Endif
-  Else
-    lnSh = 0
-    lnWB = 0
-  Endif
-  If llOpenedTbl
-    Use In &lcAlias
-  Else
-    lnSh = 0
-    lnWB = 0
-    If !Empty(lcCurAlias)
-      Select &lcCurAlias
-    Endif
-  Endif
-  loReturn.Sheet    = lnSh
-  loReturn.workbook = lnWB
-  Return loReturn
-
-*-- Creates a new workbook from a table; direct write to XLSX file without loading internal cursors
-  Procedure SaveTableToWorkbookEx
-  Lparameters tcAlias, tcXlsxName, taFields, tlFreeze, tcSheetName
-  Local lcCurAlias, llOpenedTbl, lcAlias, llError, loException, lhFile, lnCol, lcRowDefHt
-  Local lnFldCnt, lnRow, lxCellValue, lcTempPath, lcFileName, lcSETCentry, lcCaption, llSuccess, lcSetPoint
-  Local lcSeparator
-  Local Array laSheetNames[1]
-  External Array taFields
-  llError = False
-  Do Case
-  Case Pcount() < 2
-    Return False
-
-  Case Pcount() = 2
-    Dimension taFields[1, 2]
-    taFields[1, 1] = Null
-    tlFreeze       = True
-    tcSheetName    = Juststem(tcAlias)
-
-  Case Pcount() = 3
-    tlFreeze    = True
-    tcSheetName = Juststem(tcAlias)
-
-  Case Pcount() = 4
-    tcSheetName = Juststem(tcAlias)
-  Endcase
-  If Vartype(tcSheetName) != 'C' Or Empty(tcSheetName)
-    tcSheetName = Juststem(tcAlias)
-  Endif
-  tcSheetName = Chrtran(tcSheetName, ":\/?*", "_____")
-  If Len(tcSheetName) > LIMITS_MAX_SH_NAME
-    If This.AutoTrimSheetName
-      tcSheetName = Left(Alltrim(tcSheetName), LIMITS_MAX_SH_NAME)
-    Else
-      Return False
-    Endif
-  Endif
-  lcCurAlias = Alias()
-  lcAlias    = Juststem(tcAlias)
-  Do Case
-  Case Used(lcAlias)
-    llOpenedTbl = False
-
-  Case Occurs("\", tcAlias) > 0
-    Try
-      Use (tcAlias) In 0 Alias (lcAlias) Shared
-      llOpenedTbl = True
-
-    Catch To loException
-      llError = True
-    Endtry
-    If llError
-      Return False
-    Endif
-
-  Otherwise
-    Return False
-  Endcase
-*-*	Get the table fields to export if not passed as a parameter
-  Select (lcAlias)
-  If Isnull(taFields) Or Empty(taFields[1])
-    Dimension taFields[1, 5]
-    taFields = ""
-    lnFldCnt = Afields(taFields, lcAlias)
-    For lnCol=1 To lnFldCnt
-      Try
-        lcCaption = DBGetProp(lcAlias + "." + taFields[lnCol, 1], "FIELD", "CAPTION")
-        taFields[lnCol, 2] = Iif(Empty(lcCaption), taFields[lnCol, 1], lcCaption)
-
-      Catch To loException
-        taFields[lnCol, 2] = taFields[lnCol, 1]
-      Endtry
-    Endfor
-  Else
-    lnFldCnt = Alen(taFields, 1)
-    If Alen(taFields, 2) < 2 Or Vartype(taFields[1, 2]) != "C"
-      Return False
-    Endif
-  Endif
-
-*-* Set temporary output path
-  lcTempPath = This.CreateWorkingDirectories()
-  If Isnull(lcTempPath)
-    Return False
-  Endif
-
-*-*	Save current settings and then set to US formats
-  lcSetPoint  = Set("POINT")
-  lcSeparator = Set("SEPARATOR")
-  If lcSetPoint != "."
-    Set Point To "."
-    Set Separator To ","
-  Endif
-
-  Dimension laSheetNames[1]
-  laSheetNames[1] = tcSheetName
-  If This.WriteDirectXMLs(lcTempPath, @laSheetNames)
-*-*	Write the sheet XML
-    Try
-      lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
-      lhFile = Fcreate(lcFileName)
-      If lhFile < 0
-        Throw
-      Endif
-
-*-*		Write sheet XML header information
-      Fwrite(lhFile, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
-      Fwrite(lhFile, '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"')
-      Fwrite(lhFile, ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"')
-      Fwrite(lhFile, ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"')
-      Fwrite(lhFile, ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">')
-
-*-*		Write the sheet view information which includes the freeze pane information
-      Fwrite(lhFile, '<dimension ref="A1:' + This.ColumnIndexToAscii(lnFldCnt) + Transform(Reccount(lcAlias)+1) + '"/>')
-      If tlFreeze
-        Fwrite(lhFile, '<sheetViews><sheetView workbookViewId="0">')
-        Fwrite(lhFile, '<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>')
-        Fwrite(lhFile, '<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>')
-      Endif
-      Fwrite(lhFile, '</sheetView></sheetViews>')
-      Fwrite(lhFile, '<sheetFormatPr defaultRowHeight="15"/>')
-
-*-*		Write sheet cell data values
-      Fwrite(lhFile, '<sheetData>')
-
-*-*		Place field names in the first row
-      lcRowDefHt = ' ht="30"'
-      Fwrite(lhFile, '<row r="1" spans="1:' + Transform(lnFldCnt) + '"' + lcRowDefHt + '>')
-      If This.DefaultFont = "Calibri" And This.DefaultFontSize = 11
-        For lnCol=1 To lnFldCnt
-          This.WriteAsInLineString(lhFile, 1, lnCol, taFields[lnCol, 2])
-        Endfor
-      Else
-        For lnCol=1 To lnFldCnt
-          This.WriteAsInLineFormattedString(lhFile, 1, lnCol, taFields[lnCol, 2])
-        Endfor
-      Endif
-      Fwrite(lhFile, '</row>')
-
-*-*		Write the table field values to cells
-      lcSETCentry = Set("CENTURY")
-      Set Century On
-      lnRow = 1
-      If This.DefaultFont = "Calibri" And This.DefaultFontSize = 11
-        Scan
-          lnRow = lnRow + 1
-          Fwrite(lhFile, '<row r="' + Transform(lnRow) + '" spans="1:' + Transform(lnFldCnt) + '"' + lcRowDefHt + '>')
-          For lnCol=1 To lnFldCnt
-            lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
-            This.WriteDirectCellValue(lhFile, lnRow, lnCol, lxCellValue)
-          Endfor
-          Fwrite(lhFile, '</row>')
-        Endscan
-      Else
-        Scan
-          lnRow = lnRow + 1
-          Fwrite(lhFile, '<row r="' + Transform(lnRow) + '" spans="1:' + Transform(lnFldCnt) + '"' + lcRowDefHt + '>')
-          For lnCol=1 To lnFldCnt
-            lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
-            This.WriteDirectCellFormattedValue(lhFile, lnRow, lnCol, lxCellValue)
-          Endfor
-          Fwrite(lhFile, '</row>')
-        Endscan
-      Endif
-      Set Century &lcSETCentry
-
-*-*		End the sheet cell data values and worksheet
-      Fwrite(lhFile, '</sheetData>')
-      Fwrite(lhFile, '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>')
-      Fwrite(lhFile, '</worksheet>')
-
-    Catch To loException
-      Set Step On
-      llError = True
-      This.ErrorLevelId = 14
-      Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
-
-    Finally
-      Fclose(lhFile)
-      This.SaveAsUtf8(lcFileName)
-    Endtry
-    If llError
-      llSuccess = False
-    Else
-*-*		Create the XLSX file
-      llSuccess = This.CreateExcelFile(lcTempPath, Justpath(tcXlsxName), Juststem(tcXlsxName))    && Change recommendation by Doug Hennig [placement of code after ELSE]
-    Endif
-    This.RemoveWorkingDirectories(lcTempPath)
-  Else
-    llSuccess = False
-  Endif
-  If !Empty(lcCurAlias)
-    Select (lcCurAlias)
-  Endif
-
-*-*	Restore default settings
-  If lcSetPoint != "."
-    Set Point To (lcSetPoint)
-    Set Separator To (lcSeparator)
-  Endif
-  Return llSuccess
+    Return llSuccess
 
 *-- Saves the selected workbook as an XLSX file
   Procedure SaveWorkbook
-  Lparameters tnWB
-  Local lcTempPath, lnSheet, lcDeleted, lcSetPoint, lcSeparator, lcSetDeleted, llReturn, lcAlias
-  Local lcSafety, lnTotStages
-  With This
-    If Seek(BinToC(tnWB), "xl_workbooks", "workbook")
-      llReturn     = True
-      lcAlias      = Alias()
-      lcSafety     = Set("SAFETY")
-      lcSetDeleted = Set("DELETED")
-      lcSetPoint   = Set("POINT")
-      lcSeparator  = Set("SEPARATOR")
-      Set Safety Off
-      Set Point To "."
-      Set Separator To ","
-      Set Deleted On
+    Lparameters tnWB
+    Local lcTempPath, lnSheet, lcDeleted, lcSetPoint, lcSeparator, lcSetDeleted, llReturn, lcAlias
+    Local lcSafety, lnTotStages
+    With This
+      If Seek(BinToC(tnWB), "xl_workbooks", "workbook")
+        llReturn     = True
+        lcAlias      = Alias()
+        lcSafety     = Set("SAFETY")
+        lcSetDeleted = Set("DELETED")
+        lcSetPoint   = Set("POINT")
+        lcSeparator  = Set("SEPARATOR")
+        Set Safety Off
+        Set Point To "."
+        Set Separator To ","
+        Set Deleted On
 
 *-*	Write the XLSX Workbook to XML structures
-      lcTempPath = .CreateWorkingDirectories()
-      If Isnull(lcTempPath)
-        llReturn = False
-      Else
-        Select xl_sheets
-        Count For workbook = tnWB And !shdeleted To lnTotStages
-        lnTotStages = lnTotStages + 5
-        Raiseevent(This, "OnShowStatusMessage", 2, 0, lnTotStages)
-
-        If This.WriteStringsXML(tnWB, lcTempPath) ;
-            AND .WriteSupportXMLs(tnWB, lcTempPath) ;
-            AND .WriteStylesXML(tnWB, lcTempPath) ;
-            AND .WriteWorkbookXML(tnWB, lcTempPath) ;
-            AND .WriteRelationshipsXML(tnWB, lcTempPath)
-
-          lnSheet = 0
-          Select xl_sheets
-          Set Order To Tag Sheet
-          Scan For workbook = tnWB And !shdeleted
-            lnSheet = lnSheet + 1
-            Raiseevent(This, "OnShowStatusMessage", 2, lnSheet+5)
-            If !.WriteSheetXMLs(tnWB, xl_sheets.Sheet, lcTempPath)
-              llReturn = False
-              Exit
-            Endif
-          Endscan
-          Select xl_sheets
-          Set Order To
-
-          If llReturn And Seek(BinToC(tnWB), "xl_workbooks", "workbook")
-            llReturn = .CreateExcelFile(lcTempPath, xl_workbooks.filepath, xl_workbooks.wbname)
-          Endif
-        Else
+        lcTempPath = .CreateWorkingDirectories()
+        If Isnull(lcTempPath)
           llReturn = False
-        Endif
-        .RemoveWorkingDirectories(lcTempPath)
-        Raiseevent(This, "OnShowStatusMessage", 2, -1)
-      Endif
+        Else
+          Select xl_sheets
+          Count For workbook = tnWB And !shdeleted To lnTotStages
+          lnTotStages = lnTotStages + 5
+          Raiseevent(This, "OnShowStatusMessage", 2, 0, lnTotStages)
 
-      Set Safety &lcSafety
-      Set Deleted &lcSetDeleted
-      Set Point To (lcSetPoint)
-      Set Separator To (lcSeparator)
-      If !Empty(lcAlias)
-        Select (lcAlias)
+          If This.WriteStringsXML(tnWB, lcTempPath) ;
+              AND .WriteSupportXMLs(tnWB, lcTempPath) ;
+              AND .WriteStylesXML(tnWB, lcTempPath) ;
+              AND .WriteWorkbookXML(tnWB, lcTempPath) ;
+              AND .WriteRelationshipsXML(tnWB, lcTempPath)
+
+            lnSheet = 0
+            Select xl_sheets
+            Set Order To Tag Sheet
+            Scan For workbook = tnWB And !shdeleted
+              lnSheet = lnSheet + 1
+              Raiseevent(This, "OnShowStatusMessage", 2, lnSheet+5)
+              If !.WriteSheetXMLs(tnWB, xl_sheets.Sheet, lcTempPath)
+                llReturn = False
+                Exit
+              Endif
+            Endscan
+            Select xl_sheets
+            Set Order To
+
+            If llReturn And Seek(BinToC(tnWB), "xl_workbooks", "workbook")
+              llReturn = .CreateExcelFile(lcTempPath, xl_workbooks.filepath, xl_workbooks.wbname)
+            Endif
+          Else
+            llReturn = False
+          Endif
+          .RemoveWorkingDirectories(lcTempPath)
+          Raiseevent(This, "OnShowStatusMessage", 2, -1)
+        Endif
+
+        Set Safety &lcSafety
+        Set Deleted &lcSetDeleted
+        Set Point To (lcSetPoint)
+        Set Separator To (lcSeparator)
+        If !Empty(lcAlias)
+          Select (lcAlias)
+        Endif
+      Else
+        llReturn = False
       Endif
-    Else
-      llReturn = False
-    Endif
-  Endwith
-  Return llReturn
+    Endwith
+    Return llReturn
 
 *-- Saves the selected workbook with the new name
   Procedure SaveWorkbookAs
-  Lparameters tnWB, tcWBName
-  Local lcName, lcPath
-  If Seek(BinToC(tnWB), "xl_workbooks", "workbook") And !Empty(tcWBName)
-    lcName = Juststem(tcWBName)
-    lcPath = Justpath(tcWBName)
-    If Empty(lcPath)
-      lcPath = Sys(5) + Sys(2003)
+    Lparameters tnWB, tcWBName
+    Local lcName, lcPath
+    If Seek(BinToC(tnWB), "xl_workbooks", "workbook") And !Empty(tcWBName)
+      lcName = Juststem(tcWBName)
+      lcPath = Justpath(tcWBName)
+      If Empty(lcPath)
+        lcPath = Sys(5) + Sys(2003)
+      Endif
+      Replace xl_workbooks.wbname   With lcName, ;
+        xl_workbooks.filepath With lcPath In xl_workbooks
+      This.SaveWorkbook(tnWB)
     Endif
-    Replace xl_workbooks.wbname   With lcName, ;
-      xl_workbooks.filepath With lcPath In xl_workbooks
-    This.SaveWorkbook(tnWB)
-  Endif
 
 *-- Sets the cell horizontal and vertical alignments
   Procedure SetCellAlignment
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcHorizAlign, tcVertAlign
-  Local llReturn, lnCellXfsId, lcAlias
-  With This
-    If Pcount() < 4 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    lcAlias = Alias()
-    If .GetSheetRecord(tnWB, tnSheet)
-      Do Case
-      Case Vartype(tcHorizAlign) = 'C' And Vartype(tcVertAlign) = 'C'
-        If Inlist(tcHorizAlign, CELL_HORIZ_ALIGN_LEFT, CELL_HORIZ_ALIGN_RIGHT, CELL_HORIZ_ALIGN_CENTER) And ;
-            INLIST(tcVertAlign, CELL_VERT_ALIGN_TOP, CELL_VERT_ALIGN_BOTTOM, CELL_VERT_ALIGN_CENTER)
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcHorizAlign, tcVertAlign
+    Local llReturn, lnCellXfsId, lcAlias
+    With This
+      If Pcount() < 4 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      lcAlias = Alias()
+      If .GetSheetRecord(tnWB, tnSheet)
+        Do Case
+        Case Vartype(tcHorizAlign) = 'C' And Vartype(tcVertAlign) = 'C'
+          If Inlist(tcHorizAlign, CELL_HORIZ_ALIGN_LEFT, CELL_HORIZ_ALIGN_RIGHT, CELL_HORIZ_ALIGN_CENTER) And ;
+              INLIST(tcVertAlign, CELL_VERT_ALIGN_TOP, CELL_VERT_ALIGN_BOTTOM, CELL_VERT_ALIGN_CENTER)
 
-          If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-            If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-              lnCellXfsId = xl_cellxfs.Id
-              Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-              If _Tally > 1
-                lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, tcHorizAlign, tcVertAlign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+            If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+              If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+                lnCellXfsId = xl_cellxfs.Id
+                Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+                If _Tally > 1
+                  lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, tcHorizAlign, tcVertAlign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+                Else
+                  Replace xl_cellxfs.halign With tcHorizAlign, ;
+                    xl_cellxfs.valign With tcVertAlign In xl_cellxfs
+                Endif
+                Use In Select('xl_temp')
               Else
-                Replace xl_cellxfs.halign With tcHorizAlign, ;
-                  xl_cellxfs.valign With tcVertAlign In xl_cellxfs
+                lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, tcHorizAlign, tcVertAlign, 0, 0, 0)
               Endif
-              Use In Select('xl_temp')
+              Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
             Else
               lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, tcHorizAlign, tcVertAlign, 0, 0, 0)
+              Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted) ;
+                VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False)
+              This.SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
             Endif
-            Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+            llReturn = True
           Else
-            lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, tcHorizAlign, tcVertAlign, 0, 0, 0)
-            Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted) ;
-              VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False)
-            This.SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+            llReturn = False
           Endif
-          llReturn = True
-        Else
-          llReturn = False
-        Endif
 
-      Case Vartype(tcHorizAlign) = 'C' And Vartype(tcVertAlign) != 'C'
-        If Inlist(tcHorizAlign, CELL_HORIZ_ALIGN_LEFT, CELL_HORIZ_ALIGN_RIGHT, CELL_HORIZ_ALIGN_CENTER)
-          If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-            If xl_cells.cellxfs > 0 And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-              lnCellXfsId = xl_cellxfs.Id
-              Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-              If _Tally > 1
-                lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, tcHorizAlign, "", xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+        Case Vartype(tcHorizAlign) = 'C' And Vartype(tcVertAlign) != 'C'
+          If Inlist(tcHorizAlign, CELL_HORIZ_ALIGN_LEFT, CELL_HORIZ_ALIGN_RIGHT, CELL_HORIZ_ALIGN_CENTER)
+            If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+              If xl_cells.cellxfs > 0 And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+                lnCellXfsId = xl_cellxfs.Id
+                Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+                If _Tally > 1
+                  lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, tcHorizAlign, "", xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+                Else
+                  Replace xl_cellxfs.halign With tcHorizAlign, ;
+                    xl_cellxfs.valign With "" In xl_cellxfs
+                Endif
+                Use In Select('xl_temp')
               Else
-                Replace xl_cellxfs.halign With tcHorizAlign, ;
-                  xl_cellxfs.valign With "" In xl_cellxfs
+                lnCellXfsId = This.GetCellXfsId(tnWB, 0, 0, 0, 0, tcHorizAlign, "", 0, 0, 0)
               Endif
-              Use In Select('xl_temp')
+              Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
             Else
-              lnCellXfsId = This.GetCellXfsId(tnWB, 0, 0, 0, 0, tcHorizAlign, "", 0, 0, 0)
+              lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, tcHorizAlign, "", 0, 0, 0)
+              Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted) ;
+                VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False)
+              =.SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
             Endif
-            Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+            llReturn = True
           Else
-            lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, tcHorizAlign, "", 0, 0, 0)
-            Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted) ;
-              VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False)
-            =.SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+            llReturn = False
           Endif
-          llReturn = True
-        Else
-          llReturn = False
-        Endif
 
-      Case Vartype(tcHorizAlign) != 'C' And Vartype(tcVertAlign) = 'C'
-        If Inlist(tcVertAlign, CELL_VERT_ALIGN_TOP, CELL_VERT_ALIGN_BOTTOM, CELL_VERT_ALIGN_CENTER)
-          If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-            If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-              lnCellXfsId = xl_cellxfs.Id
-              Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-              If _Tally > 1
-                lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, "", tcVertAlign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+        Case Vartype(tcHorizAlign) != 'C' And Vartype(tcVertAlign) = 'C'
+          If Inlist(tcVertAlign, CELL_VERT_ALIGN_TOP, CELL_VERT_ALIGN_BOTTOM, CELL_VERT_ALIGN_CENTER)
+            If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+              If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+                lnCellXfsId = xl_cellxfs.Id
+                Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+                If _Tally > 1
+                  lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, "", tcVertAlign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+                Else
+                  Replace xl_cellxfs.halign With "", ;
+                    xl_cellxfs.valign With tcVertAlign In xl_cellxfs
+                Endif
+                Use In Select('xl_temp')
               Else
-                Replace xl_cellxfs.halign With "", ;
-                  xl_cellxfs.valign With tcVertAlign In xl_cellxfs
+                lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", tcVertAlign, 0, 0, 0)
               Endif
-              Use In Select('xl_temp')
+              Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
             Else
               lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", tcVertAlign, 0, 0, 0)
+              Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted) ;
+                VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False)
+              SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
             Endif
-            Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+            llReturn = True
           Else
-            lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", tcVertAlign, 0, 0, 0)
-            Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted) ;
-              VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False)
-            SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+            llReturn = False
+          Endif
+
+        Otherwise
+          If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+            Replace xl_cells.halign With "", xl_cells.valign With "" In xl_cells
           Endif
           llReturn = True
-        Else
-          llReturn = False
-        Endif
-
-      Otherwise
-        If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-          Replace xl_cells.halign With "", xl_cells.valign With "" In xl_cells
-        Endif
-        llReturn = True
-      Endcase
-    Else
-      llReturn = False
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return llReturn
+        Endcase
+      Else
+        llReturn = False
+      Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return llReturn
 
 *-- Sets the cell alignment for a range of cells
   Procedure SetCellAlignmentRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tcHorizAlign, tcVertAlign
-  Local lnRow, lnCol, llReturn
-  With This
-    If Pcount() < 7 Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
-      Return False
-    Endif
-    If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
-      Return False
-    Endif
-    llReturn = True
-    For lnRow=tnBegRow To tnEndRow
-      For lnCol=tnBegCol To tnEndCol
-        If !.SetCellAlignment(tnWB, tnSheet, lnRow, lnCol, tcHorizAlign, tcVertAlign)
-          llReturn = False
-          Exit
-        Endif
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tcHorizAlign, tcVertAlign
+    Local lnRow, lnCol, llReturn
+    With This
+      If Pcount() < 7 Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
+        Return False
+      Endif
+      If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
+        Return False
+      Endif
+      llReturn = True
+      For lnRow=tnBegRow To tnEndRow
+        For lnCol=tnBegCol To tnEndCol
+          If !.SetCellAlignment(tnWB, tnSheet, lnRow, lnCol, tcHorizAlign, tcVertAlign)
+            llReturn = False
+            Exit
+          Endif
+        Endfor
       Endfor
-    Endfor
-  Endwith
-  Return llReturn
+    Endwith
+    Return llReturn
 
   Procedure SetCellBorder
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnBorders, tcStyle, tnColor
-  Local lcLStyle, lnLColor, lcRStyle, lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp
-  Local lnRColor, llReturn, lcAlias
-  With This
-    If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    lcAlias = Alias()
-    If .GetSheetRecord(tnWB, tnSheet)
-      If Vartype(tnBorders) != 'N' Or Empty(tnBorders) Or !Between(tnBorders, 0, 63)
-        tnBorders = 0
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnBorders, tcStyle, tnColor
+    Local lcLStyle, lnLColor, lcRStyle, lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp
+    Local lnRColor, llReturn, lcAlias
+    With This
+      If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
       Endif
-      If !.IsValidBorderStyle(tcStyle)
-        tcStyle = BORDER_STYLE_NONE
+      lcAlias = Alias()
+      If .GetSheetRecord(tnWB, tnSheet)
+        If Vartype(tnBorders) != 'N' Or Empty(tnBorders) Or !Between(tnBorders, 0, 63)
+          tnBorders = 0
+        Endif
+        If !.IsValidBorderStyle(tcStyle)
+          tcStyle = BORDER_STYLE_NONE
+        Endif
+        If Vartype(tnColor) != 'N' Or !Between(tnColor, 0, Rgb(255,255,255)) Or Empty(tnColor)
+          tnColor = Rgb(0, 0, 0)
+        Endif
+        Store 0 To lnDiagDn, lnDiagUp
+        Store Rgb(0,0,0) To lnLColor, lnRColor, lnTColor, lnBColor, lnDColor
+        Store BORDER_STYLE_NONE To lcLStyle, lcRStyle, lcTStyle, lcBStyle, lcDStyle
+        If Bittest(tnBorders, 0)
+          lcLStyle = tcStyle
+          lnLColor = tnColor
+        Endif
+        If Bittest(tnBorders, 1)
+          lcRStyle = tcStyle
+          lnRColor = tnColor
+        Endif
+        If Bittest(tnBorders, 2)
+          lcTStyle = tcStyle
+          lnTColor = tnColor
+        Endif
+        If Bittest(tnBorders, 3)
+          lcBStyle = tcStyle
+          lnBColor = tnColor
+        Endif
+        If Bittest(tnBorders, 4)
+          lcDStyle = tcStyle
+          lnDColor = tnColor
+          lnDiagDn = 1
+        Endif
+        If Bittest(tnBorders, 5)
+          lcDStyle = tcStyle
+          lnDColor = tnColor
+          lnDiagUp = 1
+        Endif
+        .SetCellBorderEx(tnWB, tnSheet, tnCellRow, tnCellCol, lcLStyle, lnLColor, lcRStyle, lnRColor, ;
+          lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp)
+        .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        llReturn = True
+      Else
+        llReturn = False
       Endif
-      If Vartype(tnColor) != 'N' Or !Between(tnColor, 0, Rgb(255,255,255)) Or Empty(tnColor)
-        tnColor = Rgb(0, 0, 0)
+      If !Empty(lcAlias)
+        Select (lcAlias)
       Endif
-      Store 0 To lnDiagDn, lnDiagUp
-      Store Rgb(0,0,0) To lnLColor, lnRColor, lnTColor, lnBColor, lnDColor
-      Store BORDER_STYLE_NONE To lcLStyle, lcRStyle, lcTStyle, lcBStyle, lcDStyle
-      If Bittest(tnBorders, 0)
-        lcLStyle = tcStyle
-        lnLColor = tnColor
-      Endif
-      If Bittest(tnBorders, 1)
-        lcRStyle = tcStyle
-        lnRColor = tnColor
-      Endif
-      If Bittest(tnBorders, 2)
-        lcTStyle = tcStyle
-        lnTColor = tnColor
-      Endif
-      If Bittest(tnBorders, 3)
-        lcBStyle = tcStyle
-        lnBColor = tnColor
-      Endif
-      If Bittest(tnBorders, 4)
-        lcDStyle = tcStyle
-        lnDColor = tnColor
-        lnDiagDn = 1
-      Endif
-      If Bittest(tnBorders, 5)
-        lcDStyle = tcStyle
-        lnDColor = tnColor
-        lnDiagUp = 1
-      Endif
-      .SetCellBorderEx(tnWB, tnSheet, tnCellRow, tnCellCol, lcLStyle, lnLColor, lcRStyle, lnRColor, ;
-        lcTStyle, lnTColor, lcBStyle, lnBColor, lcDStyle, lnDColor, lnDiagDn, lnDiagUp)
-      .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-      llReturn = True
-    Else
-      llReturn = False
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return llReturn
+    Endwith
+    Return llReturn
 
   Procedure SetCellBorderEx
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp
-  Local lnCellXfsId, lnBorderId
-  With This
-    If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    If .GetSheetRecord(tnWB, tnSheet)
-      If !.IsValidBorderStyle(tcLStyle)
-        tcLStyle = BORDER_STYLE_NONE
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp
+    Local lnCellXfsId, lnBorderId
+    With This
+      If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
       Endif
-      If Vartype(tnLColor) != 'N' Or Empty(tnLColor) Or !Between(tnLColor, 0, Rgb(255,255,255))
-        tnLColor = Rgb(0, 0, 0)
-      Endif
+      If .GetSheetRecord(tnWB, tnSheet)
+        If !.IsValidBorderStyle(tcLStyle)
+          tcLStyle = BORDER_STYLE_NONE
+        Endif
+        If Vartype(tnLColor) != 'N' Or Empty(tnLColor) Or !Between(tnLColor, 0, Rgb(255,255,255))
+          tnLColor = Rgb(0, 0, 0)
+        Endif
 
-      If !.IsValidBorderStyle(tcRStyle)
-        tcRStyle = BORDER_STYLE_NONE
-      Endif
-      If Vartype(tnRColor) != 'N' Or Empty(tnRColor) Or !Between(tnRColor, 0, Rgb(255,255,255))
-        tnRColor = Rgb(0, 0, 0)
-      Endif
+        If !.IsValidBorderStyle(tcRStyle)
+          tcRStyle = BORDER_STYLE_NONE
+        Endif
+        If Vartype(tnRColor) != 'N' Or Empty(tnRColor) Or !Between(tnRColor, 0, Rgb(255,255,255))
+          tnRColor = Rgb(0, 0, 0)
+        Endif
 
-      If !.IsValidBorderStyle(tcTStyle)
-        tcTStyle = BORDER_STYLE_NONE
-      Endif
-      If Vartype(tnTColor) != 'N' Or Empty(tnTColor) Or !Between(tnTColor, 0, Rgb(255,255,255))
-        tnTColor = Rgb(0, 0, 0)
-      Endif
+        If !.IsValidBorderStyle(tcTStyle)
+          tcTStyle = BORDER_STYLE_NONE
+        Endif
+        If Vartype(tnTColor) != 'N' Or Empty(tnTColor) Or !Between(tnTColor, 0, Rgb(255,255,255))
+          tnTColor = Rgb(0, 0, 0)
+        Endif
 
-      If !.IsValidBorderStyle(tcBStyle)
-        tcBStyle = BORDER_STYLE_NONE
-      Endif
-      If Vartype(tnBColor) != 'N' Or Empty(tnBColor) Or !Between(tnBColor, 0, Rgb(255,255,255))
-        tnBColor = Rgb(0, 0, 0)
-      Endif
+        If !.IsValidBorderStyle(tcBStyle)
+          tcBStyle = BORDER_STYLE_NONE
+        Endif
+        If Vartype(tnBColor) != 'N' Or Empty(tnBColor) Or !Between(tnBColor, 0, Rgb(255,255,255))
+          tnBColor = Rgb(0, 0, 0)
+        Endif
 
-      If !.IsValidBorderStyle(tcDStyle)
-        tcDStyle = BORDER_STYLE_NONE
-      Endif
-      If Vartype(tnDColor) != 'N' Or Empty(tnDColor) Or !Between(tnDColor, 0, Rgb(255,255,255))
-        tnDColor = Rgb(0, 0, 0)
-      Endif
-      If Vartype(tnDiagDn) != 'N' Or !Between(tnDiagDn, 0, 3)
-        tnDiagDn = 0
-      Endif
-      If Vartype(tnDiagUp) != 'N' Or !Between(tnDiagUp, 0, 3)
-        tnDiagUp = 0
-      Endif
+        If !.IsValidBorderStyle(tcDStyle)
+          tcDStyle = BORDER_STYLE_NONE
+        Endif
+        If Vartype(tnDColor) != 'N' Or Empty(tnDColor) Or !Between(tnDColor, 0, Rgb(255,255,255))
+          tnDColor = Rgb(0, 0, 0)
+        Endif
+        If Vartype(tnDiagDn) != 'N' Or !Between(tnDiagDn, 0, 3)
+          tnDiagDn = 0
+        Endif
+        If Vartype(tnDiagUp) != 'N' Or !Between(tnDiagUp, 0, 3)
+          tnDiagUp = 0
+        Endif
 
 *-*	Get the border record Id
-      If .GetBordersRecord(tnWB, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp)
-        lnBorderId = xl_borders.Id
-      Else
-        lnBorderId = .GetNextId(tnWB, 'xl_borders')
-        Insert Into xl_borders (workbook, Id, lstyle, lcolor, rstyle, rcolor, tstyle, tcolor, bstyle, bcolor, dstyle, dcolor, diagdn, diagup) ;
-          VALUES (tnWB, lnBorderId, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp)
-      Endif
-*-*	Set the XfsId to the cell record
-      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-        If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-          lnCellXfsId = xl_cellxfs.Id
-          Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-          If _Tally > 1
-            lnCellXfsId = This.GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, lnBorderId, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
-          Else
-            Replace xl_cellxfs.borderid With lnBorderId In xl_cellxfs
-          Endif
-          Use In Select('xl_temp')
+        If .GetBordersRecord(tnWB, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp)
+          lnBorderId = xl_borders.Id
         Else
-          lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, lnBorderId, "", "", 0, 0, 0)
+          lnBorderId = .GetNextId(tnWB, 'xl_borders')
+          Insert Into xl_borders (workbook, Id, lstyle, lcolor, rstyle, rcolor, tstyle, tcolor, bstyle, bcolor, dstyle, dcolor, diagdn, diagup) ;
+            VALUES (tnWB, lnBorderId, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp)
         Endif
-        Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+*-*	Set the XfsId to the cell record
+        If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+          If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+            lnCellXfsId = xl_cellxfs.Id
+            Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+            If _Tally > 1
+              lnCellXfsId = This.GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, lnBorderId, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+            Else
+              Replace xl_cellxfs.borderid With lnBorderId In xl_cellxfs
+            Endif
+            Use In Select('xl_temp')
+          Else
+            lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, lnBorderId, "", "", 0, 0, 0)
+          Endif
+          Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+        Else
+          lnCellXfsId = This.GetCellXfsId(tnWB, 0, 0, 0, lnBorderId, "", "", 0, 0, 0)
+          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+            VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
+          This.SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Endif
+        llReturn = True
       Else
-        lnCellXfsId = This.GetCellXfsId(tnWB, 0, 0, 0, lnBorderId, "", "", 0, 0, 0)
-        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
-        This.SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        llReturn = False
       Endif
-      llReturn = True
-    Else
-      llReturn = False
-    Endif
-  Endwith
-  Return llReturn
+    Endwith
+    Return llReturn
 
 *-- Sets the cell border for a range of cells
   Procedure SetCellBorderRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnBorder, tcStyle, tnColor
-  Local llReturn, lnRow, lnCol
-  With This
-    If Pcount() < 7 Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnBorder, tcStyle, tnColor
+    Local llReturn, lnRow, lnCol
+    With This
+      If Pcount() < 7 Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
+        Return False
+      Endif
+      If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
+        Return False
+      Endif
+      llReturn = True
+      For lnRow=tnBegRow To tnEndRow
+        For lnCol=tnBegCol To tnEndCol
+          If !.SetCellBorder(tnWB, tnSheet, lnRow, lnCol, tnBorder, tcStyle, tnColor)
+            llReturn = False
+            Exit
+          Endif
+        Endfor
+      Endfor
+    Endwith
+    Return llReturn
+
+*-- Sets the fill color for the cell
+  Procedure SetCellFill
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnFColor, tnBColor, tcPatternType
+    Local llReturn, lnFillId, lnCellXfsId, lnFIndex, lnBIndex, lcAlias
+    Do Case
+    Case Pcount() < 5
+      Return False
+
+    Case Pcount() = 5
+      tnBColor = Rgb(255,255,255)
+      tcPatternType = FILL_STYLE_SOLID
+
+    Case Pcount() = 6
+      tcPatternType = FILL_STYLE_SOLID
+    Endcase
+    With This
+      If .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      lcAlias = Alias()
+      If Pcount() = 5 Or Pcount() = 6 Or Vartype(tcPatternType) != "C" Or Empty(tcPatternType)
+        tcPatternType = FILL_STYLE_SOLID
+      Endif
+      If .GetSheetRecord(tnWB, tnSheet)
+        If Vartype(tnBColor) != 'N'
+          tnBColor = Rgb(255,255,255)
+        Endif
+        If Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255))
+          tnFColor = Floor(tnFColor)
+          lnFIndex = 0
+        Else
+          tnFColor = 0
+          lnFIndex = 64
+        Endif
+        If Vartype(tnBColor) = 'N' And Between(tnBColor, 0, Rgb(255, 255, 255))
+          tnBColor = Floor(tnBColor)
+          lnBIndex = 0
+        Else
+          tnBColor = Rgb(0, 0, 0)
+          lnBIndex = 64
+        Endif
+*-*	Get the fill record id
+        If Seek(BinToC(tnWB)+BinToC(tnFColor)+BinToC(tnBColor)+tcPatternType, "xl_fills", "fillcolor")
+          lnFillId = xl_fills.Id
+          Replace xl_fills.Theme     With 0, ;
+            xl_fills.tint      With 0, ;
+            xl_fills.fgindexed With lnFIndex, ;
+            xl_fills.bgindexed With lnBIndex In xl_fills
+        Else
+          lnFillId = This.GetNextId(tnWB, 'xl_fills')
+          Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
+            VALUES (tnWB, lnFillId, tnFColor, tnBColor, tcPatternType, 0, 0, lnFIndex, lnBIndex)
+        Endif
+*-*	Set the XfsId to the cell record
+        If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+          If xl_cells.cellxfs > 0 And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+            lnCellXfsId = xl_cellxfs.Id
+            Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+            If _Tally > 1
+              lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, lnFillId, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+            Else
+              Replace xl_cellxfs.fillid With lnFillId In xl_cellxfs
+            Endif
+            Use In Select('xl_temp')
+          Else
+            lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, lnFillId, 0, "", "", 0, 0, 0)
+          Endif
+          Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+        Else
+          lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, lnFillId, 0, "", "", 0, 0, 0)
+          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+            VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
+          .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Endif
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return llReturn
+
+*-- Sets the fill for a range of cells
+  Procedure SetCellFillRange
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnFColor, tnBColor, tcPatternType
+    Local lnRow, lnCol, llReturn
+    Do Case
+    Case Pcount() < 7
+      Return False
+
+    Case Pcount() = 7
+      tnBColor = Rgb(255,255,255)
+      tcPatternType = FILL_STYLE_SOLID
+
+    Case Pcount() = 8
+      tcPatternType = FILL_STYLE_SOLID
+    Endcase
+    If tnBegRow > tnEndRow Or tnBegCol > tnEndCol Or This.IsCellReferenceInvalid(tnBegRow, tnBegCol) Or This.IsCellReferenceInvalid(tnEndRow, tnEndCol)
+      Return False
+    Endif
+    If Vartype(tnBColor) != 'N'
+      tnBColor = Rgb(255,255,255)
+    Endif
+    llReturn = True
+    For lnRow=tnBegRow To tnEndRow
+      For lnCol=tnBegCol To tnEndCol
+        If !This.SetCellFill(tnWB, tnSheet, lnRow, lnCol, tnFColor, tnBColor, tcPatternType)
+          llReturn = False
+          Exit
+        Endif
+      Endfor
+    Endfor
+    Return llReturn
+
+*-- Sets the selected cell font format
+  Procedure SetCellFont
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
+    Local llReturn, lcAlias
+    With This
+      If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      lcAlias = Alias()
+      If .GetSheetRecord(tnWB, tnSheet)
+        If Vartype(tcFName) != 'C' Or Empty(tcFName)
+          tcFName = 'Calibri'
+        Endif
+        tcFName = Proper(Alltrim(tcFName))
+        If Vartype(tnFSize) != 'N' Or Empty(tnFSize) Or tnFSize < 0.5
+          tnFSize = 11
+        Else
+          tnFSize = Int(tnFSize)
+        Endif
+        If Vartype(tlBold) != 'L'
+          tlBold = False
+        Endif
+        If Vartype(tlItalic) != 'L'
+          tlItalic = False
+        Endif
+        If Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255))
+          tnFColor = Floor(tnFColor)
+        Else
+          tnFColor = Rgb(0, 0, 0)
+        Endif
+        If Vartype(tlStrikThr) != 'L'
+          tlStrikThr = False
+        Endif
+        If Vartype(tcULine) != 'C' Or !Inlist(tcULine, UNDERLINE_SINGLE, UNDERLINE_DOUBLE, UNDERLINE_SINGLEACCOUNTING, UNDERLINE_DOUBLEACCOUNTING, UNDERLINE_NONE)
+          tcULine = UNDERLINE_NONE
+        Endif
+        If Vartype(tcVPos) != 'C' Or !Inlist(tcVPos, FONT_VERTICAL_BASELINE, FONT_VERTICAL_SUBSCRIPT, FONT_VERTICAL_SUPERSCRIPT)
+          tcVPos = FONT_VERTICAL_BASELINE
+        Endif
+*-*	Get the font record id
+        If Seek(BinToC(tnWB)+Padr(tcFName, 100) + Str(tnFSize, 5, 1) + Transform(tlBold) + Transform(tlItalic) + Padl(tnFColor, 15) + Padr(tcULine, 16) + ;
+            TRANSFORM(tlStrikThr) + Padr(tcVPos, 11), "xl_fonts", "cellformat")
+
+          lnFontId = xl_fonts.Id
+          Replace xl_fonts.Theme   With 0, ;
+            xl_fonts.tint    With 0, ;
+            xl_fonts.indexed With 0 In xl_fonts
+        Else
+          lnFontId = .GetNextId(tnWB, 'xl_fonts')
+          Insert Into xl_fonts (workbook, Id, fname, Fsize, fbold, fitalic, fcolor, uline, strkthr, fvpos) ;
+            VALUES (tnWB, lnFontId, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos)
+        Endif
+*-*	Set the XfsId to the cell record
+        If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+          If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+            lnCellXfsId = xl_cellxfs.Id
+            Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+            If _Tally > 1
+              lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, lnFontId, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+            Else
+              Replace xl_cellxfs.fontid With lnFontId In xl_cellxfs
+            Endif
+            Use In Select('xl_temp')
+          Else
+            lnCellXfsId = .GetCellXfsId(tnWB, 0, lnFontId, 0, 0, "", "", 0, 0, 0)
+          Endif
+          Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+        Else
+          lnCellXfsId = .GetCellXfsId(tnWB, 0, lnFontId, 0, 0, "", "", 0, 0, 0)
+          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+            VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
+          .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Endif
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return llReturn
+
+*-- Sets the cell font format for a range of cells
+  Procedure SetCellFontRange
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
+    Local lnRow, lnCol, llReturn
+    If Pcount() < 7 Or This.IsCellReferenceInvalid(tnBegRow, tnBegCol) Or This.IsCellReferenceInvalid(tnEndRow, tnEndCol)
       Return False
     Endif
     If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
@@ -6241,409 +6460,570 @@ Define Class vfpxworkbookxlsx As Custom
     llReturn = True
     For lnRow=tnBegRow To tnEndRow
       For lnCol=tnBegCol To tnEndCol
-        If !.SetCellBorder(tnWB, tnSheet, lnRow, lnCol, tnBorder, tcStyle, tnColor)
+        If !This.SetCellFont(tnWB, tnSheet, lnRow, lnCol, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos)
           llReturn = False
           Exit
         Endif
       Endfor
     Endfor
-  Endwith
-  Return llReturn
+    Return llReturn
 
-*-- Sets the fill color for the cell
-  Procedure SetCellFill
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnFColor, tnBColor, tcPatternType
-  Local llReturn, lnFillId, lnCellXfsId, lnFIndex, lnBIndex, lcAlias
-  Do Case
-  Case Pcount() < 5
-    Return False
-
-  Case Pcount() = 5
-    tnBColor = Rgb(255,255,255)
-    tcPatternType = FILL_STYLE_SOLID
-
-  Case Pcount() = 6
-    tcPatternType = FILL_STYLE_SOLID
-  Endcase
-  With This
-    If .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    lcAlias = Alias()
-    If Pcount() = 5 Or Pcount() = 6 Or Vartype(tcPatternType) != "C" Or Empty(tcPatternType)
-      tcPatternType = FILL_STYLE_SOLID
-    Endif
-    If .GetSheetRecord(tnWB, tnSheet)
-      If Vartype(tnBColor) != 'N'
-        tnBColor = Rgb(255,255,255)
+*-- Sets the cell formula expression
+  Procedure SetCellFormula
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcCellFormula
+    Local llReturn, lcAlias
+    With This
+      If Pcount() < 5 Or Vartype(tcCellFormula) != "C" Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
       Endif
-      If Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255))
-        tnFColor = Floor(tnFColor)
-        lnFIndex = 0
-      Else
-        tnFColor = 0
-        lnFIndex = 64
-      Endif
-      If Vartype(tnBColor) = 'N' And Between(tnBColor, 0, Rgb(255, 255, 255))
-        tnBColor = Floor(tnBColor)
-        lnBIndex = 0
-      Else
-        tnBColor = Rgb(0, 0, 0)
-        lnBIndex = 64
-      Endif
-*-*	Get the fill record id
-      If Seek(BinToC(tnWB)+BinToC(tnFColor)+BinToC(tnBColor)+tcPatternType, "xl_fills", "fillcolor")
-        lnFillId = xl_fills.Id
-        Replace xl_fills.Theme     With 0, ;
-          xl_fills.tint      With 0, ;
-          xl_fills.fgindexed With lnFIndex, ;
-          xl_fills.bgindexed With lnBIndex In xl_fills
-      Else
-        lnFillId = This.GetNextId(tnWB, 'xl_fills')
-        Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
-          VALUES (tnWB, lnFillId, tnFColor, tnBColor, tcPatternType, 0, 0, lnFIndex, lnBIndex)
-      Endif
-*-*	Set the XfsId to the cell record
-      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-        If xl_cells.cellxfs > 0 And This.GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-          lnCellXfsId = xl_cellxfs.Id
-          Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-          If _Tally > 1
-            lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, lnFillId, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
-          Else
-            Replace xl_cellxfs.fillid With lnFillId In xl_cellxfs
-          Endif
-          Use In Select('xl_temp')
+      lcAlias = Alias()
+      If .GetSheetRecord(tnWB, tnSheet)
+        If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+          Replace xl_cells.cellvalue   With "", ;
+            xl_cells.cellformula With tcCellFormula, ;
+            xl_cells.stringid    With 0, ;
+            xl_cells.DataType    With DATA_TYPE_FORMULA, ;
+            xl_cells.celldeleted With False In xl_cells
         Else
-          lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, lnFillId, 0, "", "", 0, 0, 0)
+          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, cellformula, DataType, cellxfs, celldeleted, numdec, validndx) ;
+            VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, tcCellFormula, DATA_TYPE_FORMULA, 0, False, -1, 0)
+          .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
         Endif
-        Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+        llReturn = True
       Else
-        lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, lnFillId, 0, "", "", 0, 0, 0)
-        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
-        .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-      Endif
-      llReturn = True
-    Else
-      llReturn = False
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return llReturn
-
-*-- Sets the fill for a range of cells
-  Procedure SetCellFillRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnFColor, tnBColor, tcPatternType
-  Local lnRow, lnCol, llReturn
-  Do Case
-  Case Pcount() < 7
-    Return False
-
-  Case Pcount() = 7
-    tnBColor = Rgb(255,255,255)
-    tcPatternType = FILL_STYLE_SOLID
-
-  Case Pcount() = 8
-    tcPatternType = FILL_STYLE_SOLID
-  Endcase
-  If tnBegRow > tnEndRow Or tnBegCol > tnEndCol Or This.IsCellReferenceInvalid(tnBegRow, tnBegCol) Or This.IsCellReferenceInvalid(tnEndRow, tnEndCol)
-    Return False
-  Endif
-  If Vartype(tnBColor) != 'N'
-    tnBColor = Rgb(255,255,255)
-  Endif
-  llReturn = True
-  For lnRow=tnBegRow To tnEndRow
-    For lnCol=tnBegCol To tnEndCol
-      If !This.SetCellFill(tnWB, tnSheet, lnRow, lnCol, tnFColor, tnBColor, tcPatternType)
         llReturn = False
-        Exit
       Endif
-    Endfor
-  Endfor
-  Return llReturn
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return llReturn
 
-*-- Sets the selected cell font format
-  Procedure SetCellFont
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
-  Local llReturn, lcAlias
-  With This
-    If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    lcAlias = Alias()
-    If .GetSheetRecord(tnWB, tnSheet)
-      If Vartype(tcFName) != 'C' Or Empty(tcFName)
-        tcFName = 'Calibri'
+*-- Sets the cell indentation value
+  Procedure SetCellIndent
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnIndent
+    Local lnCellXfsId, lcAlias
+    With This
+      If Pcount() != 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
       Endif
-      tcFName = Proper(Alltrim(tcFName))
-      If Vartype(tnFSize) != 'N' Or Empty(tnFSize) Or tnFSize < 0.5
-        tnFSize = 11
-      Else
-        tnFSize = Int(tnFSize)
+      If Vartype(tnIndent) != 'N'
+        Return False
       Endif
-      If Vartype(tlBold) != 'L'
-        tlBold = False
-      Endif
-      If Vartype(tlItalic) != 'L'
-        tlItalic = False
-      Endif
-      If Vartype(tnFColor) = 'N' And Between(tnFColor, 0, Rgb(255, 255, 255))
-        tnFColor = Floor(tnFColor)
-      Else
-        tnFColor = Rgb(0, 0, 0)
-      Endif
-      If Vartype(tlStrikThr) != 'L'
-        tlStrikThr = False
-      Endif
-      If Vartype(tcULine) != 'C' Or !Inlist(tcULine, UNDERLINE_SINGLE, UNDERLINE_DOUBLE, UNDERLINE_SINGLEACCOUNTING, UNDERLINE_DOUBLEACCOUNTING, UNDERLINE_NONE)
-        tcULine = UNDERLINE_NONE
-      Endif
-      If Vartype(tcVPos) != 'C' Or !Inlist(tcVPos, FONT_VERTICAL_BASELINE, FONT_VERTICAL_SUBSCRIPT, FONT_VERTICAL_SUPERSCRIPT)
-        tcVPos = FONT_VERTICAL_BASELINE
-      Endif
-*-*	Get the font record id
-      If Seek(BinToC(tnWB)+Padr(tcFName, 100) + Str(tnFSize, 5, 1) + Transform(tlBold) + Transform(tlItalic) + Padl(tnFColor, 15) + Padr(tcULine, 16) + ;
-          TRANSFORM(tlStrikThr) + Padr(tcVPos, 11), "xl_fonts", "cellformat")
-
-        lnFontId = xl_fonts.Id
-        Replace xl_fonts.Theme   With 0, ;
-          xl_fonts.tint    With 0, ;
-          xl_fonts.indexed With 0 In xl_fonts
-      Else
-        lnFontId = .GetNextId(tnWB, 'xl_fonts')
-        Insert Into xl_fonts (workbook, Id, fname, Fsize, fbold, fitalic, fcolor, uline, strkthr, fvpos) ;
-          VALUES (tnWB, lnFontId, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos)
-      Endif
-*-*	Set the XfsId to the cell record
+      lcAlias = Alias()
+      tnIndent = Floor(tnIndent)
       If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
         If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
           lnCellXfsId = xl_cellxfs.Id
           Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
           If _Tally > 1
-            lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, lnFontId, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+            lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, tnIndent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
           Else
-            Replace xl_cellxfs.fontid With lnFontId In xl_cellxfs
+            Replace xl_cellxfs.indent With tnIndent In xl_cellxfs
           Endif
           Use In Select('xl_temp')
         Else
-          lnCellXfsId = .GetCellXfsId(tnWB, 0, lnFontId, 0, 0, "", "", 0, 0, 0)
+          lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", tnIndent, 0, 0)
         Endif
         Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
       Else
-        lnCellXfsId = .GetCellXfsId(tnWB, 0, lnFontId, 0, 0, "", "", 0, 0, 0)
+        lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", tnIndent, 0, 0)
         Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
           VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
         .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
       Endif
-      llReturn = True
-    Else
-      llReturn = False
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return llReturn
-
-*-- Sets the cell font format for a range of cells
-  Procedure SetCellFontRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos
-  Local lnRow, lnCol, llReturn
-  If Pcount() < 7 Or This.IsCellReferenceInvalid(tnBegRow, tnBegCol) Or This.IsCellReferenceInvalid(tnEndRow, tnEndCol)
-    Return False
-  Endif
-  If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
-    Return False
-  Endif
-  llReturn = True
-  For lnRow=tnBegRow To tnEndRow
-    For lnCol=tnBegCol To tnEndCol
-      If !This.SetCellFont(tnWB, tnSheet, lnRow, lnCol, tcFName, tnFSize, tlBold, tlItalic, tnFColor, tcULine, tlStrikThr, tcVPos)
-        llReturn = False
-        Exit
+      If !Empty(lcAlias)
+        Select (lcAlias)
       Endif
-    Endfor
-  Endfor
-  Return llReturn
-
-*-- Sets the cell formula expression
-  Procedure SetCellFormula
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tcCellFormula
-  Local llReturn, lcAlias
-  With This
-    If Pcount() < 5 Or Vartype(tcCellFormula) != "C" Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    lcAlias = Alias()
-    If .GetSheetRecord(tnWB, tnSheet)
-      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-        Replace xl_cells.cellvalue   With "", ;
-          xl_cells.cellformula With tcCellFormula, ;
-          xl_cells.stringid    With 0, ;
-          xl_cells.DataType    With DATA_TYPE_FORMULA, ;
-          xl_cells.celldeleted With False In xl_cells
-      Else
-        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, cellformula, DataType, cellxfs, celldeleted, numdec, validndx) ;
-          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, tcCellFormula, DATA_TYPE_FORMULA, 0, False, -1, 0)
-        .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-      Endif
-      llReturn = True
-    Else
-      llReturn = False
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return llReturn
-
-*-- Sets the cell indentation value
-  Procedure SetCellIndent
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnIndent
-  Local lnCellXfsId, lcAlias
-  With This
-    If Pcount() != 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    If Vartype(tnIndent) != 'N'
-      Return False
-    Endif
-    lcAlias = Alias()
-    tnIndent = Floor(tnIndent)
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-      If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-        lnCellXfsId = xl_cellxfs.Id
-        Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-        If _Tally > 1
-          lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, tnIndent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
-        Else
-          Replace xl_cellxfs.indent With tnIndent In xl_cellxfs
-        Endif
-        Use In Select('xl_temp')
-      Else
-        lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", tnIndent, 0, 0)
-      Endif
-      Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
-    Else
-      lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", tnIndent, 0, 0)
-      Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-        VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
-      .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return True
+    Endwith
+    Return True
 
 *-- Saves the in-line format definition to a cell value
   Procedure SetCellInLineFormatText
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, toInline
-  Local lnNdx, lcRText, llFBold, llFItalic, lnFColor, lcFName, lnFSize, lcULine, llStrkThr, lcFVPos, lcAlias
-  With This
-    If .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    If tnWB = toInline.workbook
-      lcAlias = Alias()
-      If Isnull(toInline.stringid)
-        toInline.stringid = .AddStringValue(toInline.workbook, toInline.StringValue, True)
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, toInline
+    Local lnNdx, lcRText, llFBold, llFItalic, lnFColor, lcFName, lnFSize, lcULine, llStrkThr, lcFVPos, lcAlias
+    With This
+      If .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
       Endif
-      If .GetCellRecord(toInline.workbook, tnSheet, tnCellRow, tnCellCol)
-        Replace xl_cells.cellvalue   With "StringValue", ;
-          xl_cells.cellxfs     With 0, ;
-          xl_cells.cellformula With "", ;
-          xl_cells.stringid    With toInline.stringid, ;
-          xl_cells.DataType    With DATA_TYPE_CHAR, ;
-          xl_cells.celldeleted With False In xl_cells
-      Else
-        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, cellvalue, stringid, DataType, cellxfs, celldeleted, numdec, validndx) ;
-          VALUES (toInline.workbook, tnSheet, tnCellRow, tnCellCol, "StringValue", toInline.stringid, DATA_TYPE_CHAR, 0, False, -1, 0)
+      If tnWB = toInline.workbook
+        lcAlias = Alias()
+        If Isnull(toInline.stringid)
+          toInline.stringid = .AddStringValue(toInline.workbook, toInline.StringValue, True)
+        Endif
+        If .GetCellRecord(toInline.workbook, tnSheet, tnCellRow, tnCellCol)
+          Replace xl_cells.cellvalue   With "StringValue", ;
+            xl_cells.cellxfs     With 0, ;
+            xl_cells.cellformula With "", ;
+            xl_cells.stringid    With toInline.stringid, ;
+            xl_cells.DataType    With DATA_TYPE_CHAR, ;
+            xl_cells.celldeleted With False In xl_cells
+        Else
+          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, cellvalue, stringid, DataType, cellxfs, celldeleted, numdec, validndx) ;
+            VALUES (toInline.workbook, tnSheet, tnCellRow, tnCellCol, "StringValue", toInline.stringid, DATA_TYPE_CHAR, 0, False, -1, 0)
 
+          .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Endif
+        For lnNdx=1 To toInline.Count
+          lcRText   = Substr(toInline.StringValue, toInline.Characters[lnNdx].BegPos, toInline.Characters[lnNdx].Length)
+          llFBold   = toInline.Characters[lnNdx].FontBold
+          llFItalic = toInline.Characters[lnNdx].FontItalic
+          lnFColor  = toInline.Characters[lnNdx].fontcolor
+          lcFName   = toInline.Characters[lnNdx].FontName
+          lnFSize   = toInline.Characters[lnNdx].FontSize
+          lcULine   = toInline.Characters[lnNdx].Underline
+          llStrkThr = toInline.Characters[lnNdx].StrikeThru
+          lcFVPos   = Icase(toInline.Characters[lnNdx].SubScript, FONT_VERTICAL_SUBSCRIPT, toInline.Characters[lnNdx].SuperScript, FONT_VERTICAL_SUPERSCRIPT, FONT_VERTICAL_BASELINE)
+
+          Insert Into xl_strformat (workbook, Id, Index, stringxml, stringval, fbold, fitalic, fcolor, fname, Fsize, uline, strkthr, fvpos, Theme, tint, indexed) ;
+            VALUES (toInline.workbook, toInline.stringid, lnNdx, .GetXMLString(lcRText), lcRText, llFBold, llFItalic, lnFColor, lcFName, lnFSize, lcULine, ;
+            llStrkThr, lcFVPos, 0, 0, 0)
+        Endfor
+        If !Empty(lcAlias)
+          Select (lcAlias)
+        Endif
+        Return True
+      Else
+        Return False
+      Endif
+    Endwith
+
+*-- Sets the number of decimals to display
+  Procedure SetCellNumberDecimals
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnNumDecimals
+    Local lcAlias
+    With This
+      If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      If Vartype(tnNumDecimals) != 'N' Or tnNumDecimals < 0
+        Return False
+      Endif
+      lcAlias = Alias()
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Replace xl_cells.numdec With tnNumDecimals In xl_cells
+      Else
+        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, nbrfmtid, numdec, celldeleted) ;
+          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, 0, tnNumDecimals, False)
         .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
       Endif
-      For lnNdx=1 To toInline.Count
-        lcRText   = Substr(toInline.StringValue, toInline.Characters[lnNdx].BegPos, toInline.Characters[lnNdx].Length)
-        llFBold   = toInline.Characters[lnNdx].FontBold
-        llFItalic = toInline.Characters[lnNdx].FontItalic
-        lnFColor  = toInline.Characters[lnNdx].fontcolor
-        lcFName   = toInline.Characters[lnNdx].FontName
-        lnFSize   = toInline.Characters[lnNdx].FontSize
-        lcULine   = toInline.Characters[lnNdx].Underline
-        llStrkThr = toInline.Characters[lnNdx].StrikeThru
-        lcFVPos   = Icase(toInline.Characters[lnNdx].SubScript, FONT_VERTICAL_SUBSCRIPT, toInline.Characters[lnNdx].SuperScript, FONT_VERTICAL_SUPERSCRIPT, FONT_VERTICAL_BASELINE)
-
-        Insert Into xl_strformat (workbook, Id, Index, stringxml, stringval, fbold, fitalic, fcolor, fname, Fsize, uline, strkthr, fvpos, Theme, tint, indexed) ;
-          VALUES (toInline.workbook, toInline.stringid, lnNdx, .GetXMLString(lcRText), lcRText, llFBold, llFItalic, lnFColor, lcFName, lnFSize, lcULine, ;
-          llStrkThr, lcFVPos, 0, 0, 0)
-      Endfor
       If !Empty(lcAlias)
         Select (lcAlias)
+      Endif
+    Endwith
+    Return True
+
+*-- Sets the cell number format
+  Procedure SetCellNumberFormat
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnNumFormat
+    Local llReturn, lnNumFmtId, lcAlias, loException
+    With This
+      If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      If Vartype(tnNumFormat) != 'N'
+        Return False
+      Endif
+      lcAlias = Alias()
+      If .GetSheetRecord(tnWB, tnSheet)
+        Do Case
+        Case tnNumFormat < START_NUMERIC_FORMAT_ID
+          lnNumFmtId = tnNumFormat
+
+        Case tnNumFormat >= START_NUMERIC_FORMAT_ID
+          If Seek(BinToC(tnWB)+BinToC(tnNumFormat), "xl_numfmts", "id")
+            lnNumFmtId = xl_numFmts.Id
+          Else
+            If !.AddClassDefinedNumericFormats(tnWB, tnNumFormat)
+              Return False
+            Endif
+            lnNumFmtId = tnNumFormat
+          Endif
+
+        Otherwise
+          Return False
+        Endcase
+        If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+          If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+            lnCellXfsId = xl_cellxfs.Id
+            Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+            If _Tally > 1
+              lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
+            Else
+              Try
+                Replace xl_cellxfs.numfmtid With lnNumFmtId In xl_cellxfs
+              Catch To loException
+                Set Step On
+              Endtry
+            Endif
+            Use In Select('xl_temp')
+          Else
+            lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, 0, 0, 0, "", "", 0, 0, 0)
+          Endif
+          Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+        Else
+          lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, 0, 0, 0, "", "", 0, 0, 0)
+          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+            VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
+          .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Endif
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return llReturn
+
+*-- Sets the number format for a range of cells
+  Procedure SetCellNumberFormatRange
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnNumFormat
+    Local lnRow, lnCol, llReturn
+    With This
+      If Pcount() < 7 Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
+        Return False
+      Endif
+      If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
+        Return False
+      Endif
+      llReturn = True
+      For lnRow=tnBegRow To tnEndRow
+        For lnCol=tnBegCol To tnEndCol
+          If !.SetCellNumberFormat(tnWB, tnSheet, lnRow, lnCol, tnNumFormat)
+            llReturn = False
+            Exit
+          Endif
+        Endfor
+      Endfor
+    Endwith
+    Return llReturn
+
+*-- Sets the cell style
+  Procedure SetCellStyle
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnCellXfsId
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Replace xl_cells.cellxfs With tnCellXfsId In xl_cells
+      Else
+        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, tnCellXfsId, False, -1, 0)
+        This.SetRowMaxColumn(tnWB, tnSheet, lnRow, lnCol)
       Endif
       Return True
     Else
       Return False
     Endif
-  Endwith
 
-*-- Sets the number of decimals to display
-  Procedure SetCellNumberDecimals
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnNumDecimals
-  Local lcAlias
-  With This
-    If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+*-- Sets the cell style for a range of cells
+  Procedure SetCellStyleRange
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnCellXfsId
+    Local lnRow, lnCol
+    If Pcount() < 7 Or tnBegRow > tnEndRow Or tnBegCol > tnEndCol
       Return False
     Endif
-    If Vartype(tnNumDecimals) != 'N' Or tnNumDecimals < 0
-      Return False
-    Endif
-    lcAlias = Alias()
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-      Replace xl_cells.numdec With tnNumDecimals In xl_cells
-    Else
-      Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, nbrfmtid, numdec, celldeleted) ;
-        VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, 0, tnNumDecimals, False)
-      .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return True
-
-*-- Sets the cell number format
-  Procedure SetCellNumberFormat
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnNumFormat
-  Local llReturn, lnNumFmtId, lcAlias, loException
-  With This
-    If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    If Vartype(tnNumFormat) != 'N'
-      Return False
-    Endif
-    lcAlias = Alias()
-    If .GetSheetRecord(tnWB, tnSheet)
-      Do Case
-      Case tnNumFormat < START_NUMERIC_FORMAT_ID
-        lnNumFmtId = tnNumFormat
-
-      Case tnNumFormat >= START_NUMERIC_FORMAT_ID
-        If Seek(BinToC(tnWB)+BinToC(tnNumFormat), "xl_numfmts", "id")
-          lnNumFmtId = xl_numFmts.Id
-        Else
-          If !.AddClassDefinedNumericFormats(tnWB, tnNumFormat)
-            Return False
+    If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
+      For lnRow=tnBegRow To tnEndRow
+        For lnCol=tnBegCol To tnEndCol
+          If This.GetCellRecord(tnWB, tnSheet, lnRow, lnCol)
+            Replace xl_cells.cellxfs With tnCellXfsId In xl_cells
+          Else
+            Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+              VALUES (tnWB, tnSheet, lnRow, lnCol, DATA_TYPE_NONE, tnCellXfsId, False, -1, 0)
+            This.SetRowMaxColumn(tnWB, tnSheet, lnRow, lnCol)
           Endif
-          lnNumFmtId = tnNumFormat
+        Endfor
+      Endfor
+      Return True
+    Else
+      Return False
+    Endif
+
+*-- Sets the cell text rotation value
+  Procedure SetCellTextRotation
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnRotation
+    Local lnCellXfsId, lcAlias
+    With This
+      If Pcount() != 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      If Vartype(tnRotation) != 'N'
+        Return False
+      Endif
+      If !Between(tnRotation, -90, 90)
+        Return False
+      Endif
+      lcAlias = Alias()
+      tnRotation = Floor(tnRotation)
+      If tnRotation < 0
+        tnRotation = 90 - tnRotation
+      Endif
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+        If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+          lnCellXfsId = xl_cellxfs.Id
+          Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+          If _Tally > 1
+            lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, tnRotation)
+          Else
+            Replace xl_cellxfs.Rotation With tnRotation In xl_cellxfs
+          Endif
+          Use In Select('xl_temp')
+        Else
+          lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, 0, tnRotation)
+        Endif
+        Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+      Else
+        lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, 0, tnRotation)
+        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
+        .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+      Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return True
+
+*-- Adds a cell validation
+  Procedure SetCellValidation
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnType, tnStyle, tnOperator, tlAllowBlank, tlShowInputMsg, tlShowErrMsg, tcErrMsg, tcErrTitle, tcPrompt, tcFormula1, tcFormula2
+    Local lcAlias, lnIndex, llFormula
+    lcAlias = Alias()
+    With This
+      If Pcount() < 14 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      If !Between(tnType, 0, CUSTOM_VALID_TYPE)
+        Return False
+      Endif
+      If Vartype(tcFormula1) != "C"
+        tcFormula1 = Transform(tcFormula1)
+      Endif
+      If Empty(tcFormula1) Or Len(tcFormula1) > 254
+        Return False
+      Endif
+      If Left(tcFormula1, 1) = "="
+        llFormula  = True
+        tcFormula1 = Alltrim(Substr(tcFormula1, 2))
+      Else
+        llFormula  = False
+      Endif
+      If Pcount() < 15
+        tcFormula2 = ""
+      Endif
+      If Vartype(tcFormula2) != "C"
+        tcFormula2 = Transform(tcFormula2)
+      Endif
+      If Len(tcFormula2) > 254
+        Return False
+      Endif
+      If Left(tcFormula2, 1) = "="
+        tcFormula2 = Alltrim(Substr(tcFormula2, 2))
+      Endif
+      If Vartype(tnStyle) = "N"
+        If !Between(tnStyle, 0, INFO_VALID_STYLE)
+          Return False
+        Endif
+      Else
+        tnStyle = 0
+      Endif
+      If Vartype(tnOperator) = "N"
+        If !Between(tnOperator, 0, GREATOREQUAL_VALID_OPER)
+          Return False
+        Endif
+      Else
+        tnOperator = 0
+      Endif
+      If Vartype(tcErrMsg) != "C"
+        tcErrMsg = ""
+      Endif
+      If Vartype(tcErrTitle) != "C"
+        tcErrTitle = ""
+      Endif
+      If Vartype(tcPrompt) != "C"
+        tcPrompt = ""
+      Endif
+      If Vartype(tlAllowBlank) != "L"
+        tlAllowBlank = True
+      Endif
+      If Vartype(tlShowInputMsg) != "L"
+        tlShowInputMsg = True
+      Endif
+      If Vartype(tlShowErrMsg) != "L"
+        tlShowErrMsg = True
+      Endif
+*-*	Check if the cell is part of a merged range of cells; if so set the cell to the upper left cell of the merged range
+      If Reccount('xl_mergecells') > 0
+        Select xl_mergecells
+        Locate For workbook = tnWB And Sheet = tnSheet And Between(tnCellRow, begrow, endrow) And Between(tnCellCol, begcol, endcol) And !Deleted()
+        If Found()
+          tnCellRow = xl_mergecells.begrow
+          tnCellCol = xl_mergecells.begcol
+        Endif
+      Endif
+      Select xl_validation
+      Locate For BinToC(workbook)+BinToC(Sheet) = BinToC(tnWB)+BinToC(tnSheet) ;
+        AND Upper(formula1) = Upper(Padr(tcFormula1, 240)) ;
+        AND Upper(formula2) = Upper(Padr(tcFormula2, 240)) And !Deleted()
+      If Found()
+        lnIndex = 0
+        Do While Found()
+          If xl_validation.vtype = tnType ;
+              AND xl_validation.vstyle = tnStyle ;
+              AND xl_validation.voperator = tnOperator ;
+              AND xl_validation.errmsg = tcErrMsg ;
+              AND xl_validation.errtitle = tcErrTitle ;
+              AND xl_validation.allowblank = tlAllowBlank ;
+              AND xl_validation.showinpmsg = tlShowInputMsg ;
+              AND xl_validation.showerrmsg = tlShowErrMsg ;
+              AND xl_validation.vprompt = tcPrompt
+
+            lnIndex = xl_validation.validndx
+            Exit
+          Endif
+          Continue
+        Enddo
+        If lnIndex = 0
+          Insert Into xl_validation (workbook, Sheet, vtype, vstyle, voperator, errmsg, errtitle, vprompt, allowblank, showinpmsg, showerrmsg, formula, formula1, formula2) ;
+            VALUES (tnWB, tnSheet, tnType, tnStyle, tnOperator, tcErrMsg, tcErrTitle, tcPrompt, tlAllowBlank, tlShowInputMsg, tlShowErrMsg, llFormula, tcFormula1, tcFormula2)
+          lnIndex = xl_validation.validndx
+        Endif
+      Else
+        Insert Into xl_validation (workbook, Sheet, vtype, vstyle, voperator, errmsg, errtitle, vprompt, allowblank, showinpmsg, showerrmsg, formula, formula1, formula2) ;
+          VALUES (tnWB, tnSheet, tnType, tnStyle, tnOperator, tcErrMsg, tcErrTitle, tcPrompt, tlAllowBlank, tlShowInputMsg, tlShowErrMsg, llFormula, tcFormula1, tcFormula2)
+        lnIndex = xl_validation.validndx
+      Endif
+      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Replace xl_cells.validndx With lnIndex In xl_cells
+      Else
+        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, 0, False, -1, lnIndex)
+        .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+      Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return True
+
+*-- Sets the cell value
+  Procedure SetCellValue
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, txCellValue
+    Local lcCellValue, lcDataType, lnStringNdx, lnSetDecimals, lnWholePart, lnFractPart, lcAlias, lnNumFmtId, lcHorzAlign
+    Local lcSetDate, lcSetPoint, lcSeparator, lcCurrency
+    With This
+      If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      lcAlias = Alias()
+*-*	Check if the cell is part of a merged range of cells; if so set the cell to the upper left cell of the merged range
+      If Reccount('xl_mergecells') > 0
+        Select xl_mergecells
+        Locate For workbook = tnWB And Sheet = tnSheet And tnCellRow >= begrow And tnCellRow <= endrow And tnCellCol >= begcol And tnCellCol <= endcol And !Deleted()
+        If Found()
+          tnCellRow = xl_mergecells.begrow
+          tnCellCol = xl_mergecells.begcol
+        Endif
+      Endif
+*-*	Assign the data type based on type of value and add to cell
+      lnStringNdx = 0
+      lcHorzAlign = ""
+      lnNumFmtId  = 0
+      lcSetPoint  = Set("POINT")
+      lcSeparator = Set("SEPARATOR")
+      If lcSetPoint != "."                        && Change recommended by Doug Hennig; 2017-06-12
+        Set Point To "."
+        Set Separator To ","
+      Endif
+      Do Case
+      Case Vartype(txCellValue) = DATA_TYPE_LOGICAL
+        lcDataType  = DATA_TYPE_LOGICAL
+        lcCellValue = "StringValue"
+        txCellValue = Iif(txCellValue, Getwordnum(.TrueFalseValue, 1, "|"), Getwordnum(.TrueFalseValue, 2, "|"))
+        lnStringNdx = .AddStringValue(tnWB, txCellValue, False)
+
+      Case Vartype(txCellValue) = DATA_TYPE_CHAR
+        txCellValue = Alltrim(txCellValue)
+        If Len(txCellValue) > LIMITS_MAX_CELL_CHARS
+          Return False
+        Endif
+        lcDataType  = DATA_TYPE_CHAR
+        lcCellValue = "StringValue"
+        lnStringNdx = .AddStringValue(tnWB, txCellValue, False)
+        Delete For workbook = tnWB And Id = lnStringNdx In xl_strformat
+
+      Case Vartype(txCellValue) = DATA_TYPE_DATE
+        If txCellValue >= Date(1900, 1, 1)
+          lcDataType  = DATA_TYPE_DATE
+          lcCellValue = Transform(Int(txCellValue - Date(1900, 1, 1) + 2))
+        Else
+          lcDataType  = DATA_TYPE_CHAR
+          lcCellValue = "StringValue"
+          lcSetDate   = Set("DATE")
+          Set Date To AMERICAN
+          lnStringNdx = .AddStringValue(tnWB, Transform(txCellValue), False)
+          Set Date To (lcSetDate)
+        Endif
+        lcHorzAlign = CELL_HORIZ_ALIGN_LEFT
+        lnNumFmtId  = CELL_FORMAT_DATE_MMDDYY
+
+      Case Vartype(txCellValue) = DATA_TYPE_DATETIME
+        If Ttod(txCellValue) >= Date(1900, 1, 1)
+          lnSetDecimals = Set("DECIMALS")
+          Set Decimals To 12
+          lcDataType  = DATA_TYPE_DATETIME
+          lnWholePart = Int(Ttod(txCellValue) - Date(1900, 1, 1) + 2)
+          lnFractPart = ((Hour(txCellValue) * 60 + Minute(txCellValue)) * 60 + Sec(txCellValue)) / (24 * 60 * 60)
+          lcCellValue = Transform(lnWholePart + lnFractPart)
+          Set Decimals To (lnSetDecimals)
+        Else
+          lcDataType  = DATA_TYPE_CHAR
+          lcCellValue = "StringValue"
+          lcSetDate   = Set("DATE")
+          Set Date To AMERICAN
+          lnStringNdx = .AddStringValue(tnWB, Transform(txCellValue), False)
+          Set Date To (lcSetDate)
+        Endif
+        lcHorzAlign = CELL_HORIZ_ALIGN_LEFT
+        lnNumFmtId  = CELL_FORMAT_DATETIME_MMMDDYYYY_TTAM
+
+      Case Vartype(txCellValue) = DATA_TYPE_FLOAT
+        lcCellValue = Transform(txCellValue)
+        If Atc(".", lcCellValue) > 0
+          lcDataType = DATA_TYPE_FLOAT
+        Else
+          lcDataType = DATA_TYPE_INT
         Endif
 
+      Case Vartype(txCellValue) = DATA_TYPE_CURRENCY
+        If .SaveCurrencyAsNumeric
+          lcDataType  = DATA_TYPE_FLOAT                     && Change requested by Tony Federer
+          lcCellValue = Transform(Mton(txCellValue))
+        Else
+          lcCurrency  = Set("Currency", 1)
+          lcCellValue = Chrtran(Transform(txCellValue), lcCurrency+",", "")
+          lcDataType  = DATA_TYPE_CURRENCY
+          lcHorzAlign = CELL_HORIZ_ALIGN_RIGHT
+          Do Case
+          Case lcCurrency = "Ј"
+            lnNumFmtId = CELL_FORMAT_ACC_CURR_POUNDS
+
+          Case lcCurrency = "Ђ"
+            lnNumFmtId = CELL_FORMAT_ACC_CURR_EURO
+
+          Otherwise
+            lnNumFmtId = CELL_FORMAT_CURRENCY_PAREN
+          Endcase
+        Endif
+
+      Case Vartype(txCellValue) = DATA_TYPE_GENERAL
+        lcDataType  = DATA_TYPE_GENERAL
+        lcCellValue = ""                                      && Change recommendation by Doug Hennig
+
       Otherwise
-        Return False
+        lcDataType  = DATA_TYPE_GENERAL
+        lcCellValue = Transform(txCellValue)
       Endcase
       If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
         If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
@@ -6652,452 +7032,117 @@ Define Class vfpxworkbookxlsx As Custom
           If _Tally > 1
             lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
           Else
-            Try
-              Replace xl_cellxfs.numfmtid With lnNumFmtId In xl_cellxfs
-            Catch To loException
-              Set Step On
-            Endtry
+            Replace xl_cellxfs.numfmtid With lnNumFmtId In xl_cellxfs
           Endif
           Use In Select('xl_temp')
         Else
           lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, 0, 0, 0, "", "", 0, 0, 0)
         Endif
-        Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+        Replace xl_cells.cellvalue   With lcCellValue, ;
+          xl_cells.cellxfs     With lnCellXfsId, ;
+          xl_cells.cellformula With "", ;
+          xl_cells.stringid    With lnStringNdx, ;
+          xl_cells.DataType    With lcDataType, ;
+          xl_cells.celldeleted With False In xl_cells
       Else
-        lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, 0, 0, 0, "", "", 0, 0, 0)
-        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
+        If lnNumFmtId > 0
+          lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, 0, 0, 0, "", "", 0, 0, 0)
+        Else
+          lnCellXfsId = 0
+        Endif
+        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, cellvalue, stringid, DataType, cellxfs, celldeleted, numdec, validndx) ;
+          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, lcCellValue, lnStringNdx, lcDataType, lnCellXfsId, False, -1, 0)
+
         .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
       Endif
-      llReturn = True
-    Else
-      llReturn = False
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return llReturn
-
-*-- Sets the number format for a range of cells
-  Procedure SetCellNumberFormatRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnNumFormat
-  Local lnRow, lnCol, llReturn
-  With This
-    If Pcount() < 7 Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
-      Return False
-    Endif
-    If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
-      Return False
-    Endif
-    llReturn = True
-    For lnRow=tnBegRow To tnEndRow
-      For lnCol=tnBegCol To tnEndCol
-        If !.SetCellNumberFormat(tnWB, tnSheet, lnRow, lnCol, tnNumFormat)
-          llReturn = False
-          Exit
-        Endif
-      Endfor
-    Endfor
-  Endwith
-  Return llReturn
-
-*-- Sets the cell style
-  Procedure SetCellStyle
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnCellXfsId
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    If This.GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-      Replace xl_cells.cellxfs With tnCellXfsId In xl_cells
-    Else
-      Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-        VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, tnCellXfsId, False, -1, 0)
-      This.SetRowMaxColumn(tnWB, tnSheet, lnRow, lnCol)
-    Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+      If lcSetPoint != "."                        && Change recommended by Doug Hennig; 2017-06-12
+        Set Point To (lcSetPoint)
+        Set Separator To (lcSeparator)
+      Endif
+    Endwith
     Return True
-  Else
-    Return False
-  Endif
-
-*-- Sets the cell style for a range of cells
-  Procedure SetCellStyleRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tnCellXfsId
-  Local lnRow, lnCol
-  If Pcount() < 7 Or tnBegRow > tnEndRow Or tnBegCol > tnEndCol
-    Return False
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(tnCellXfsId), "xl_cellxfs", "id")
-    For lnRow=tnBegRow To tnEndRow
-      For lnCol=tnBegCol To tnEndCol
-        If This.GetCellRecord(tnWB, tnSheet, lnRow, lnCol)
-          Replace xl_cells.cellxfs With tnCellXfsId In xl_cells
-        Else
-          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-            VALUES (tnWB, tnSheet, lnRow, lnCol, DATA_TYPE_NONE, tnCellXfsId, False, -1, 0)
-          This.SetRowMaxColumn(tnWB, tnSheet, lnRow, lnCol)
-        Endif
-      Endfor
-    Endfor
-    Return True
-  Else
-    Return False
-  Endif
-
-*-- Sets the cell text rotation value
-  Procedure SetCellTextRotation
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnRotation
-  Local lnCellXfsId, lcAlias
-  With This
-    If Pcount() != 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    If Vartype(tnRotation) != 'N'
-      Return False
-    Endif
-    If !Between(tnRotation, -90, 90)
-      Return False
-    Endif
-    lcAlias = Alias()
-    tnRotation = Floor(tnRotation)
-    If tnRotation < 0
-      tnRotation = 90 - tnRotation
-    Endif
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-      If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-        lnCellXfsId = xl_cellxfs.Id
-        Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-        If _Tally > 1
-          lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, tnRotation)
-        Else
-          Replace xl_cellxfs.Rotation With tnRotation In xl_cellxfs
-        Endif
-        Use In Select('xl_temp')
-      Else
-        lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, 0, tnRotation)
-      Endif
-      Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
-    Else
-      lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, 0, tnRotation)
-      Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-        VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
-      .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return True
-
-*-- Adds a cell validation
-  Procedure SetCellValidation
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tnType, tnStyle, tnOperator, tlAllowBlank, tlShowInputMsg, tlShowErrMsg, tcErrMsg, tcErrTitle, tcPrompt, tcFormula1, tcFormula2
-  Local lcAlias, lnIndex, llFormula
-  lcAlias = Alias()
-  With This
-    If Pcount() < 14 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    If !Between(tnType, 0, CUSTOM_VALID_TYPE)
-      Return False
-    Endif
-    If Vartype(tcFormula1) != "C"
-      tcFormula1 = Transform(tcFormula1)
-    Endif
-    If Empty(tcFormula1) Or Len(tcFormula1) > 254
-      Return False
-    Endif
-    If Left(tcFormula1, 1) = "="
-      llFormula  = True
-      tcFormula1 = Alltrim(Substr(tcFormula1, 2))
-    Else
-      llFormula  = False
-    Endif
-    If Pcount() < 15
-      tcFormula2 = ""
-    Endif
-    If Vartype(tcFormula2) != "C"
-      tcFormula2 = Transform(tcFormula2)
-    Endif
-    If Len(tcFormula2) > 254
-      Return False
-    Endif
-    If Left(tcFormula2, 1) = "="
-      tcFormula2 = Alltrim(Substr(tcFormula2, 2))
-    Endif
-    If Vartype(tnStyle) = "N"
-      If !Between(tnStyle, 0, INFO_VALID_STYLE)
-        Return False
-      Endif
-    Else
-      tnStyle = 0
-    Endif
-    If Vartype(tnOperator) = "N"
-      If !Between(tnOperator, 0, GREATOREQUAL_VALID_OPER)
-        Return False
-      Endif
-    Else
-      tnOperator = 0
-    Endif
-    If Vartype(tcErrMsg) != "C"
-      tcErrMsg = ""
-    Endif
-    If Vartype(tcErrTitle) != "C"
-      tcErrTitle = ""
-    Endif
-    If Vartype(tcPrompt) != "C"
-      tcPrompt = ""
-    Endif
-    If Vartype(tlAllowBlank) != "L"
-      tlAllowBlank = True
-    Endif
-    If Vartype(tlShowInputMsg) != "L"
-      tlShowInputMsg = True
-    Endif
-    If Vartype(tlShowErrMsg) != "L"
-      tlShowErrMsg = True
-    Endif
-*-*	Check if the cell is part of a merged range of cells; if so set the cell to the upper left cell of the merged range
-    If Reccount('xl_mergecells') > 0
-      Select xl_mergecells
-      Locate For workbook = tnWB And Sheet = tnSheet And Between(tnCellRow, begrow, endrow) And Between(tnCellCol, begcol, endcol) And !Deleted()
-      If Found()
-        tnCellRow = xl_mergecells.begrow
-        tnCellCol = xl_mergecells.begcol
-      Endif
-    Endif
-    Select xl_validation
-    Locate For BinToC(workbook)+BinToC(Sheet) = BinToC(tnWB)+BinToC(tnSheet) ;
-      AND Upper(formula1) = Upper(Padr(tcFormula1, 240)) ;
-      AND Upper(formula2) = Upper(Padr(tcFormula2, 240)) And !Deleted()
-    If Found()
-      lnIndex = 0
-      Do While Found()
-        If xl_validation.vtype = tnType ;
-            AND xl_validation.vstyle = tnStyle ;
-            AND xl_validation.voperator = tnOperator ;
-            AND xl_validation.errmsg = tcErrMsg ;
-            AND xl_validation.errtitle = tcErrTitle ;
-            AND xl_validation.allowblank = tlAllowBlank ;
-            AND xl_validation.showinpmsg = tlShowInputMsg ;
-            AND xl_validation.showerrmsg = tlShowErrMsg ;
-            AND xl_validation.vprompt = tcPrompt
-
-          lnIndex = xl_validation.validndx
-          Exit
-        Endif
-        Continue
-      Enddo
-      If lnIndex = 0
-        Insert Into xl_validation (workbook, Sheet, vtype, vstyle, voperator, errmsg, errtitle, vprompt, allowblank, showinpmsg, showerrmsg, formula, formula1, formula2) ;
-          VALUES (tnWB, tnSheet, tnType, tnStyle, tnOperator, tcErrMsg, tcErrTitle, tcPrompt, tlAllowBlank, tlShowInputMsg, tlShowErrMsg, llFormula, tcFormula1, tcFormula2)
-        lnIndex = xl_validation.validndx
-      Endif
-    Else
-      Insert Into xl_validation (workbook, Sheet, vtype, vstyle, voperator, errmsg, errtitle, vprompt, allowblank, showinpmsg, showerrmsg, formula, formula1, formula2) ;
-        VALUES (tnWB, tnSheet, tnType, tnStyle, tnOperator, tcErrMsg, tcErrTitle, tcPrompt, tlAllowBlank, tlShowInputMsg, tlShowErrMsg, llFormula, tcFormula1, tcFormula2)
-      lnIndex = xl_validation.validndx
-    Endif
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-      Replace xl_cells.validndx With lnIndex In xl_cells
-    Else
-      Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-        VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, 0, False, -1, lnIndex)
-      .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-  Endwith
-  Return True
-
-*-- Sets the cell value
-  Procedure SetCellValue
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, txCellValue
-  Local lcCellValue, lcDataType, lnStringNdx, lnSetDecimals, lnWholePart, lnFractPart, lcAlias, lnNumFmtId, lcHorzAlign
-  Local lcSetDate, lcSetPoint, lcSeparator, lcCurrency
-  With This
-    If Pcount() < 5 Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
-      Return False
-    Endif
-    lcAlias = Alias()
-*-*	Check if the cell is part of a merged range of cells; if so set the cell to the upper left cell of the merged range
-    If Reccount('xl_mergecells') > 0
-      Select xl_mergecells
-      Locate For workbook = tnWB And Sheet = tnSheet And tnCellRow >= begrow And tnCellRow <= endrow And tnCellCol >= begcol And tnCellCol <= endcol And !Deleted()
-      If Found()
-        tnCellRow = xl_mergecells.begrow
-        tnCellCol = xl_mergecells.begcol
-      Endif
-    Endif
-*-*	Assign the data type based on type of value and add to cell
-    lnStringNdx = 0
-    lcHorzAlign = ""
-    lnNumFmtId  = 0
-    lcSetPoint  = Set("POINT")
-    lcSeparator = Set("SEPARATOR")
-    If lcSetPoint != "."                        && Change recommended by Doug Hennig; 2017-06-12
-      Set Point To "."
-      Set Separator To ","
-    Endif
-    Do Case
-    Case Vartype(txCellValue) = DATA_TYPE_LOGICAL
-      lcDataType  = DATA_TYPE_LOGICAL
-      lcCellValue = "StringValue"
-      txCellValue = Iif(txCellValue, Getwordnum(.TrueFalseValue, 1, "|"), Getwordnum(.TrueFalseValue, 2, "|"))
-      lnStringNdx = .AddStringValue(tnWB, txCellValue, False)
-
-    Case Vartype(txCellValue) = DATA_TYPE_CHAR
-      txCellValue = Alltrim(txCellValue)
-      If Len(txCellValue) > LIMITS_MAX_CELL_CHARS
-        Return False
-      Endif
-      lcDataType  = DATA_TYPE_CHAR
-      lcCellValue = "StringValue"
-      lnStringNdx = .AddStringValue(tnWB, txCellValue, False)
-      Delete For workbook = tnWB And Id = lnStringNdx In xl_strformat
-
-    Case Vartype(txCellValue) = DATA_TYPE_DATE
-      If txCellValue >= Date(1900, 1, 1)
-        lcDataType  = DATA_TYPE_DATE
-        lcCellValue = Transform(Int(txCellValue - Date(1900, 1, 1) + 2))
-      Else
-        lcDataType  = DATA_TYPE_CHAR
-        lcCellValue = "StringValue"
-        lcSetDate   = Set("DATE")
-        Set Date To AMERICAN
-        lnStringNdx = .AddStringValue(tnWB, Transform(txCellValue), False)
-        Set Date To (lcSetDate)
-      Endif
-      lcHorzAlign = CELL_HORIZ_ALIGN_LEFT
-      lnNumFmtId  = CELL_FORMAT_DATE_MMDDYY
-
-    Case Vartype(txCellValue) = DATA_TYPE_DATETIME
-      If Ttod(txCellValue) >= Date(1900, 1, 1)
-        lnSetDecimals = Set("DECIMALS")
-        Set Decimals To 12
-        lcDataType  = DATA_TYPE_DATETIME
-        lnWholePart = Int(Ttod(txCellValue) - Date(1900, 1, 1) + 2)
-        lnFractPart = ((Hour(txCellValue) * 60 + Minute(txCellValue)) * 60 + Sec(txCellValue)) / (24 * 60 * 60)
-        lcCellValue = Transform(lnWholePart + lnFractPart)
-        Set Decimals To (lnSetDecimals)
-      Else
-        lcDataType  = DATA_TYPE_CHAR
-        lcCellValue = "StringValue"
-        lcSetDate   = Set("DATE")
-        Set Date To AMERICAN
-        lnStringNdx = .AddStringValue(tnWB, Transform(txCellValue), False)
-        Set Date To (lcSetDate)
-      Endif
-      lcHorzAlign = CELL_HORIZ_ALIGN_LEFT
-      lnNumFmtId  = CELL_FORMAT_DATETIME_MMMDDYYYY_TTAM
-
-    Case Vartype(txCellValue) = DATA_TYPE_FLOAT
-      lcCellValue = Transform(txCellValue)
-      If Atc(".", lcCellValue) > 0
-        lcDataType = DATA_TYPE_FLOAT
-      Else
-        lcDataType = DATA_TYPE_INT
-      Endif
-
-    Case Vartype(txCellValue) = DATA_TYPE_CURRENCY
-      If .SaveCurrencyAsNumeric
-        lcDataType  = DATA_TYPE_FLOAT                     && Change requested by Tony Federer
-        lcCellValue = Transform(Mton(txCellValue))
-      Else
-        lcCurrency  = Set("Currency", 1)
-        lcCellValue = Chrtran(Transform(txCellValue), lcCurrency+",", "")
-        lcDataType  = DATA_TYPE_CURRENCY
-        lcHorzAlign = CELL_HORIZ_ALIGN_RIGHT
-        Do Case
-        Case lcCurrency = "Ј"
-          lnNumFmtId = CELL_FORMAT_ACC_CURR_POUNDS
-
-        Case lcCurrency = "Ђ"
-          lnNumFmtId = CELL_FORMAT_ACC_CURR_EURO
-
-        Otherwise
-          lnNumFmtId = CELL_FORMAT_CURRENCY_PAREN
-        Endcase
-      Endif
-
-    Case Vartype(txCellValue) = DATA_TYPE_GENERAL
-      lcDataType  = DATA_TYPE_GENERAL
-      lcCellValue = ""                                      && Change recommendation by Doug Hennig
-
-    Otherwise
-      lcDataType  = DATA_TYPE_GENERAL
-      lcCellValue = Transform(txCellValue)
-    Endcase
-    If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-      If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-        lnCellXfsId = xl_cellxfs.Id
-        Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-        If _Tally > 1
-          lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, xl_cellxfs.wraptext, xl_cellxfs.Rotation)
-        Else
-          Replace xl_cellxfs.numfmtid With lnNumFmtId In xl_cellxfs
-        Endif
-        Use In Select('xl_temp')
-      Else
-        lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, 0, 0, 0, "", "", 0, 0, 0)
-      Endif
-      Replace xl_cells.cellvalue   With lcCellValue, ;
-        xl_cells.cellxfs     With lnCellXfsId, ;
-        xl_cells.cellformula With "", ;
-        xl_cells.stringid    With lnStringNdx, ;
-        xl_cells.DataType    With lcDataType, ;
-        xl_cells.celldeleted With False In xl_cells
-    Else
-      If lnNumFmtId > 0
-        lnCellXfsId = .GetCellXfsId(tnWB, lnNumFmtId, 0, 0, 0, "", "", 0, 0, 0)
-      Else
-        lnCellXfsId = 0
-      Endif
-      Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, cellvalue, stringid, DataType, cellxfs, celldeleted, numdec, validndx) ;
-        VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, lcCellValue, lnStringNdx, lcDataType, lnCellXfsId, False, -1, 0)
-
-      .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
-    Endif
-    If !Empty(lcAlias)
-      Select (lcAlias)
-    Endif
-    If lcSetPoint != "."                        && Change recommended by Doug Hennig; 2017-06-12
-      Set Point To (lcSetPoint)
-      Set Separator To (lcSeparator)
-    Endif
-  Endwith
-  Return True
 
 *-- Sets the cell word-wrapping value
   Procedure SetCellWordWrap
-  Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tlWordWrap
-  Local llReturn, lnWrapText, lnCellXfsId, lcAlias
-  With This
-    If Pcount() < 5 Or Vartype(tlWordWrap) != "L" Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+    Lparameters tnWB, tnSheet, tnCellRow, tnCellCol, tlWordWrap
+    Local llReturn, lnWrapText, lnCellXfsId, lcAlias
+    With This
+      If Pcount() < 5 Or Vartype(tlWordWrap) != "L" Or .IsCellReferenceInvalid(tnCellRow, tnCellCol)
+        Return False
+      Endif
+      lcAlias = Alias()
+      If .GetSheetRecord(tnWB, tnSheet)
+        lnWrapText = Iif(tlWordWrap, 1, 0)
+*-*	Set the XfsId to the cell record
+        If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
+          If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
+            lnCellXfsId = xl_cellxfs.Id
+            Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
+            If _Tally > 1
+              lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, lnWrapText, xl_cellxfs.Rotation)
+            Else
+              Replace xl_cellxfs.wraptext With lnWrapText In xl_cellxfs
+            Endif
+            Use In Select('xl_temp')
+          Else
+            lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, lnWrapText, 0)
+          Endif
+          Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+        Else
+          lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, lnWrapText, 0)
+          Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
+            VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
+          .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Endif
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
+      If !Empty(lcAlias)
+        Select (lcAlias)
+      Endif
+    Endwith
+    Return llReturn
+
+*-- Sets the word wrap for a range of cells
+  Procedure SetCellWordWrapRange
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tlWordWrap
+    Local lnRow, lnCol, llReturn
+    With This
+      If Pcount() < 7 Or Vartype(tlWordWrap) != "L" Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
+        Return False
+      Endif
+      If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
+        Return False
+      Endif
+      llReturn = True
+      For lnRow=tnBegRow To tnEndRow
+        For lnCol=tnBegCol To tnEndCol
+          If !.SetCellWordWrap(tnWB, tnSheet, lnRow, lnCol, tlWordWrap)
+            llReturn = False
+            Exit
+          Endif
+        Endfor
+      Endfor
+    Endwith
+    Return llReturn
+
+*-- Set the column to best fit
+  Procedure SetColumnBestFit
+    Lparameters tnWB, tnSheet, tnColumn, tlBestFit
+    Local llReturn, lcAlias
+    If Pcount() < 4
       Return False
     Endif
     lcAlias = Alias()
-    If .GetSheetRecord(tnWB, tnSheet)
-      lnWrapText = Iif(tlWordWrap, 1, 0)
-*-*	Set the XfsId to the cell record
-      If .GetCellRecord(tnWB, tnSheet, tnCellRow, tnCellCol)
-        If xl_cells.cellxfs > 0 And .GetCellXfsRecord(tnWB, xl_cells.cellxfs)
-          lnCellXfsId = xl_cellxfs.Id
-          Select workbook From xl_cells Where workbook = tnWB And cellxfs = lnCellXfsId Into Cursor xl_temp
-          If _Tally > 1
-            lnCellXfsId = .GetCellXfsId(tnWB, xl_cellxfs.numfmtid, xl_cellxfs.fontid, xl_cellxfs.fillid, xl_cellxfs.borderid, xl_cellxfs.halign, xl_cellxfs.valign, xl_cellxfs.indent, lnWrapText, xl_cellxfs.Rotation)
-          Else
-            Replace xl_cellxfs.wraptext With lnWrapText In xl_cellxfs
-          Endif
-          Use In Select('xl_temp')
-        Else
-          lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, lnWrapText, 0)
-        Endif
-        Replace xl_cells.cellxfs With lnCellXfsId In xl_cells
+    If This.GetSheetRecord(tnWB, tnSheet)
+      If Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn")
+        Replace xl_colwidths.bestfit With tlBestFit In xl_colwidths
       Else
-        lnCellXfsId = .GetCellXfsId(tnWB, 0, 0, 0, 0, "", "", 0, lnWrapText, 0)
-        Insert Into xl_cells (workbook, Sheet, cellrow, cellcol, DataType, cellxfs, celldeleted, numdec, validndx) ;
-          VALUES (tnWB, tnSheet, tnCellRow, tnCellCol, DATA_TYPE_NONE, lnCellXfsId, False, -1, 0)
-        .SetRowMaxColumn(tnWB, tnSheet, tnCellRow, tnCellCol)
+        Insert Into xl_colwidths (workbook, Sheet, Column, bestfit) Values (tnWB, tnSheet, tnColumn, tlBestFit)
       Endif
       llReturn = True
     Else
@@ -7106,552 +7151,505 @@ Define Class vfpxworkbookxlsx As Custom
     If !Empty(lcAlias)
       Select (lcAlias)
     Endif
-  Endwith
-  Return llReturn
-
-*-- Sets the word wrap for a range of cells
-  Procedure SetCellWordWrapRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol, tlWordWrap
-  Local lnRow, lnCol, llReturn
-  With This
-    If Pcount() < 7 Or Vartype(tlWordWrap) != "L" Or .IsCellReferenceInvalid(tnBegRow, tnBegCol) Or .IsCellReferenceInvalid(tnEndRow, tnEndCol)
-      Return False
-    Endif
-    If tnBegRow > tnEndRow Or tnBegCol > tnEndCol
-      Return False
-    Endif
-    llReturn = True
-    For lnRow=tnBegRow To tnEndRow
-      For lnCol=tnBegCol To tnEndCol
-        If !.SetCellWordWrap(tnWB, tnSheet, lnRow, lnCol, tlWordWrap)
-          llReturn = False
-          Exit
-        Endif
-      Endfor
-    Endfor
-  Endwith
-  Return llReturn
-
-*-- Set the column to best fit
-  Procedure SetColumnBestFit
-  Lparameters tnWB, tnSheet, tnColumn, tlBestFit
-  Local llReturn, lcAlias
-  If Pcount() < 4
-    Return False
-  Endif
-  lcAlias = Alias()
-  If This.GetSheetRecord(tnWB, tnSheet)
-    If Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn")
-      Replace xl_colwidths.bestfit With tlBestFit In xl_colwidths
-    Else
-      Insert Into xl_colwidths (workbook, Sheet, Column, bestfit) Values (tnWB, tnSheet, tnColumn, tlBestFit)
-    Endif
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    Return llReturn
 
 *-- Sets the column width
   Procedure SetColumnWidth
-  Lparameters tnWB, tnSheet, tnColumn, tnWidth
-  Local llReturn, lcAlias
-  If Pcount() < 4 Or Vartype(tnWidth) != "N"
-    Return False
-  Endif
-  lcAlias = Alias()
-  If This.GetSheetRecord(tnWB, tnSheet)
-    If Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn")
-      Replace xl_colwidths.Width With tnWidth In xl_colwidths
-    Else
-      Insert Into xl_colwidths (workbook, Sheet, Column, Width, bestfit) Values (tnWB, tnSheet, tnColumn, tnWidth, False)
+    Lparameters tnWB, tnSheet, tnColumn, tnWidth
+    Local llReturn, lcAlias
+    If Pcount() < 4 Or Vartype(tnWidth) != "N"
+      Return False
     Endif
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
-
-*-- Sets the column width for a range of columns
-  Procedure SetColumnWidthRange
-  Lparameters tnWB, tnSheet, tnBegCol, tnEndCol, tnWidth
-  Local lnCol, llReturn
-  If Pcount() < 5
-    Return False
-  Endif
-  If tnBegCol > tnEndCol
-    Return False
-  Endif
-  llReturn = True
-  For lnCol=tnBegCol To tnEndCol
-    If !This.SetColumnWidth(tnWB, tnSheet, lnCol, tnWidth)
-      llReturn = False
-      Exit
-    Endif
-  Endfor
-  Return llReturn
-
-*-- Sets the paper size based on custom dimensions
-  Procedure SetCustomPaperSize
-  Lparameters tnWB, tnSheet, tnWidth, tnHeight, tcDimen
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If Pcount() = 5 And This.GetSheetRecord(tnWB, tnSheet)
-    Do Case
-    Case tnWidth=0 Or tnHeight=0
-      Replace xl_sheets.Paperwidth  With 0, ;
-        xl_sheets.paperheight With 0, ;
-        xl_sheets.paperdimen  With "" In xl_sheets
-      llReturn = True
-
-    Case tnWidth>0 And tnHeight>0 And Inlist(tcDimen, "mm", "in")
-      Replace xl_sheets.Paperwidth  With tnWidth, ;
-        xl_sheets.paperheight With tnHeight, ;
-        xl_sheets.paperdimen  With Lower(tcDimen) In xl_sheets
-      llReturn = True
-
-    Otherwise
-      llReturn = False
-    Endcase
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
-
-*-- Sets the default border style for the workbook
-  Procedure SetDefaultBorder
-  Lparameters tnWB, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp
-  Local lcAlias
-  If Pcount() < 2
-    Return False
-  Endif
-  If Vartype(tcLStyle) != "C"
-    tcLStyle = BORDER_STYLE_NONE
-  Endif
-  lcAlias = Alias()
-  Do Case
-  Case Pcount() = 2
-    tnLColor = 0
-    tcRStyle = tcLStyle
-    tnRColor = 0
-    tcTStyle = tcLStyle
-    tnTColor = 0
-    tcBStyle = tcLStyle
-    tnBColor = 0
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 3
-    tcRStyle = tcLStyle
-    tnRColor = 0
-    tcTStyle = tcLStyle
-    tnTColor = 0
-    tcBStyle = tcLStyle
-    tnBColor = 0
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 4
-    tnRColor = 0
-    tcTStyle = tcLStyle
-    tnTColor = 0
-    tcBStyle = tcLStyle
-    tnBColor = 0
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 5
-    tcTStyle = tcLStyle
-    tnTColor = 0
-    tcBStyle = tcLStyle
-    tnBColor = 0
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 6
-    tnTColor = 0
-    tcBStyle = tcLStyle
-    tnBColor = 0
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 7
-    tcBStyle = tcLStyle
-    tnBColor = 0
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 8
-    tnBColor = 0
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 9
-    tcDStyle = tcLStyle
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 10
-    tnDColor = 0
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 11
-    tnDiagDn = 0
-    tnDiagUp = 0
-
-  Case Pcount() = 12
-    tnDiagUp = 0
-
-  Endcase
-  If Vartype(tnLColor) != "N"
-    tnLColor = 0
-  Endif
-  If Vartype(tcRStyle) != "C"
-    tcRStyle = tcLStyle
-  Endif
-  If Vartype(tnRColor) != "N"
-    tnRColor = 0
-  Endif
-  If Vartype(tcTStyle) != "C"
-    tcTStyle = tcLStyle
-  Endif
-  If Vartype(tnTColor) != "N"
-    tnTColor = 0
-  Endif
-  If Vartype(tcBStyle) != "C"
-    tcBStyle = tcLStyle
-  Endif
-  If Vartype(tnBColor) != "N"
-    tnBColor = 0
-  Endif
-  If Vartype(tcDStyle) != "C"
-    tcDStyle = tcLStyle
-  Endif
-  If Vartype(tnDColor) != "N"
-    tnDColor = 0
-  Endif
-  If Vartype(tnDiagDn) != "N"
-    tnDiagDn = 0
-  Endif
-  If Vartype(tnDiagUp) != "N"
-    tnDiagUp = 0
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(0), "xl_borders", "id")
-    Replace xl_borders.lstyle With tcLStyle, ;
-      xl_borders.lcolor With tnLColor, ;
-      xl_borders.rstyle With tcRStyle, ;
-      xl_borders.rcolor With tnRColor, ;
-      xl_borders.tstyle With tcTStyle, ;
-      xl_borders.tcolor With tnTColor, ;
-      xl_borders.bstyle With tcBStyle, ;
-      xl_borders.bcolor With tnBColor, ;
-      xl_borders.dstyle With tcDStyle, ;
-      xl_borders.dcolor With tnDColor, ;
-      xl_borders.diagdn With tnDiagDn, ;
-      xl_borders.diagup With tnDiagUp In xl_borders
-  Else
-    Insert Into xl_borders (workbook, Id, lstyle, lcolor, rstyle, rcolor, tstyle, tcolor, bstyle, bcolor, dstyle, dcolor, diagdn, diagup) ;
-      VALUES (tnWB, 0, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp)
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return True
-
-*-- Sets the default fill for the workbook
-  Procedure SetDefaultFill
-  Lparameters tnWB, tcPatternType, tnFColor, tnBColor
-  Local lnFIndex, lnBIndex, lcAlias
-  If Pcount() < 2
-    Return False
-  Endif
-  lcAlias = Alias()
-  If Vartype(tcPatternType) != "C"
-    tcPatternType = FILL_STYLE_NONE
-  Endif
-  Do Case
-  Case Pcount() = 2
-    tnFColor = 0
-    lnFIndex = 0
-    tnBColor = 0
-    lnBIndex = 0
-
-  Case Pcount() = 3
-    tnBColor = 0
-    lnBIndex = 64
-  Endcase
-  If Vartype(tnFColor) != "N"
-    tnFColor = 0
-  Endif
-  If Vartype(tnBColor) != "N"
-    tnBColor = Rgb(255,255,255)
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(0), "xl_fills", "id")
-    Replace xl_fills.fgcolor   With tnFColor, ;
-      xl_fills.bgcolor   With tnBColor, ;
-      xl_fills.patttype  With tcPatternType, ;
-      xl_fills.Theme     With 0, ;
-      xl_fills.tint      With 0, ;
-      xl_fills.fgindexed With 0, ;
-      xl_fills.bgindexed With 0 In xl_fills
-  Else
-    Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
-      VALUES (tnWB, 0, tnFColor, tnBColor, tcPatternType, 0, 0, lnFIndex, lnBIndex)
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return True
-
-*-- Sets the default font for the workbook
-  Procedure SetDefaultFont
-  Lparameters tnWB, tcFontName, tnSize, tlBold, tlItalic, tnColor, tcULine, tlStrkthr, tcFVPos, tnTheme, tnTint, tnIndexed
-  Local lcAlias
-  If Pcount() < 2
-    Return False
-  Endif
-  lcAlias = Alias()
-  Do Case
-  Case Pcount() = 2
-    tnSize    = 11
-    tlBold    = False
-    tlItalic  = False
-    tnColor   = 0
-    tcULine   = ""
-    tlStrkthr = False
-    tcFVPos   = ""
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 3
-    tlBold    = False
-    tlItalic  = False
-    tnColor   = 0
-    tcULine   = ""
-    tlStrkthr = False
-    tcFVPos   = ""
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 4
-    tlItalic  = False
-    tnColor   = 0
-    tcULine   = ""
-    tlStrkthr = False
-    tcFVPos   = ""
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 5
-    tnColor   = 0
-    tcULine   = ""
-    tlStrkthr = False
-    tcFVPos   = ""
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 6
-    tcULine   = ""
-    tlStrkthr = False
-    tcFVPos   = ""
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 7
-    tlStrkthr = False
-    tcFVPos   = ""
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 8
-    tcFVPos   = ""
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 9
-    tnTheme   = 0
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 10
-    tnTint    = 0
-    tnIndexed = 0
-
-  Case Pcount() = 11
-    tnIndexed = 0
-  Endcase
-  If Vartype(tcFontName) != "C"
-    tcFontName = "Calibri"
-  Endif
-  If Vartype(tnSize) != "N"
-    tnSize = 11
-  Endif
-  If Vartype(tlBold) != "L"
-    tlBold = False
-  Endif
-  If Vartype(tlItalic) != "L"
-    tlItalic = False
-  Endif
-  If Vartype(tnColor) != "N"
-    tnColor = 0
-  Endif
-  If Vartype(tcULine) != "C"
-    tcULine = ""
-  Endif
-  If Vartype(tlStrkthr) != "L"
-    tlStrkthr = False
-  Endif
-  If Vartype(tcFVPos) != "C"
-    tcFVPos = ""
-  Endif
-  If Vartype(tnTheme) != "N"
-    tnTheme = 0
-  Endif
-  If Vartype(tnTint) != "N"
-    tnTint = 0
-  Endif
-  If Vartype(tnIndexed) != "N"
-    tnTint = 0
-  Endif
-  If Seek(BinToC(tnWB)+BinToC(0), "xl_fonts", "id")
-    Replace xl_fonts.fname   With tcFontName, ;
-      xl_fonts.Fsize   With tnSize, ;
-      xl_fonts.fbold   With tlBold, ;
-      xl_fonts.fitalic With tlItalic, ;
-      xl_fonts.fcolor  With tnColo , ;
-      xl_fonts.uline   With tcULine, ;
-      xl_fonts.strkthr With tlStrkthr, ;
-      xl_fonts.fvpos   With tcFVPos, ;
-      xl_fonts.Theme   With tnTheme, ;
-      xl_fonts.tint    With tnTint, ;
-      xl_fonts.indexed With tnIndexed In xl_fonts
-  Else
-    Insert Into xl_fonts (workbook, Id, fname, Fsize, fbold, fitalic, fcolor, uline, strkthr, fvpos, Theme, tint, indexed) ;
-      VALUES (tnWB, 0, tcFontName, tnSize, tlBold, tlItalic, tnColor, tcULine, tlStrkthr, tcFVPos, tnTheme, tnTint, tnIndexed)
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return True
-
-*-- Sets the header and footer setup for the sheet
-  Procedure SetHeaderFooterSetup
-  Lparameters tnWB, tnSheet, tlAlignMargin, tlDiffFirstPg, tlDiffOddEven, tlScaleWDoc
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If Pcount() = 6 And This.GetSheetRecord(tnWB, tnSheet)
-    If Seek(BinToC(tnWB)+BinToC(tnSheet), "xl_hdrfooterdefn", "wbsheet")
-      Replace xl_hdrfooterdefn.alignmargin With tlAlignMargin, ;
-        xl_hdrfooterdefn.difffirstpg With tlDiffFirstPg, ;
-        xl_hdrfooterdefn.diffoddeven With tlDiffOddEven, ;
-        xl_hdrfooterdefn.scalewdoc   With tlScaleWDoc In xl_hdrfooterdefn
-    Else
-      Insert Into xl_hdrfooterdefn (workbook, Sheet, alignmargin, difffirstpg, diffoddeven, scalewdoc) ;
-        VALUES (tnWB, tnSheet, tlAlignMargin, tlDiffFirstPg, tlDiffOddEven, tlScaleWDoc)
-    Endif
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
-
-*-- Sets the header/footer text for the sheet
-  Procedure SetHeaderFooterText
-  Lparameters tnWB, tnSheet, tnPage, tnSection, tcText, tcFontName, tnFontSize, tnFontEffect, tnFontColor
-  Local llReturn, lcAlias
-  Do Case
-  Case Pcount() < 5
-    Return False
-
-  Case Pcount() = 5
-    tcFontName   = ""
-    tnFontSize   = 0
-    tnFontEffect = 0
-    tnFontColor  = 0
-
-  Case Pcount() = 6
-    tnFontSize   = 0
-    tnFontEffect = 0
-    tnFontColor  = 0
-
-  Case Pcount() = 7
-    tnFontEffect = 0
-    tnFontColor  = 0
-
-  Case Pcount() = 8
-    tnFontColor = 0
-  Endcase
-  If Vartype(tcFontName) != "C"
-    tcFontName = ""
-  Endif
-  If Vartype(tnFontSize) != "N"
-    tnFontSize = 0
-  Endif
-  If Vartype(tnFontEffect) != "N"
-    tnFontEffect = 0
-  Endif
-  If Vartype(tnFontColor) != "N"
-    tnFontColor = 0
-  Endif
-  lcAlias = Alias()
-  If This.GetSheetRecord(tnWB, tnSheet)
-    If Seek(BinToC(tnWB)+BinToC(tnSheet), "xl_hdrfooterdefn", "wbsheet")
-      If Seek(This.GetHeaderFooterKeyExpr(tnWB, tnSheet, tnPage, tnSection), "xl_hdrfootertext", "hdrfootr")
-        Replace xl_hdrfootertext.Text      With tcText, ;
-          xl_hdrfootertext.FontName  With tcFontName, ;
-          xl_hdrfootertext.FontSize  With tnFontSize, ;
-          xl_hdrfootertext.fontstyle With tnFontEffect, ;
-          xl_hdrfootertext.fontcolor With tnFontColor In xl_hdrfootertext
+    lcAlias = Alias()
+    If This.GetSheetRecord(tnWB, tnSheet)
+      If Seek(This.GetColWidthKeyExpr(tnWB, tnSheet, tnColumn), "xl_colwidths", "shcolumn")
+        Replace xl_colwidths.Width With tnWidth In xl_colwidths
       Else
-        Insert Into xl_hdrfootertext (workbook, Sheet, Page, section, Text, FontName, FontSize, fontstyle, fontcolor) ;
-          VALUES (tnWB, tnSheet, tnPage, tnSection, tcText, tcFontName, tnFontSize, tnFontEffect, tnFontColor)
+        Insert Into xl_colwidths (workbook, Sheet, Column, Width, bestfit) Values (tnWB, tnSheet, tnColumn, tnWidth, False)
       Endif
       llReturn = True
     Else
       llReturn = False
     Endif
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
+
+*-- Sets the column width for a range of columns
+  Procedure SetColumnWidthRange
+    Lparameters tnWB, tnSheet, tnBegCol, tnEndCol, tnWidth
+    Local lnCol, llReturn
+    If Pcount() < 5
+      Return False
+    Endif
+    If tnBegCol > tnEndCol
+      Return False
+    Endif
+    llReturn = True
+    For lnCol=tnBegCol To tnEndCol
+      If !This.SetColumnWidth(tnWB, tnSheet, lnCol, tnWidth)
+        llReturn = False
+        Exit
+      Endif
+    Endfor
+    Return llReturn
+
+*-- Sets the paper size based on custom dimensions
+  Procedure SetCustomPaperSize
+    Lparameters tnWB, tnSheet, tnWidth, tnHeight, tcDimen
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If Pcount() = 5 And This.GetSheetRecord(tnWB, tnSheet)
+      Do Case
+      Case tnWidth=0 Or tnHeight=0
+        Replace xl_sheets.Paperwidth  With 0, ;
+          xl_sheets.paperheight With 0, ;
+          xl_sheets.paperdimen  With "" In xl_sheets
+        llReturn = True
+
+      Case tnWidth>0 And tnHeight>0 And Inlist(tcDimen, "mm", "in")
+        Replace xl_sheets.Paperwidth  With tnWidth, ;
+          xl_sheets.paperheight With tnHeight, ;
+          xl_sheets.paperdimen  With Lower(tcDimen) In xl_sheets
+        llReturn = True
+
+      Otherwise
+        llReturn = False
+      Endcase
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
+
+*-- Sets the default border style for the workbook
+  Procedure SetDefaultBorder
+    Lparameters tnWB, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp
+    Local lcAlias
+    If Pcount() < 2
+      Return False
+    Endif
+    If Vartype(tcLStyle) != "C"
+      tcLStyle = BORDER_STYLE_NONE
+    Endif
+    lcAlias = Alias()
+    Do Case
+    Case Pcount() = 2
+      tnLColor = 0
+      tcRStyle = tcLStyle
+      tnRColor = 0
+      tcTStyle = tcLStyle
+      tnTColor = 0
+      tcBStyle = tcLStyle
+      tnBColor = 0
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 3
+      tcRStyle = tcLStyle
+      tnRColor = 0
+      tcTStyle = tcLStyle
+      tnTColor = 0
+      tcBStyle = tcLStyle
+      tnBColor = 0
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 4
+      tnRColor = 0
+      tcTStyle = tcLStyle
+      tnTColor = 0
+      tcBStyle = tcLStyle
+      tnBColor = 0
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 5
+      tcTStyle = tcLStyle
+      tnTColor = 0
+      tcBStyle = tcLStyle
+      tnBColor = 0
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 6
+      tnTColor = 0
+      tcBStyle = tcLStyle
+      tnBColor = 0
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 7
+      tcBStyle = tcLStyle
+      tnBColor = 0
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 8
+      tnBColor = 0
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 9
+      tcDStyle = tcLStyle
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 10
+      tnDColor = 0
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 11
+      tnDiagDn = 0
+      tnDiagUp = 0
+
+    Case Pcount() = 12
+      tnDiagUp = 0
+
+    Endcase
+    If Vartype(tnLColor) != "N"
+      tnLColor = 0
+    Endif
+    If Vartype(tcRStyle) != "C"
+      tcRStyle = tcLStyle
+    Endif
+    If Vartype(tnRColor) != "N"
+      tnRColor = 0
+    Endif
+    If Vartype(tcTStyle) != "C"
+      tcTStyle = tcLStyle
+    Endif
+    If Vartype(tnTColor) != "N"
+      tnTColor = 0
+    Endif
+    If Vartype(tcBStyle) != "C"
+      tcBStyle = tcLStyle
+    Endif
+    If Vartype(tnBColor) != "N"
+      tnBColor = 0
+    Endif
+    If Vartype(tcDStyle) != "C"
+      tcDStyle = tcLStyle
+    Endif
+    If Vartype(tnDColor) != "N"
+      tnDColor = 0
+    Endif
+    If Vartype(tnDiagDn) != "N"
+      tnDiagDn = 0
+    Endif
+    If Vartype(tnDiagUp) != "N"
+      tnDiagUp = 0
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(0), "xl_borders", "id")
+      Replace xl_borders.lstyle With tcLStyle, ;
+        xl_borders.lcolor With tnLColor, ;
+        xl_borders.rstyle With tcRStyle, ;
+        xl_borders.rcolor With tnRColor, ;
+        xl_borders.tstyle With tcTStyle, ;
+        xl_borders.tcolor With tnTColor, ;
+        xl_borders.bstyle With tcBStyle, ;
+        xl_borders.bcolor With tnBColor, ;
+        xl_borders.dstyle With tcDStyle, ;
+        xl_borders.dcolor With tnDColor, ;
+        xl_borders.diagdn With tnDiagDn, ;
+        xl_borders.diagup With tnDiagUp In xl_borders
+    Else
+      Insert Into xl_borders (workbook, Id, lstyle, lcolor, rstyle, rcolor, tstyle, tcolor, bstyle, bcolor, dstyle, dcolor, diagdn, diagup) ;
+        VALUES (tnWB, 0, tcLStyle, tnLColor, tcRStyle, tnRColor, tcTStyle, tnTColor, tcBStyle, tnBColor, tcDStyle, tnDColor, tnDiagDn, tnDiagUp)
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return True
+
+*-- Sets the default fill for the workbook
+  Procedure SetDefaultFill
+    Lparameters tnWB, tcPatternType, tnFColor, tnBColor
+    Local lnFIndex, lnBIndex, lcAlias
+    If Pcount() < 2
+      Return False
+    Endif
+    lcAlias = Alias()
+    If Vartype(tcPatternType) != "C"
+      tcPatternType = FILL_STYLE_NONE
+    Endif
+    Do Case
+    Case Pcount() = 2
+      tnFColor = 0
+      lnFIndex = 0
+      tnBColor = 0
+      lnBIndex = 0
+
+    Case Pcount() = 3
+      tnBColor = 0
+      lnBIndex = 64
+    Endcase
+    If Vartype(tnFColor) != "N"
+      tnFColor = 0
+    Endif
+    If Vartype(tnBColor) != "N"
+      tnBColor = Rgb(255,255,255)
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(0), "xl_fills", "id")
+      Replace xl_fills.fgcolor   With tnFColor, ;
+        xl_fills.bgcolor   With tnBColor, ;
+        xl_fills.patttype  With tcPatternType, ;
+        xl_fills.Theme     With 0, ;
+        xl_fills.tint      With 0, ;
+        xl_fills.fgindexed With 0, ;
+        xl_fills.bgindexed With 0 In xl_fills
+    Else
+      Insert Into xl_fills (workbook, Id, fgcolor, bgcolor, patttype, Theme, tint, fgindexed, bgindexed) ;
+        VALUES (tnWB, 0, tnFColor, tnBColor, tcPatternType, 0, 0, lnFIndex, lnBIndex)
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return True
+
+*-- Sets the default font for the workbook
+  Procedure SetDefaultFont
+    Lparameters tnWB, tcFontName, tnSize, tlBold, tlItalic, tnColor, tcULine, tlStrkthr, tcFVPos, tnTheme, tnTint, tnIndexed
+    Local lcAlias
+    If Pcount() < 2
+      Return False
+    Endif
+    lcAlias = Alias()
+    Do Case
+    Case Pcount() = 2
+      tnSize    = 11
+      tlBold    = False
+      tlItalic  = False
+      tnColor   = 0
+      tcULine   = ""
+      tlStrkthr = False
+      tcFVPos   = ""
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 3
+      tlBold    = False
+      tlItalic  = False
+      tnColor   = 0
+      tcULine   = ""
+      tlStrkthr = False
+      tcFVPos   = ""
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 4
+      tlItalic  = False
+      tnColor   = 0
+      tcULine   = ""
+      tlStrkthr = False
+      tcFVPos   = ""
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 5
+      tnColor   = 0
+      tcULine   = ""
+      tlStrkthr = False
+      tcFVPos   = ""
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 6
+      tcULine   = ""
+      tlStrkthr = False
+      tcFVPos   = ""
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 7
+      tlStrkthr = False
+      tcFVPos   = ""
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 8
+      tcFVPos   = ""
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 9
+      tnTheme   = 0
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 10
+      tnTint    = 0
+      tnIndexed = 0
+
+    Case Pcount() = 11
+      tnIndexed = 0
+    Endcase
+    If Vartype(tcFontName) != "C"
+      tcFontName = "Calibri"
+    Endif
+    If Vartype(tnSize) != "N"
+      tnSize = 11
+    Endif
+    If Vartype(tlBold) != "L"
+      tlBold = False
+    Endif
+    If Vartype(tlItalic) != "L"
+      tlItalic = False
+    Endif
+    If Vartype(tnColor) != "N"
+      tnColor = 0
+    Endif
+    If Vartype(tcULine) != "C"
+      tcULine = ""
+    Endif
+    If Vartype(tlStrkthr) != "L"
+      tlStrkthr = False
+    Endif
+    If Vartype(tcFVPos) != "C"
+      tcFVPos = ""
+    Endif
+    If Vartype(tnTheme) != "N"
+      tnTheme = 0
+    Endif
+    If Vartype(tnTint) != "N"
+      tnTint = 0
+    Endif
+    If Vartype(tnIndexed) != "N"
+      tnTint = 0
+    Endif
+    If Seek(BinToC(tnWB)+BinToC(0), "xl_fonts", "id")
+      Replace xl_fonts.fname   With tcFontName, ;
+        xl_fonts.Fsize   With tnSize, ;
+        xl_fonts.fbold   With tlBold, ;
+        xl_fonts.fitalic With tlItalic, ;
+        xl_fonts.fcolor  With tnColo , ;
+        xl_fonts.uline   With tcULine, ;
+        xl_fonts.strkthr With tlStrkthr, ;
+        xl_fonts.fvpos   With tcFVPos, ;
+        xl_fonts.Theme   With tnTheme, ;
+        xl_fonts.tint    With tnTint, ;
+        xl_fonts.indexed With tnIndexed In xl_fonts
+    Else
+      Insert Into xl_fonts (workbook, Id, fname, Fsize, fbold, fitalic, fcolor, uline, strkthr, fvpos, Theme, tint, indexed) ;
+        VALUES (tnWB, 0, tcFontName, tnSize, tlBold, tlItalic, tnColor, tcULine, tlStrkthr, tcFVPos, tnTheme, tnTint, tnIndexed)
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return True
+
+*-- Sets the header and footer setup for the sheet
+  Procedure SetHeaderFooterSetup
+    Lparameters tnWB, tnSheet, tlAlignMargin, tlDiffFirstPg, tlDiffOddEven, tlScaleWDoc
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If Pcount() = 6 And This.GetSheetRecord(tnWB, tnSheet)
+      If Seek(BinToC(tnWB)+BinToC(tnSheet), "xl_hdrfooterdefn", "wbsheet")
+        Replace xl_hdrfooterdefn.alignmargin With tlAlignMargin, ;
+          xl_hdrfooterdefn.difffirstpg With tlDiffFirstPg, ;
+          xl_hdrfooterdefn.diffoddeven With tlDiffOddEven, ;
+          xl_hdrfooterdefn.scalewdoc   With tlScaleWDoc In xl_hdrfooterdefn
+      Else
+        Insert Into xl_hdrfooterdefn (workbook, Sheet, alignmargin, difffirstpg, diffoddeven, scalewdoc) ;
+          VALUES (tnWB, tnSheet, tlAlignMargin, tlDiffFirstPg, tlDiffOddEven, tlScaleWDoc)
+      Endif
+      llReturn = True
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
+
+*-- Sets the header/footer text for the sheet
+  Procedure SetHeaderFooterText
+    Lparameters tnWB, tnSheet, tnPage, tnSection, tcText, tcFontName, tnFontSize, tnFontEffect, tnFontColor
+    Local llReturn, lcAlias
+    Do Case
+    Case Pcount() < 5
+      Return False
+
+    Case Pcount() = 5
+      tcFontName   = ""
+      tnFontSize   = 0
+      tnFontEffect = 0
+      tnFontColor  = 0
+
+    Case Pcount() = 6
+      tnFontSize   = 0
+      tnFontEffect = 0
+      tnFontColor  = 0
+
+    Case Pcount() = 7
+      tnFontEffect = 0
+      tnFontColor  = 0
+
+    Case Pcount() = 8
+      tnFontColor = 0
+    Endcase
+    If Vartype(tcFontName) != "C"
+      tcFontName = ""
+    Endif
+    If Vartype(tnFontSize) != "N"
+      tnFontSize = 0
+    Endif
+    If Vartype(tnFontEffect) != "N"
+      tnFontEffect = 0
+    Endif
+    If Vartype(tnFontColor) != "N"
+      tnFontColor = 0
+    Endif
+    lcAlias = Alias()
+    If This.GetSheetRecord(tnWB, tnSheet)
+      If Seek(BinToC(tnWB)+BinToC(tnSheet), "xl_hdrfooterdefn", "wbsheet")
+        If Seek(This.GetHeaderFooterKeyExpr(tnWB, tnSheet, tnPage, tnSection), "xl_hdrfootertext", "hdrfootr")
+          Replace xl_hdrfootertext.Text      With tcText, ;
+            xl_hdrfootertext.FontName  With tcFontName, ;
+            xl_hdrfootertext.FontSize  With tnFontSize, ;
+            xl_hdrfootertext.fontstyle With tnFontEffect, ;
+            xl_hdrfootertext.fontcolor With tnFontColor In xl_hdrfootertext
+        Else
+          Insert Into xl_hdrfootertext (workbook, Sheet, Page, section, Text, FontName, FontSize, fontstyle, fontcolor) ;
+            VALUES (tnWB, tnSheet, tnPage, tnSection, tcText, tcFontName, tnFontSize, tnFontEffect, tnFontColor)
+        Endif
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Sets the last used Id Value for strings, borders, fills, fonts, and cellxfs
   Protected Procedure SetLastId
@@ -7773,121 +7771,121 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Sets the paper size for the selected sheet
   Procedure SetPaperSize
-  Lparameters tnWB, tnSheet, tnPaperSize
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
-    If Between(tnPaperSize, 0, 118)
-      Replace xl_sheets.Papersize With tnPaperSize In xl_sheets
-      llReturn = True
+    Lparameters tnWB, tnSheet, tnPaperSize
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
+      If Between(tnPaperSize, 0, 118)
+        Replace xl_sheets.Papersize With tnPaperSize In xl_sheets
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
     Else
       llReturn = False
     Endif
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Number of vertical pages to fit on for printing
   Procedure SetPrintFitToHeight
-  Lparameters tnWB, tnSheet, tnFitToHeight
-  Local llReturn
-  lcAlias = Alias()
-  If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
-    If Int(tnFitToHeight) >= 0
-      Replace xl_sheets.fittoheight With Int(tnFitToHeight) In xl_sheets
-      llReturn = True
+    Lparameters tnWB, tnSheet, tnFitToHeight
+    Local llReturn
+    lcAlias = Alias()
+    If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
+      If Int(tnFitToHeight) >= 0
+        Replace xl_sheets.fittoheight With Int(tnFitToHeight) In xl_sheets
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
     Else
       llReturn = False
     Endif
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Number of horizontal pages to fit on for printing
   Procedure SetPrintFitToWidth
-  Lparameters tnWB, tnSheet, tnFitToWidth
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
-    If Int(tnFitToWidth) >= 0
-      Replace xl_sheets.fittowidth With Int(tnFitToWidth) In xl_sheets
+    Lparameters tnWB, tnSheet, tnFitToWidth
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
+      If Int(tnFitToWidth) >= 0
+        Replace xl_sheets.fittowidth With Int(tnFitToWidth) In xl_sheets
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
+
+*-- Sets the printer orientation for sheet output
+  Procedure SetPrintOrientation
+    Lparameters tnWB, tnSheet, tnOrientation
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
+      Replace xl_sheets.prnorient With tnOrientation In xl_sheets
       llReturn = True
     Else
       llReturn = False
     Endif
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
-
-*-- Sets the printer orientation for sheet output
-  Procedure SetPrintOrientation
-  Lparameters tnWB, tnSheet, tnOrientation
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
-    Replace xl_sheets.prnorient With tnOrientation In xl_sheets
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Sets the row height
   Procedure SetRowHeight
-  Lparameters tnWB, tnSheet, tnRow, tnHeight
-  Local llReturn, lcAlias
-  If Pcount() < 4 Or Vartype(tnHeight) != "N"
-    Return False
-  Endif
-  lcAlias = Alias()
-  If This.GetSheetRecord(tnWB, tnSheet)
-    If Seek(This.GetRowHeightKeyExpr(tnWB, tnSheet, tnRow), "xl_rowheights", "shrow")
-      Replace xl_rowheights.Height With tnHeight In xl_rowheights
-    Else
-      Insert Into xl_rowheights (workbook, Sheet, Row, Height) Values (tnWB, tnSheet, tnRow, tnHeight)
+    Lparameters tnWB, tnSheet, tnRow, tnHeight
+    Local llReturn, lcAlias
+    If Pcount() < 4 Or Vartype(tnHeight) != "N"
+      Return False
     Endif
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    lcAlias = Alias()
+    If This.GetSheetRecord(tnWB, tnSheet)
+      If Seek(This.GetRowHeightKeyExpr(tnWB, tnSheet, tnRow), "xl_rowheights", "shrow")
+        Replace xl_rowheights.Height With tnHeight In xl_rowheights
+      Else
+        Insert Into xl_rowheights (workbook, Sheet, Row, Height) Values (tnWB, tnSheet, tnRow, tnHeight)
+      Endif
+      llReturn = True
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Sets the row height for a range of rows
   Procedure SetRowHeightRange
-  Lparameters tnWB, tnSheet, tnBegRow, tnEndRow, tnHeight
-  Local lnRow, llReturn
-  If Pcount() < 5
-    Return False
-  Endif
-  If tnBegRow > tnEndRow
-    Return False
-  Endif
-  llReturn = True
-  For lnRow=tnBegRow To tnEndRow
-    If !This.SetRowHeight(tnWB, tnSheet, lnRow, tnHeight)
-      llReturn = False
-      Exit
+    Lparameters tnWB, tnSheet, tnBegRow, tnEndRow, tnHeight
+    Local lnRow, llReturn
+    If Pcount() < 5
+      Return False
     Endif
-  Endfor
-  Return llReturn
+    If tnBegRow > tnEndRow
+      Return False
+    Endif
+    llReturn = True
+    For lnRow=tnBegRow To tnEndRow
+      If !This.SetRowHeight(tnWB, tnSheet, lnRow, tnHeight)
+        llReturn = False
+        Exit
+      Endif
+    Endfor
+    Return llReturn
 
 *-- Sets the value for the maximum cell column in a row
   Protected Procedure SetRowMaxColumn
@@ -7902,95 +7900,95 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-- Sets the sheet margin values
   Procedure SetSheetMargins
-  Lparameters tnWB, tnSheet, tnLeft, tnRight, tnTop, tnbot, tnHeader, tnFooter
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If Pcount() = 8 And This.GetSheetRecord(tnWB, tnSheet)
-    Replace xl_sheets.mleft   With tnLeft, ;
-      xl_sheets.mright  With tnRight, ;
-      xl_sheets.mtop    With tnTop, ;
-      xl_sheets.mbot    With tnbot, ;
-      xl_sheets.mheader With tnHeader, ;
-      xl_sheets.mfooter With tnFooter In xl_sheets
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
-
-*-- Sets the print scale; must be between 10 and 400; i.e. 10=10%, 100=100%, etc.
-  Procedure SetSheetScale
-  Lparameters tnWB, tnSheet, tnScale
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
-    If Between(Int(tnScale), 10, 400)
-      Replace xl_sheets.Scale With Int(tnScale) In xl_sheets
+    Lparameters tnWB, tnSheet, tnLeft, tnRight, tnTop, tnbot, tnHeader, tnFooter
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If Pcount() = 8 And This.GetSheetRecord(tnWB, tnSheet)
+      Replace xl_sheets.mleft   With tnLeft, ;
+        xl_sheets.mright  With tnRight, ;
+        xl_sheets.mtop    With tnTop, ;
+        xl_sheets.mbot    With tnbot, ;
+        xl_sheets.mheader With tnHeader, ;
+        xl_sheets.mfooter With tnFooter In xl_sheets
       llReturn = True
     Else
       llReturn = False
     Endif
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
+
+*-- Sets the print scale; must be between 10 and 400; i.e. 10=10%, 100=100%, etc.
+  Procedure SetSheetScale
+    Lparameters tnWB, tnSheet, tnScale
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
+      If Between(Int(tnScale), 10, 400)
+        Replace xl_sheets.Scale With Int(tnScale) In xl_sheets
+        llReturn = True
+      Else
+        llReturn = False
+      Endif
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Sets the sheet visibility
   Procedure SetSheetVisibility
-  Lparameters tnWB, tnSheet, tnVisiblity
-  Local llReturn, lcAlias
-  llReturn = False
-  lcAlias = Alias()
-  If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
-    If Between(tnVisiblity, VISIBLE_SHEET_STATE, VERYHIDDEN_SHEET_STATE)
-      Replace xl_sheets.state With tnVisiblity In xl_sheets
-      llReturn = True
+    Lparameters tnWB, tnSheet, tnVisiblity
+    Local llReturn, lcAlias
+    llReturn = False
+    lcAlias = Alias()
+    If Pcount() = 3 And This.GetSheetRecord(tnWB, tnSheet)
+      If Between(tnVisiblity, VISIBLE_SHEET_STATE, VERYHIDDEN_SHEET_STATE)
+        Replace xl_sheets.state With tnVisiblity In xl_sheets
+        llReturn = True
+      Endif
     Endif
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 *-- Removes the pane freeze from the sheet
   Procedure UnFreezePanes
-  Lparameters tnWB, tnSheet
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  If This.GetSheetRecord(tnWB, tnSheet)
-    Replace xl_sheets.xsplit With 0, ;
-      xl_sheets.ysplit With 0 In xl_sheets
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    Lparameters tnWB, tnSheet
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    If This.GetSheetRecord(tnWB, tnSheet)
+      Replace xl_sheets.xsplit With 0, ;
+        xl_sheets.ysplit With 0 In xl_sheets
+      llReturn = True
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Unmerges merged cells
   Procedure UnMergedCells
-  Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol
-  Local llReturn, lcAlias
-  lcAlias = Alias()
-  Select xl_mergecells
-  Locate For workbook=tnWB And Sheet=tnSheet And begrow=tnBegRow And begcol=tnBegCol And endrow=tnEndRow And endcol=tnEndCol And !Deleted()
-  If Found()
-    Delete In xl_mergecells
-    llReturn = True
-  Else
-    llReturn = False
-  Endif
-  If !Empty(lcAlias)
-    Select (lcAlias)
-  Endif
-  Return llReturn
+    Lparameters tnWB, tnSheet, tnBegRow, tnBegCol, tnEndRow, tnEndCol
+    Local llReturn, lcAlias
+    lcAlias = Alias()
+    Select xl_mergecells
+    Locate For workbook=tnWB And Sheet=tnSheet And begrow=tnBegRow And begcol=tnBegCol And endrow=tnEndRow And endcol=tnEndCol And !Deleted()
+    If Found()
+      Delete In xl_mergecells
+      llReturn = True
+    Else
+      llReturn = False
+    Endif
+    If !Empty(lcAlias)
+      Select (lcAlias)
+    Endif
+    Return llReturn
 
 *-- Writes the string as formatted in-line
   Protected Procedure WriteAsInLineFormattedString
@@ -8071,18 +8069,18 @@ Define Class vfpxworkbookxlsx As Custom
         .WriteAsInLineString(tnRow, tnCol, Transform(txCellValue))
 
       Case Vartype(txCellValue) = DATA_TYPE_DATETIME
-        .WriteAsInLineString(thFile, tnRow, tnCol, Ttoc(txCellValue))
+        .WriteAsInLineString(tnRow, tnCol, Ttoc(txCellValue))
 
       Case Vartype(txCellValue) = DATA_TYPE_LOGICAL
         txCellValue = Iif(txCellValue, Getwordnum(.TrueFalseValue, 1, "|"), Getwordnum(.TrueFalseValue, 2, "|"))
-        .WriteAsInLineString(thFile, tnRow, tnCol, txCellValue)
+        .WriteAsInLineString(tnRow, tnCol, txCellValue)
 
       Case Vartype(txCellValue) = DATA_TYPE_CURRENCY
         \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="n">
         \\<v><<Transform(Mton(txCellValue))>></v></c>
 
       Case Vartype(txCellValue) = DATA_TYPE_CHAR
-        .WriteAsInLineString(thFile, tnRow, tnCol, Alltrim(txCellValue))
+        .WriteAsInLineString(tnRow, tnCol, Alltrim(txCellValue))
 
       Case Inlist(Vartype(txCellValue), DATA_TYPE_INT, DATA_TYPE_FLOAT)
         \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="n">
@@ -8090,7 +8088,7 @@ Define Class vfpxworkbookxlsx As Custom
 
       Otherwise
         \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="inlineStr">')
-        \\<is><t>Unsupported Field Type</t></is></c>')
+        \\<is><t>Unsupported Field Type</t></is></c>
       Endcase
     Endwith
 
@@ -8109,7 +8107,7 @@ Define Class vfpxworkbookxlsx As Custom
       If !Isnull(loException)
         Return False
       Endif
-      Try
+*ssa*	      Try
         Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -8118,7 +8116,7 @@ Define Class vfpxworkbookxlsx As Custom
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
         For lnSheet=1 To lnNumSheets
-          \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet' + Transform(lnSheet) + '.xml"/>
+          \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet<<Transform(lnSheet)>>.xml"/>
         Endfor
         \\<Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
@@ -8143,7 +8141,7 @@ Define Class vfpxworkbookxlsx As Custom
         \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
         \\<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
         For lnSheet=1 To lnNumSheets
-          \\<Relationship Id="rId' + Transform(lnSheet+1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + Transform(lnSheet) + '.xml"/>
+          \\<Relationship Id="rId<<Transform(lnSheet+1)>>" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet<<Transform(lnSheet)>>.xml"/>
         Endfor
         \\</Relationships>
         Set Textmerge To
@@ -8154,9 +8152,9 @@ Define Class vfpxworkbookxlsx As Custom
         lcFileName = tcPath + "docProps\app.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
-        \\<Application>ExcelXMLX Release ' + Transform(.ExcelXlsxRelease) + '</Application>
+        \\<Application>ExcelXMLX Release <<Transform(.ExcelXlsxRelease)>></Application>
         If !Empty(.CompanyName)
-          \\<Company>' + .CompanyName + '</Company>
+          \\<Company><<.CompanyName>></Company>
         Endif
         \\</Properties>
         Set Textmerge To
@@ -8167,25 +8165,25 @@ Define Class vfpxworkbookxlsx As Custom
         lcFileName = tcPath + "docProps\core.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<cp:coreProperties
-        \\xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
-        \\xmlns:dc="http://purl.org/dc/elements/1.1/"
-        \\xmlns:dcterms="http://purl.org/dc/terms/"
-        \\xmlns:dcmitype="http://purl.org/dc/dcmitype/"
-        \\xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        \\ xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+        \\ xmlns:dc="http://purl.org/dc/elements/1.1/"
+        \\ xmlns:dcterms="http://purl.org/dc/terms/"
+        \\ xmlns:dcmitype="http://purl.org/dc/dcmitype/"
+        \\ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         If !Empty(.Title)
-          \\<dc:title>' + .GetXMLString(.Title) + '</dc:title>
+          \\<dc:title><<.GetXMLString(.Title)>></dc:title>
         Endif
         If !Empty(.Subject)
-          \\<dc:subject>' + .GetXMLString(.Subject) + '</dc:subject>
+          \\<dc:subject><<.GetXMLString(.Subject)>></dc:subject>
         Endif
         If !Empty(.CreatorName)
-          \\<dc:creator>' + .GetXMLString(.CreatorName) + '</dc:creator>
+          \\<dc:creator><<.GetXMLString(.CreatorName)>></dc:creator>
         Endif
         If !Empty(.UserName)
-          \\<cp:lastModifiedBy>' + .GetXMLString(.UserName) + '</cp:lastModifiedBy>
+          \\<cp:lastModifiedBy><<.GetXMLString(.UserName)>></cp:lastModifiedBy>
         Endif
-        \\<dcterms:created xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:created>
-        \\<dcterms:modified xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:modified>
+        \\<dcterms:created xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:created>
+        \\<dcterms:modified xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:modified>
         \\</cp:coreProperties>
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
@@ -8194,8 +8192,8 @@ Define Class vfpxworkbookxlsx As Custom
         lcFileName = tcPath + "xl\styles.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
-        \\xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        \\mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
+        \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        \\ mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
         \\<fonts count="1" x14ac:knownFonts="1"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font></fonts>
         \\<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
         \\<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
@@ -8214,7 +8212,7 @@ Define Class vfpxworkbookxlsx As Custom
         \\<sheets>
         For lnSheet=1 To lnNumSheets
           lcSheetName = Iif(Empty(taSheetNames[lnSheet]), "Sheet" + Transform(lnSheet), taSheetNames[lnSheet])
-          \\<sheet name="' + lcSheetName + '" sheetId="' + Transform(lnSheet) + '" r:id="rId' + Transform(lnSheet+1) + '"/>
+          \\sheet name="<<lcSheetName>>" sheetId="<<Transform(lnSheet)>>" r:id="rId<<Transform(lnSheet+1)>>"/>
         Endfor
         \\</sheets>
         \\<calcPr calcId="0"/>
@@ -8222,11 +8220,11 @@ Define Class vfpxworkbookxlsx As Custom
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
 
-      Catch To loException
-        Set Step On
-        .ErrorLevelId = 18
-        Raiseevent(This, "OnShowErrorMessage", 18, "Unable to create workbook supporting XMLs")
-      Endtry
+*ssa*	      Catch To loException
+*ssa*	        Set Step On
+*ssa*	        .ErrorLevelId = 18
+*ssa*	        Raiseevent(This, "OnShowErrorMessage", 18, "Unable to create workbook supporting XMLs")
+*ssa*	      Endtry
     Endwith
     Return Isnull(loException)
 
@@ -8237,7 +8235,7 @@ Define Class vfpxworkbookxlsx As Custom
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 5)
       lcBaseType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
-      Try
+*ssa*	      Try
 *-*	Write the workbook relationships file
         Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -8245,7 +8243,7 @@ Define Class vfpxworkbookxlsx As Custom
 
         Select xl_relationships
         Scan For workbook = tnWB
-          \\<Relationship Id="rId' + Transform(xl_relationships.relid) + '" Target="' + Alltrim(xl_relationships.Target) + '" Type="' + lcBaseType + Alltrim(xl_relationships.reltype) + '"/>
+          \\<Relationship Id="rId<<Transform(xl_relationships.relid)>>" Target="<<Alltrim(xl_relationships.Target)>>" Type="<<lcBaseType + Alltrim(xl_relationships.reltype)>>"/>
         Endscan
 
         \\</Relationships>
@@ -8253,12 +8251,12 @@ Define Class vfpxworkbookxlsx As Custom
         Set Textmerge To
         .SaveAsUtf8(tcPath + "xl\_rels\workbook.xml.rels", lcOutStr)
 
-      Catch To loException
-        Set Step On
-        llSuccess = False
-        .ErrorLevelId = 16
-        Raiseevent(This, "OnShowErrorMessage", 16, "Unable to create workbook.xml.rels")
-      Endtry
+*ssa*	      Catch To loException
+*ssa*	        Set Step On
+*ssa*	        llSuccess = False
+*ssa*	        .ErrorLevelId = 16
+*ssa*	        Raiseevent(This, "OnShowErrorMessage", 16, "Unable to create workbook.xml.rels")
+*ssa*	      Endtry
     Endwith
     Return llSuccess
 
@@ -8271,7 +8269,7 @@ Define Class vfpxworkbookxlsx As Custom
     With This
       lcAlias = Alias()
 *-*	Write the sheet
-      Try
+*ssa*	      Try
         Set Textmerge On To Memvar lcOutStr Noshow
         lcFileName = tcPath + "xl\worksheets\sheet" + Transform(tnSheetNbr) + ".xml"
 *	lcDyDescent = ' x14ac:dyDescent="0.25"'                && Uncomment to add back...
@@ -8361,7 +8359,7 @@ Define Class vfpxworkbookxlsx As Custom
                 lnMaxCol = t_colwidths.Column
 
               Otherwise
-                \\<col min="<<Transform(lnMinCol)>>max="<<Transform(lnMaxCol)>>" width="<<Transform(lnWidth+0.7109375)>>" customWidth="1"/>
+                \\<col min="<<Transform(lnMinCol)>>" max="<<Transform(lnMaxCol)>>" width="<<Transform(lnWidth+0.7109375)>>" customWidth="1"/>
                 lnMinCol = t_colwidths.Column
                 lnMaxCol = t_colwidths.Column
                 lnWidth  = t_colwidths.Width
@@ -8398,11 +8396,11 @@ Define Class vfpxworkbookxlsx As Custom
             Do Case
             Case xl_cells.DataType = DATA_TYPE_TIME
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
-              \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>')
+              \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_DATE
-              \<c r="<<ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
-              \<v><<Alltrim(xl_cells.cellvalue)>></v></c>')
+              \<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
+              \<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
             Case xl_cells.DataType = DATA_TYPE_DATETIME
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
@@ -8588,20 +8586,21 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*	Write sheet margin data
         \\<pageMargins left="<<Rtrim(Transform(xl_sheets.mleft), 1, '0')>>"
-        \\right="<<Rtrim(Transform(xl_sheets.mright), 1, '0')>>"
-        \\top="<<Rtrim(Transform(xl_sheets.mtop), 1, '0')>>"
-        \\bottom="<<Rtrim(Transform(xl_sheets.mbot), 1, '0')>>"
-        \\header="<<Rtrim(Transform(xl_sheets.mheader), 1, '0')>>"
-        \\footer="<<Rtrim(Transform(xl_sheets.mfooter), 1, '0')>>"/>
+        \\ right="<<Rtrim(Transform(xl_sheets.mright), 1, '0')>>"
+        \\ top="<<Rtrim(Transform(xl_sheets.mtop), 1, '0')>>"
+        \\ bottom="<<Rtrim(Transform(xl_sheets.mbot), 1, '0')>>"
+        \\ header="<<Rtrim(Transform(xl_sheets.mheader), 1, '0')>>"
+        \\ footer="<<Rtrim(Transform(xl_sheets.mfooter), 1, '0')>>"/>
 
 *-*	Write the sheet page print setup
-        \\<pageSetup orientation="<<Iif(xl_sheets.prnorient=PORTRAIT_PRINT_ORIENTATION, 'portrait', 'landscape')>>"
+        \\<pageSetup orientation="<<Iif(xl_sheets.prnorient=1, 'portrait', 'landscape')>>"
+          && ssa PORTRAIT_PRINT_ORIENTATION
         If xl_sheets.Paperwidth > 0 And xl_sheets.paperheight > 0
           \\ paperHeight="<<Transform(xl_sheets.paperheight) + xl_sheets.paperdimen>>"
           \\ paperWidth="<<Transform(xl_sheets.Paperwidth) + xl_sheets.paperdimen>>"
         Else
           If xl_sheets.Papersize > 0
-            \\ paperSize="' + Transform(xl_sheets.Papersize) + '"
+            \\ paperSize="<<Transform(xl_sheets.Papersize)>>"
           Endif
         Endif
         Do Case
@@ -8617,7 +8616,7 @@ Define Class vfpxworkbookxlsx As Custom
 
         Otherwise
           If xl_sheets.Scale != 100
-            \\ scale="<Transform(xl_sheets.Scale)>>"
+            \\ scale="<<Transform(xl_sheets.Scale)>>"
           Endif
         Endcase
         \\/>
@@ -8772,13 +8771,13 @@ Define Class vfpxworkbookxlsx As Custom
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
 
-      Catch To loException
-        Set Step On
-        llSuccess = False
-        .ErrorLevelId = 14
-        Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
+*ssa*	      Catch To loException
+*ssa*	        Set Step On
+*ssa*	        llSuccess = False
+*ssa*	        .ErrorLevelId = 14
+*ssa*	        Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
 
-      Endtry
+*ssa*	      Endtry
       If !Empty(lcAlias)
         Select (lcAlias)
       Endif
@@ -8791,7 +8790,7 @@ Define Class vfpxworkbookxlsx As Custom
     Local lcFileName, lnTotCount, lnUniqueCnt, loException, llSuccess, lnRelId
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 2)
-      Try
+*ssa*	      Try
         Select xl_strformat
         Set Order To Tag sortorder
         Count For workbook = tnWB And !Deleted() To lnTotCount
@@ -8812,8 +8811,8 @@ Define Class vfpxworkbookxlsx As Custom
           Set Textmerge On To Memvar lcOutStr Noshow
           lcFileName = tcPath + "xl\sharedStrings.xml"
 
-          \\'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-          \<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="<<Transform(lnTotCount)>>" uniqueCount="<<Transform(lnUniqueCnt)>>">   && Change 19Jun2018: missplaced >
+          \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+          \<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="<<Transform(lnTotCount)>>" uniqueCount="<<Transform(lnUniqueCnt)>>">
 
           Select xl_strings
           Scan For workbook = tnWB And !Deleted()
@@ -8859,11 +8858,7 @@ Define Class vfpxworkbookxlsx As Custom
                   Endif
                   \\</rPr>
                 Endif
-*					IF xl_strformat.presvspace
                 \\<t xml:space="preserve"><<Chrtran(xl_strformat.stringxml, Chr(160), Chr(32))>></t>
-*					ELSE
-*						FWRITE(lhFile, '<t>' + xl_strformat.stringxml + '</t>')
-*					ENDIF
                 \\</r>
               Endscan
               \\</si>
@@ -8886,12 +8881,12 @@ Define Class vfpxworkbookxlsx As Custom
         Endif
         llSuccess = True
 
-      Catch To loException
-        Set Step On
-        llSuccess = False
-        .ErrorLevelId = 15
-        Raiseevent(This, "OnShowErrorMessage", 15, loException.Message)
-      Endtry
+*ssa*	      Catch To loException
+*ssa*	        Set Step On
+*ssa*	        llSuccess = False
+*ssa*	        .ErrorLevelId = 15
+*ssa*	        Raiseevent(This, "OnShowErrorMessage", 15, loException.Message)
+*ssa*	      Endtry
     Endwith
     Return llSuccess
 
@@ -8900,17 +8895,16 @@ Define Class vfpxworkbookxlsx As Custom
     Lparameters tnWB, tcPath
     Local lcAlias, lcFileName, lnNumFmtsId, lnRecCount, lcNumFmtId, lnRotation, llIndexedColors
     Local llMruColors
-* TODO: заменить на textmerge
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 3)
-      Try
+*ssa*	      Try
         lcAlias = Alias()
         lcFileName = tcPath + "xl\styles.xml"
         Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
-        \\xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        \\mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
+        \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        \\ mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*	Get last used custom number format Id
         lnNumFmtsId = 0
@@ -8928,10 +8922,10 @@ Define Class vfpxworkbookxlsx As Custom
         Scan For workbook = tnWB
           If xl_numFmts.Id > 900
             lnNumFmtsId = lnNumFmtsId + 1
-            \\<numFmt numFmtId="<<Transform(lnNumFmtsId)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>"/>
+            \\<numFmt numFmtId="<<Transform(lnNumFmtsId)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>>"/>
             Replace xl_numFmts.tempid With lnNumFmtsId In xl_numFmts
           Else
-            \\<numFmt numFmtId="<<Transform(xl_numFmts.Id)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>"/>
+            \\<numFmt numFmtId="<<Transform(xl_numFmts.Id)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>>"/>
             Replace xl_numFmts.tempid With xl_numFmts.Id In xl_numFmts
           Endif
         Endscan
@@ -8942,7 +8936,7 @@ Define Class vfpxworkbookxlsx As Custom
         Select xl_fonts
         Set Order To Tag sortorder
         Count For workbook = tnWB To lnRecCount
-        \\<fonts count="<<Transform(lnRecCount)>" x14ac:knownFonts="1">
+        \\<fonts count="<<Transform(lnRecCount)>>" x14ac:knownFonts="1">
         Scan For workbook = tnWB
           \\<font>
           \\<name val="<<Alltrim(xl_fonts.fname)>>"/>
@@ -9040,7 +9034,7 @@ Define Class vfpxworkbookxlsx As Custom
             Do Case
             Case xl_borders.lcolor > 0
               \\>
-              \\<color rgb="<<.ConvertColorToHex(xl_borders.lcolor)>"/>
+              \\<color rgb="<<.ConvertColorToHex(xl_borders.lcolor)>>"/>
               \\</left>
 
             Case xl_borders.lindexed > 0
@@ -9179,7 +9173,7 @@ Define Class vfpxworkbookxlsx As Custom
         Select xl_cellxfs
         Set Order To Tag sortorder
         Count For workbook = tnWB To lnRecCount
-        Fwrite(lhFile, '<cellXfs count="' + Transform(lnRecCount) + '">')
+        \\<cellXfs count="<<Transform(lnRecCount)>>">
         Scan For workbook = tnWB
           If xl_cellxfs.numfmtid > 0 And Seek(BinToC(tnWB)+BinToC(xl_cellxfs.numfmtid), "xl_numfmts", "id")
             lcNumFmtId = Transform(xl_numFmts.tempid)
@@ -9245,16 +9239,16 @@ Define Class vfpxworkbookxlsx As Custom
         \\</styleSheet>
         llSuccess = True
 
-      Catch To loException
-        Set Step On
-        llSuccess = False
-        .ErrorLevelId = 17
-        Raiseevent(This, "OnShowErrorMessage", 17, "Unable to create styles.xml")
+*ssa*	      Catch To loException
+*ssa*	        Set Step On
+*ssa*	        llSuccess = False
+*ssa*	        .ErrorLevelId = 17
+*ssa*	        Raiseevent(This, "OnShowErrorMessage", 17, "Unable to create styles.xml")
 
-      Finally
+*ssa*	      Finally
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
-      Endtry
+*ssa*	      Endtry
       If !Empty(lcAlias)
         Select (lcAlias)
       Endif
@@ -9267,7 +9261,7 @@ Define Class vfpxworkbookxlsx As Custom
     Local llSuccess, loException, lhFile, lnSheet, lnUniqueCnt, lcCurr, lcColor, lnTotCount, lcFileName, lcBaseContentType
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 1)
-      Try
+*ssa*	      Try
         Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -9289,16 +9283,16 @@ Define Class vfpxworkbookxlsx As Custom
 *				FWRITE(lhFile, lcBaseContentType + 'externalLink+xml" PartName="/xl/externalLinks/externalLink1.xml"/>')
 
           Case xl_relationships.reltype = "sharedStrings"
-            Fwrite(lhFile, lcBaseContentType + 'sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>')
+            \\<<lcBaseContentType>>sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
 
           Case xl_relationships.reltype = "styles"
-            Fwrite(lhFile, lcBaseContentType + 'styles+xml" PartName="/xl/styles.xml"/>')
+            \\<<lcBaseContentType>>styles+xml" PartName="/xl/styles.xml"/>
 
           Case xl_relationships.reltype = "theme"
 *				FWRITE(lhFile, lcBaseContentType + 'theme+xml" PartName="/xl/theme/theme1.xml"/>')
 
           Case xl_relationships.reltype = "worksheet"
-            Fwrite(lhFile, lcBaseContentType + 'worksheet+xml" PartName="/xl/worksheets/sheet' + Transform(xl_relationships.Sheet) + '.xml"/>')
+            \\<<lcBaseContentType>>worksheet+xml" PartName="/xl/worksheets/sheet<<Transform(xl_relationships.Sheet)>>.xml"/>
           Endcase
         Endscan
 
@@ -9324,9 +9318,9 @@ Define Class vfpxworkbookxlsx As Custom
         lcFileName = tcPath + "docProps\app.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
-        \\<Application>ExcelXMLX Release ' + Transform(.ExcelXlsxRelease) + '</Application>
+        \\<Application>ExcelXMLX Release <<Transform(.ExcelXlsxRelease)>></Application>
         If !Empty(.CompanyName)
-          \\<Company>' + .CompanyName + '</Company>
+          \\<Company><<.CompanyName>></Company>
         Endif
         \\</Properties>
         Set Textmerge To
@@ -9337,37 +9331,37 @@ Define Class vfpxworkbookxlsx As Custom
         Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<cp:coreProperties
-        \\xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
-        \\xmlns:dc="http://purl.org/dc/elements/1.1/"
-        \\xmlns:dcterms="http://purl.org/dc/terms/"
-        \\xmlns:dcmitype="http://purl.org/dc/dcmitype/"
-        \\xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        \\ xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+        \\ xmlns:dc="http://purl.org/dc/elements/1.1/"
+        \\ xmlns:dcterms="http://purl.org/dc/terms/"
+        \\ xmlns:dcmitype="http://purl.org/dc/dcmitype/"
+        \\ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         If !Empty(.Title)
-          \\<dc:title>' + .GetXMLString(.Title) + '</dc:title>
+          \\<dc:title><<.GetXMLString(.Title)>></dc:title>
         Endif
         If !Empty(.Subject)
-          \\<dc:subject>' + .GetXMLString(.Subject) + '</dc:subject>
+          \\<dc:subject><<.GetXMLString(.Subject)>></dc:subject>
         Endif
         If !Empty(.CreatorName)
-          \\<dc:creator>' + .GetXMLString(.CreatorName) + '</dc:creator>
+          \\<dc:creator><<.GetXMLString(.CreatorName)>></dc:creator>
         Endif
         If !Empty(.UserName)
-          \\<cp:lastModifiedBy>' + .GetXMLString(.UserName) + '</cp:lastModifiedBy>
+          \\<cp:lastModifiedBy><<.GetXMLString(.UserName)>></cp:lastModifiedBy>
         Endif
-        \\<dcterms:created xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:created>
-        \\<dcterms:modified xsi:type="dcterms:W3CDTF">' + Ttoc(Datetime(), 3) + 'Z</dcterms:modified>
+        \\<dcterms:created xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:created>
+        \\<dcterms:modified xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:modified>
         \\</cp:coreProperties>
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
 
         llSuccess = True
 
-      Catch To loException
-        Set Step On
-        llSuccess = False
-        .ErrorLevelId = 18
-        Raiseevent(This, "OnShowErrorMessage", 18, "Unable to create workbook supporting XMLs")
-      Endtry
+*ssa*	      Catch To loException
+*ssa*	        Set Step On
+*ssa*	        llSuccess = False
+*ssa*	        .ErrorLevelId = 18
+*ssa*	        Raiseevent(This, "OnShowErrorMessage", 18, "Unable to create workbook supporting XMLs")
+*ssa*	      Endtry
     Endwith
     Return llSuccess
 
@@ -9377,7 +9371,7 @@ Define Class vfpxworkbookxlsx As Custom
     Local lcFileName, lhFile, loException, llSuccess, lcSheetName
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 4)
-      Try
+*ssa*	      Try
         lcFileName = tcPath + "xl\workbook.xml"
         Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -9425,7 +9419,7 @@ Define Class vfpxworkbookxlsx As Custom
             \\>
 
             lcSheetName = .GetSheetName(tnWB, xl_namerange.Sheet)
-            Fwrite(lhFile, Iif(Occurs(" ", lcSheetName)>0, "'", "") + lcSheetName + Iif(Occurs(" ", lcSheetName)>0, "'", ""))
+            \\<<Iif(Occurs(" ", lcSheetName)>0, "'", "") + lcSheetName + Iif(Occurs(" ", lcSheetName)>0, "'", "")>>
             Do Case
             Case xl_namerange.begcol = 0 And xl_namerange.begrow > 0
               \\!$<<Transform(xl_namerange.begrow)>>
@@ -9457,14 +9451,14 @@ Define Class vfpxworkbookxlsx As Custom
 
         llSuccess = True
 
-      Catch To loException
-        Set Step On
-        llSuccess = False
+*ssa*	      Catch To loException
+*ssa*	        Set Step On
+*ssa*	        llSuccess = False
 
-      Finally
+*ssa*	      Finally
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
-      Endtry
+*ssa*	      Endtry
     Endwith
     Return llSuccess
 
