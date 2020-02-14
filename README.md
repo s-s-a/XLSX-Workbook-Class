@@ -18,6 +18,16 @@ Released to correct some identified bugs and for a new method; see the release n
 
 Gregory Green
 
+-------------------------------
+
+## Written By
+
+s-s-a
+
 ## Release 32
 
 All forms and classes in prg
+
+## Release 33
+
+Refactoring: Fwrite() -> textmerge
