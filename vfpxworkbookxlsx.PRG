@@ -5417,7 +5417,7 @@ Define Class vfpxworkbookxlsx As Custom
         \\ xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*		Write the sheet view information which includes the freeze pane information
-        \\<dimension ref="A1:' + .ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1) + '"/>
+        \\<dimension ref="A1:<<.ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1)>>"/>
           If toGrids.List[lnGrid, 3]
           \\<sheetViews><sheetView workbookViewId="0">
           \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
@@ -8189,6 +8189,7 @@ Define Class vfpxworkbookxlsx As Custom
         .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Save the styles XML
+        Set Textmerge On To Memvar lcOutStr Noshow
         lcFileName = tcPath + "xl\styles.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -8212,7 +8213,7 @@ Define Class vfpxworkbookxlsx As Custom
         \\<sheets>
         For lnSheet=1 To lnNumSheets
           lcSheetName = Iif(Empty(taSheetNames[lnSheet]), "Sheet" + Transform(lnSheet), taSheetNames[lnSheet])
-          \\sheet name="<<lcSheetName>>" sheetId="<<Transform(lnSheet)>>" r:id="rId<<Transform(lnSheet+1)>>"/>
+          \\<sheet name="<<lcSheetName>>" sheetId="<<Transform(lnSheet)>>" r:id="rId<<Transform(lnSheet+1)>>"/>
         Endfor
         \\</sheets>
         \\<calcPr calcId="0"/>
