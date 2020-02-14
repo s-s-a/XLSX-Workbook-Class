@@ -1,896 +1,839 @@
-***************************************************
-* Class Browser modifications by Arto Toikka 2005 *
-* =============================================== *
-*                                                 *
-* Mode 4                                          *
-* View Code generated: 02/13/20 01:11:31 PM       *
-***************************************************
+Public oform1
 
-PUBLIC oform1_5P40S9WGX
+Set Procedure To vfpxworkbookxlsx Additive
 
-SET CLASSLIB TO d:\work\xlsx-workbook-class\vfpxworkbookxlsx.vcx ADDITIVE
+oform1 = Newobject("form1")
+oform1.Show()
 
-oform1_5P40S9WGX=NEWOBJECT("form1")
+Define Class form1 As Form
 
-oform1_5P40S9WGX.Show
-RETURN
+  DataSession = 2
+  Height = 379
+  Width = 761
+  DoCreate = .T.
+  AutoCenter = .T.
+  Caption = "Test"
+  MaxButton = .F.
+  MinButton = .F.
+*-- XML Metadata for customizable properties
+  _MemberData = ""
+  Name = "Form1"
+  Visible = .T.
 
+  Add Object clsvfpxworkbookxlsx As vfpxworkbookxlsx With ;
+    Height = 17, ;
+    Left = 617, ;
+    Top = 9, ;
+    Width = 129, ;
+    Name = "clsVFPxWorkbookXLSX", ;
+    Visible = .T.
 
-**************************************************
-*-- Form:            form1 (d:\work\xlsx-workbook-class\multigriddemo.scx)
-*-- ParentClass:     form
-*-- BaseClass:       form
-*-- Time Stamp:      06/22/18 07:10:09 PM
-*
-DEFINE CLASS form1 AS form
+  Add Object grid1 As grid_L1_C2_TC3
 
+  Add Object command3 As commandbutton_L1_C3_TC4
 
-	DataSession = 2
-	Height = 379
-	Width = 761
-	DoCreate = .T.
-	AutoCenter = .T.
-	Caption = "Test"
-	MaxButton = .F.
-	MinButton = .F.
-	*-- XML Metadata for customizable properties
-	_memberdata = ""
-	Name = "Form1"
-	Visible = .T.
+  Add Object grid2 As grid_L1_C4_TC5
 
+  Procedure Load
+  Set Safety Off
 
-	ADD OBJECT clsvfpxworkbookxlsx AS vfpxworkbookxlsx WITH ;
-		Height = 17, ;
-		Left = 617, ;
-		Top = 9, ;
-		Width = 129, ;
-		Name = "clsVFPxWorkbookXLSX", ;
-		Visible = .T.
+  Procedure Resize
+  Local lnHeight
+  With This
+    lnHeight = Int((.Height - 44) / 2)
+    With .grid1
+      .Width  = This.Width - 14
+      .Height = lnHeight
+    Endwith
+    With .grid2
+      .Top    = lnHeight + 40
+      .Width  = This.Width - 14
+      .Height = lnHeight
+    Endwith
+  Endwith
 
-
-	ADD OBJECT grid1 AS grid_L1_C2_TC3
-
-
-	ADD OBJECT command3 AS commandbutton_L1_C3_TC4
-
-
-	ADD OBJECT grid2 AS grid_L1_C4_TC5
-
-
-	PROCEDURE Load
-		SET SAFETY OFF
-	ENDPROC
-
-
-	PROCEDURE Resize
-		LOCAL lnHeight
-		lnHeight = INT((thisform.Height - 44) / 2)
-		thisform.grid1.Width  = thisform.Width - 14
-		thisform.grid1.Height = lnHeight 
-		thisform.grid2.Top    = lnHeight + 40
-		thisform.grid2.Width  = thisform.Width - 14
-		thisform.grid2.Height = lnHeight
-	ENDPROC
-
-
-ENDDEFINE
-*
+Enddefine
 *-- EndDefine: form1
 **************************************************
 
+Define Class grid_L1_C2_TC3 As Grid
 
-**************************************************
-*-- Grid:            grid1 (d:\work\xlsx-workbook-class\multigriddemo.scx)
-*-- ParentClass:     grid
-*-- BaseClass:       grid
-*-- Time Stamp:      06/22/18 06:47:10 PM
-*
-DEFINE CLASS grid_L1_C2_TC3 AS grid
+  ColumnCount = 7
+  DeleteMark = .F.
+  Height = 168
+  Left = 5
+  ReadOnly = .T.
+  Top = 34
+  Width = 749
+  Name = "Grid1"
+  Column1.ReadOnly = .T.
+  Column1.Name = "Column1"
+  Column2.ReadOnly = .T.
+  Column2.Name = "Column2"
+  Column3.ReadOnly = .T.
+  Column3.Name = "Column3"
+  Column4.FontName = "Times New Roman"
+  Column4.FontSize = 10
+  Column4.ReadOnly = .T.
+  Column4.Name = "Column4"
+  Column5.ReadOnly = .T.
+  Column5.Name = "Column5"
+  Column6.ReadOnly = .T.
+  Column6.Name = "Column6"
+  Column7.ReadOnly = .T.
+  Column7.Name = "Column7"
+  Visible = .T.
 
+  Procedure Init && 1
 
-	ColumnCount = 7
-	DeleteMark = .F.
-	Height = 168
-	Left = 5
-	ReadOnly = .T.
-	Top = 34
-	Width = 749
-	Name = "Grid1"
-	Column1.ReadOnly = .T.
-	Column1.Name = "Column1"
-	Column2.ReadOnly = .T.
-	Column2.Name = "Column2"
-	Column3.ReadOnly = .T.
-	Column3.Name = "Column3"
-	Column4.FontName = "Times New Roman"
-	Column4.FontSize = 10
-	Column4.ReadOnly = .T.
-	Column4.Name = "Column4"
-	Column5.ReadOnly = .T.
-	Column5.Name = "Column5"
-	Column6.ReadOnly = .T.
-	Column6.Name = "Column6"
-	Column7.ReadOnly = .T.
-	Column7.Name = "Column7"
-	Visible = .T.
+  Try
+    This.Column1.RemoveObject("text1")
+  Catch
+  Endtry
 
+  Try
+    This.Column1.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column1.AddObject("header1","header")
+    With This.Column1.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
-	PROCEDURE Init && 1 
-		
+  Try
+    This.Column1.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column1.AddObject("text1","textbox")
+    With This.Column1.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
+  Try
+    This.Column2.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column1.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-
-		Try
-			This.column1.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column1.ADDOBJECT("header1","header")
-			With This.column1.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column1.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column1.ADDOBJECT("text1","textbox")
-			With This.column1.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column2.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-
-		Try
-			This.column2.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column2.ADDOBJECT("header1","header")
-			With This.column2.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column2.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column2.AddObject("header1","header")
+    With This.Column2.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column2.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column2.ADDOBJECT("text1","textbox")
-			With This.column2.text1
-				.FontName = "Arial"
-				.FontSize = 9
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column2.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column2.AddObject("text1","textbox")
+    With This.Column2.text1
+      .FontName = "Arial"
+      .FontSize = 9
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column3.REMOVEOBJECT("text1")
-		Catch
-		Endtry
+  Try
+    This.Column3.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column3.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column3.ADDOBJECT("header1","header")
-			With This.column3.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column3.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column3.ADDOBJECT("text1","textbox")
-			With This.column3.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column3.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column3.AddObject("header1","header")
+    With This.Column3.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column4.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-
-		Try
-			This.column4.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column4.ADDOBJECT("header1","header")
-			With This.column4.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column4.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column4.ADDOBJECT("text1","textbox")
-			With This.column4.text1
-				.FontName = "Times New Roman"
-				.FontSize = 10
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column3.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column3.AddObject("text1","textbox")
+    With This.Column3.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column5.REMOVEOBJECT("text1")
-		Catch
-		Endtry
+  Try
+    This.Column4.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column5.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column5.ADDOBJECT("header1","header")
-			With This.column5.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column5.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column5.ADDOBJECT("text1","textbox")
-			With This.column5.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column4.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column4.AddObject("header1","header")
+    With This.Column4.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column6.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-
-		Try
-			This.column6.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column6.ADDOBJECT("header1","header")
-			With This.column6.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column6.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column6.ADDOBJECT("text1","textbox")
-			With This.column6.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column4.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column4.AddObject("text1","textbox")
+    With This.Column4.text1
+      .FontName = "Times New Roman"
+      .FontSize = 10
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column7.REMOVEOBJECT("text1")
-		Catch
-		Endtry
+  Try
+    This.Column5.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column7.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column7.ADDOBJECT("header1","header")
-			With This.column7.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column7.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column7.ADDOBJECT("text1","textbox")
-			With This.column7.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column5.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column5.AddObject("header1","header")
+    With This.Column5.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
 
-		LOCAL lcTable, llFailed
-		lcTable = ADDBS(SYS(2004)) + "Samples\Northwind\customers.dbf"
-		lcTable = LOCFILE(lcTable)
-		TRY
-			USE (lcTable) IN 0 ALIAS customers SHARED
-			llFailed = .F.
-		CATCH TO loException
-			llFailed = .T.
-		ENDTRY
-		IF llFailed
-			RETURN
-		ENDIF
-		WITH this
-			.ColumnCount  = 7
-			.RecordSource = 'customers'
-			WITH .Column1
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "customers.customerid"
-				.Header1.Caption   = "Customer Id"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column2
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "ALLTRIM(customers.companyname)"
-				.Header1.Caption   = "Company Name"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column3
-				.Resizable = .T.
-				.Alignment = 2
-				.ControlSource = "customers.contactname"
-				.Header1.Caption   = "Contact Name"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column4
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "customers.address"
-				.Header1.Caption   = "Address"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column5
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "customers.city"
-				.Header1.Caption   = "City"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-				.Text1.Alignment   = 1
-			ENDWITH
-			WITH .Column6
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "customers.region"
-				.Header1.Caption   = "State"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-				.Text1.Alignment   = 1
-			ENDWITH
-			WITH .Column7
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "customers.postalcode"
-				.Header1.Caption   = "Postal Code"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-		ENDWITH
-	ENDPROC
+  Try
+    This.Column5.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column5.AddObject("text1","textbox")
+    With This.Column5.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
 
-ENDDEFINE
-*
+  Try
+    This.Column6.RemoveObject("text1")
+  Catch
+  Endtry
+
+  Try
+    This.Column6.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column6.AddObject("header1","header")
+    With This.Column6.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
+
+
+  Try
+    This.Column6.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column6.AddObject("text1","textbox")
+    With This.Column6.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
+
+
+  Try
+    This.Column7.RemoveObject("text1")
+  Catch
+  Endtry
+
+  Try
+    This.Column7.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column7.AddObject("header1","header")
+    With This.Column7.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
+
+
+  Try
+    This.Column7.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column7.AddObject("text1","textbox")
+    With This.Column7.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
+
+
+  Local lcTable, llFailed
+  lcTable = Addbs(Sys(2004)) + "Samples\Northwind\customers.dbf"
+  lcTable = Locfile(lcTable)
+  Try
+    Use (lcTable) In 0 Alias customers Shared
+    llFailed = .F.
+  Catch To loException
+    llFailed = .T.
+  Endtry
+  If llFailed
+    Return
+  Endif
+  With This
+    .ColumnCount  = 7
+    .RecordSource = 'customers'
+    With .Column1
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "customers.customerid"
+      .header1.Caption   = "Customer Id"
+      .header1.FontBold  = .T.
+      .header1.Alignment = 0
+    Endwith
+    With .Column2
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "ALLTRIM(customers.companyname)"
+      .header1.Caption   = "Company Name"
+      .header1.FontBold  = .T.
+      .header1.Alignment = 0
+    Endwith
+    With .Column3
+      .Resizable = .T.
+      .Alignment = 2
+      .ControlSource = "customers.contactname"
+      .header1.Caption   = "Contact Name"
+      .header1.FontBold  = .T.
+      .header1.Alignment = 0
+    Endwith
+    With .Column4
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "customers.address"
+      .header1.Caption   = "Address"
+      .header1.FontBold  = .T.
+      .header1.Alignment = 0
+    Endwith
+    With .Column5
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "customers.city"
+      .header1.Caption   = "City"
+      .header1.FontBold  = .T.
+      .header1.Alignment = 0
+      .text1.Alignment   = 1
+    Endwith
+    With .Column6
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "customers.region"
+      .header1.Caption   = "State"
+      .header1.FontBold  = .T.
+      .header1.Alignment = 0
+      .text1.Alignment   = 1
+    Endwith
+    With .Column7
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "customers.postalcode"
+      .header1.Caption   = "Postal Code"
+      .header1.FontBold  = .T.
+      .header1.Alignment = 0
+    Endwith
+  Endwith
+  Endproc
+
+
+Enddefine
 *-- EndDefine: grid1
 **************************************************
 
+Define Class commandbutton_L1_C3_TC4 As CommandButton
 
-**************************************************
-*-- Commandbutton:   command3 (d:\work\xlsx-workbook-class\multigriddemo.scx)
-*-- ParentClass:     commandbutton
-*-- BaseClass:       commandbutton
-*-- Time Stamp:      06/22/18 07:10:09 PM
-*
-DEFINE CLASS commandbutton_L1_C3_TC4 AS commandbutton
-
-
-	Top = 1
-	Left = 5
-	Height = 30
-	Width = 183
-	Caption = "Export Grid to Excel"
-	Name = "Command3"
-	Visible = .T.
+  Top = 1
+  Left = 5
+  Height = 30
+  Width = 183
+  Caption = "Export Grid to Excel"
+  Name = "Command3"
+  Visible = .T.
 
 
-	PROCEDURE Click
-		LOCAL lcExcel, loGrids
-		lcExcel = SYS(5) + ADDBS(SYS(2003)) + "NorthWindMultiDemo.xlsx"
-		loGrids = CREATEOBJECT("Empty")
-		ADDPROPERTY(loGrids, "Count", 2)
-		ADDPROPERTY(loGrids, "List[2, 4]", "")
-		loGrids.List[1, 1] = thisform.Grid1           && Grid object reference
-		loGrids.List[1, 2] = "Customers"              && Sheet name
-		loGrids.List[1, 3] = .T.                      && Freeze top row indicator
-		loGrids.List[1, 4] = .F.                      && Include hidden columns indicator
+  Procedure Click
+  Local lcExcel, loGrids
+  lcExcel = Sys(5) + Addbs(Sys(2003)) + "NorthWindMultiDemo.xlsx"
+  loGrids = Createobject("Empty")
+  AddProperty(loGrids, "Count", 2)
+  AddProperty(loGrids, "List[2, 4]", "")
+  With loGrids
+    .List[1, 1] = Thisform.grid1           && Grid object reference
+    .List[1, 2] = "Customers"              && Sheet name
+    .List[1, 3] = .T.                      && Freeze top row indicator
+    .List[1, 4] = .F.                      && Include hidden columns indicator
 
-		loGrids.List[2, 1] = thisform.Grid2
-		loGrids.List[2, 2] = "Employees"
-		loGrids.List[2, 3] = .T.
-		loGrids.List[2, 4] = .F.
+    .List[2, 1] = Thisform.grid2
+    .List[2, 2] = "Employees"
+    .List[2, 3] = .T.
+    .List[2, 4] = .F.
+  Endwith
 
-		thisform.clsVFPxWorkbookXLSX.SaveMultiGridToWorkbookEx(loGrids, lcExcel)
-		WAIT WINDOW "Saved To Excel" NOWAIT
-	ENDPROC
+  Thisform.clsvfpxworkbookxlsx.SaveMultiGridToWorkbookEx(loGrids, lcExcel)
+  Wait Window "Saved To Excel" Nowait
 
-
-ENDDEFINE
-*
+Enddefine
 *-- EndDefine: command3
 **************************************************
 
+Define Class grid_L1_C4_TC5 As Grid
 
-**************************************************
-*-- Grid:            grid2 (d:\work\xlsx-workbook-class\multigriddemo.scx)
-*-- ParentClass:     grid
-*-- BaseClass:       grid
-*-- Time Stamp:      06/22/18 06:47:10 PM
-*
-DEFINE CLASS grid_L1_C4_TC5 AS grid
+  ColumnCount = 7
+  DeleteMark = .F.
+  Height = 168
+  Left = 5
+  ReadOnly = .T.
+  Top = 208
+  Width = 749
+  Name = "Grid2"
+  Column1.ReadOnly = .T.
+  Column1.Name = "Column1"
+  Column2.ReadOnly = .T.
+  Column2.Name = "Column2"
+  Column3.ReadOnly = .T.
+  Column3.Name = "Column3"
+  Column4.FontName = "Times New Roman"
+  Column4.FontSize = 10
+  Column4.ReadOnly = .T.
+  Column4.Name = "Column4"
+  Column5.ReadOnly = .T.
+  Column5.Name = "Column5"
+  Column6.ReadOnly = .T.
+  Column6.Name = "Column6"
+  Column7.ReadOnly = .T.
+  Column7.Name = "Column7"
+  Visible = .T.
 
+  Procedure Init && 1
 
-	ColumnCount = 7
-	DeleteMark = .F.
-	Height = 168
-	Left = 5
-	ReadOnly = .T.
-	Top = 208
-	Width = 749
-	Name = "Grid2"
-	Column1.ReadOnly = .T.
-	Column1.Name = "Column1"
-	Column2.ReadOnly = .T.
-	Column2.Name = "Column2"
-	Column3.ReadOnly = .T.
-	Column3.Name = "Column3"
-	Column4.FontName = "Times New Roman"
-	Column4.FontSize = 10
-	Column4.ReadOnly = .T.
-	Column4.Name = "Column4"
-	Column5.ReadOnly = .T.
-	Column5.Name = "Column5"
-	Column6.ReadOnly = .T.
-	Column6.Name = "Column6"
-	Column7.ReadOnly = .T.
-	Column7.Name = "Column7"
-	Visible = .T.
+  Try
+    This.Column1.RemoveObject("text1")
+  Catch
+  Endtry
 
-
-	PROCEDURE Init && 1 
-		
-
-		Try
-			This.column1.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-
-		Try
-			This.column1.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column1.ADDOBJECT("header1","header")
-			With This.column1.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column1.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column1.AddObject("header1","header")
+    With This.Column1.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column1.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column1.ADDOBJECT("text1","textbox")
-			With This.column1.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column1.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column1.AddObject("text1","textbox")
+    With This.Column1.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
 
-		Try
-			This.column2.REMOVEOBJECT("text1")
-		Catch
-		Endtry
+  Try
+    This.Column2.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column2.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column2.ADDOBJECT("header1","header")
-			With This.column2.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column2.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column2.AddObject("header1","header")
+    With This.Column2.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
+  Try
+    This.Column2.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column2.AddObject("text1","textbox")
+    With This.Column2.text1
+      .FontName = "Arial"
+      .FontSize = 9
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
-		Try
-			This.column2.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column2.ADDOBJECT("text1","textbox")
-			With This.column2.text1
-				.FontName = "Arial"
-				.FontSize = 9
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column3.RemoveObject("text1")
+  Catch
+  Endtry
 
+  Try
+    This.Column3.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column3.AddObject("header1","header")
+    With This.Column3.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
-		Try
-			This.column3.REMOVEOBJECT("text1")
-		Catch
-		Endtry
+  Try
+    This.Column3.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column3.AddObject("text1","textbox")
+    With This.Column3.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
-		Try
-			This.column3.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column3.ADDOBJECT("header1","header")
-			With This.column3.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column4.RemoveObject("text1")
+  Catch
+  Endtry
 
+  Try
+    This.Column4.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column4.AddObject("header1","header")
+    With This.Column4.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
-		Try
-			This.column3.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column3.ADDOBJECT("text1","textbox")
-			With This.column3.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column4.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column4.AddObject("text1","textbox")
+    With This.Column4.text1
+      .FontName = "Times New Roman"
+      .FontSize = 10
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
+  Try
+    This.Column5.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column4.REMOVEOBJECT("text1")
-		Catch
-		Endtry
+  Try
+    This.Column5.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column5.AddObject("header1","header")
+    With This.Column5.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
-		Try
-			This.column4.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column4.ADDOBJECT("header1","header")
-			With This.column4.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column5.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column5.AddObject("text1","textbox")
+    With This.Column5.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
+  Try
+    This.Column6.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column4.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column4.ADDOBJECT("text1","textbox")
-			With This.column4.text1
-				.FontName = "Times New Roman"
-				.FontSize = 10
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column6.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column6.AddObject("header1","header")
+    With This.Column6.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
+  Try
+    This.Column6.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column6.AddObject("text1","textbox")
+    With This.Column6.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
-		Try
-			This.column5.REMOVEOBJECT("text1")
-		Catch
-		Endtry
+  Try
+    This.Column7.RemoveObject("text1")
+  Catch
+  Endtry
 
-		Try
-			This.column5.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column5.ADDOBJECT("header1","header")
-			With This.column5.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
+  Try
+    This.Column7.RemoveObject("header1")
+  Catch
+  Endtry
+  Try
+    This.Column7.AddObject("header1","header")
+    With This.Column7.header1
+      .Caption = "Header1"
+      .Name = "Header1"
+    Endwith
+  Catch
+  Endtry
 
+  Try
+    This.Column7.RemoveObject("text1")
+  Catch
+  Endtry
+  Try
+    This.Column7.AddObject("text1","textbox")
+    With This.Column7.text1
+      .BorderStyle = 0
+      .Margin = 0
+      .ForeColor = Rgb(0,0,0)
+      .BackColor = Rgb(255,255,255)
+      .Name = "Text1"
+      .Visible = .T.
+    Endwith
+  Catch
+  Endtry
 
-		Try
-			This.column5.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column5.ADDOBJECT("text1","textbox")
-			With This.column5.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
+  Local lcTable, llFailed
+  lcTable = Addbs(Sys(2004)) + "Samples\Northwind\employees.dbf"
+  lcTable = Locfile(lcTable)
+  Try
+    Use (lcTable) In 0 Alias employees Shared
+    llFailed = .F.
+  Catch To loException
+    llFailed = .T.
+  Endtry
+  If llFailed
+    Return
+  Endif
+  With This
+    .ColumnCount  = 7
+    .RecordSource = 'employees'
+    With .Column1
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.employeeid"
+      With .header1
+        .Caption   = "Employee Id"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column2
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "ALLTRIM(employees.lastname) + ', ' + ALLTRIM(employees.firstname)"
+      With .header1
+        .Caption   = "Employee Name"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column3
+      .Resizable = .T.
+      .Alignment = 2
+      .ControlSource = "employees.hiredate"
+      With .header1
+        .Caption   = "Hire Date"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column4
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.address"
+      With .header1
+        .Caption   = "Address"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column5
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.city"
+      With .header1
+        .Caption   = "City"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+      .text1.Alignment   = 1
+    Endwith
+    With .Column6
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.region"
+      With .header1
+        .Caption   = "State"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+      .text1.Alignment   = 1
+    Endwith
+    With .Column7
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.postalcode"
+      With .header1
+        .Caption   = "Postal Code"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+  Endwith
 
-
-		Try
-			This.column6.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-
-		Try
-			This.column6.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column6.ADDOBJECT("header1","header")
-			With This.column6.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column6.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column6.ADDOBJECT("text1","textbox")
-			With This.column6.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column7.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-
-		Try
-			This.column7.REMOVEOBJECT("header1")
-		Catch
-		Endtry
-		Try
-			This.column7.ADDOBJECT("header1","header")
-			With This.column7.header1
-				.Caption = "Header1"
-				.Name = "Header1"
-			Endwith
-		Catch
-		Endtry
-
-
-		Try
-			This.column7.REMOVEOBJECT("text1")
-		Catch
-		Endtry
-		Try
-			This.column7.ADDOBJECT("text1","textbox")
-			With This.column7.text1
-				.BorderStyle = 0
-				.Margin = 0
-				.ForeColor = RGB(0,0,0)
-				.BackColor = RGB(255,255,255)
-				.Name = "Text1"
-				.Visible = .T.
-			Endwith
-		Catch
-		Endtry
-
-
-		LOCAL lcTable, llFailed
-		lcTable = ADDBS(SYS(2004)) + "Samples\Northwind\employees.dbf"
-		lcTable = LOCFILE(lcTable)
-		TRY
-			USE (lcTable) IN 0 ALIAS employees SHARED
-			llFailed = .F.
-		CATCH TO loException
-			llFailed = .T.
-		ENDTRY
-		IF llFailed
-			RETURN
-		ENDIF
-		WITH this
-			.ColumnCount  = 7
-			.RecordSource = 'employees'
-			WITH .Column1
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.employeeid"
-				.Header1.Caption   = "Employee Id"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column2
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "ALLTRIM(employees.lastname) + ', ' + ALLTRIM(employees.firstname)"
-				.Header1.Caption   = "Employee Name"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column3
-				.Resizable = .T.
-				.Alignment = 2
-				.ControlSource = "employees.hiredate"
-				.Header1.Caption   = "Hire Date"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column4
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.address"
-				.Header1.Caption   = "Address"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column5
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.city"
-				.Header1.Caption   = "City"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-				.Text1.Alignment   = 1
-			ENDWITH
-			WITH .Column6
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.region"
-				.Header1.Caption   = "State"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-				.Text1.Alignment   = 1
-			ENDWITH
-			WITH .Column7
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.postalcode"
-				.Header1.Caption   = "Postal Code"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-		ENDWITH
-	ENDPROC
-
-
-ENDDEFINE
-*
+Enddefine
 *-- EndDefine: grid2
 **************************************************
-

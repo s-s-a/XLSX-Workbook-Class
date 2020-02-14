@@ -1,193 +1,180 @@
-PUBLIC oform1
+Public oform1
 
-SET PROCEDURE TO vfpxworkbookxlsx ADDITIVE
+Set Procedure To vfpxworkbookxlsx Additive
 
-oform1=NEWOBJECT("form1")
+oform1 = Newobject("form1")
 oform1.Show()
-RETURN
+Return
 
+Define Class form1 As Form
 
-	**************************************************
-*-- Form:         form1 (d:\work\xlsx-workbook-class\testform.scx)
-*-- ParentClass:  form
-*-- BaseClass:    form
-*-- Time Stamp:   05/27/17 06:16:04 PM
-*
-DEFINE CLASS form1 AS form
+  DataSession = 2
+  Height = 250
+  Width = 761
+  DoCreate = .T.
+  AutoCenter = .T.
+  Caption = "Test"
+  MaxButton = .F.
+  MinButton = .F.
+  Name = "Form1"
 
+  Add Object clsvfpxworkbookxlsx As vfpxworkbookxlsx With ;
+    Height = 17, ;
+    Left = 617, ;
+    Top = 9, ;
+    Width = 129, ;
+    Name = "clsVFPxWorkbookXLSX"
 
-	DataSession = 2
-	Height = 250
-	Width = 761
-	DoCreate = .T.
-	AutoCenter = .T.
-	Caption = "Test"
-	MaxButton = .F.
-	MinButton = .F.
-	Name = "Form1"
+  Add Object command1 As CommandButton With ;
+    Top = 6, ;
+    Left = 7, ;
+    Height = 30, ;
+    Width = 183, ;
+    Caption = "Export Northwind Customers", ;
+    Name = "Command1"
 
+  Add Object command2 As CommandButton With ;
+    Top = 37, ;
+    Left = 7, ;
+    Height = 30, ;
+    Width = 183, ;
+    Caption = "Class Demo", ;
+    Name = "Command2"
 
-	ADD OBJECT clsvfpxworkbookxlsx AS vfpxworkbookxlsx WITH ;
-		Height = 17, ;
-		Left = 617, ;
-		Top = 9, ;
-		Width = 129, ;
-		Name = "clsVFPxWorkbookXLSX"
+  Add Object grid1 As Grid With ;
+    DeleteMark = .F., ;
+    Height = 168, ;
+    Left = 7, ;
+    ReadOnly = .T., ;
+    Top = 75, ;
+    Width = 749, ;
+    Name = "Grid1"
 
+  Add Object command3 As CommandButton With ;
+    Top = 6, ;
+    Left = 193, ;
+    Height = 30, ;
+    Width = 183, ;
+    Caption = "Export Grid to Excel", ;
+    Name = "Command3"
 
-	ADD OBJECT command1 AS commandbutton WITH ;
-		Top = 6, ;
-		Left = 7, ;
-		Height = 30, ;
-		Width = 183, ;
-		Caption = "Export Northwind Customers", ;
-		Name = "Command1"
+  Procedure Load
+  Set Safety Off
 
+  Procedure Resize
+  With This
+    .grid1.Width  = .Width - 14
+    .grid1.Height = .Height - .grid1.Top - 7
+  Endwith
 
-	ADD OBJECT command2 AS commandbutton WITH ;
-		Top = 37, ;
-		Left = 7, ;
-		Height = 30, ;
-		Width = 183, ;
-		Caption = "Class Demo", ;
-		Name = "Command2"
+  Procedure command1.Click
+  Local lcTable, lcExcel
+  lcExcel = Sys(5) + Addbs(Sys(2003)) + "Northwind Customers.xlsx"
+  lcTable = Addbs(Sys(2004)) + "Samples\Northwind\customers.dbf"
+  lcTable = Locfile(lcTable)
+  If !Isnull(lcTable) .And. File(lcTable)
+    Thisform.clsvfpxworkbookxlsx.SaveTabletoWorkbook(lcTable, lcExcel, .T., .T.)
+    Wait Window "Saved To Excel" Nowait
+  Endif
 
+  Procedure command2.Click
+  Thisform.clsvfpxworkbookxlsx.Demo()
+  Wait Window "Saved To Excel" Nowait
 
-	ADD OBJECT grid1 AS grid WITH ;
-		DeleteMark = .F., ;
-		Height = 168, ;
-		Left = 7, ;
-		ReadOnly = .T., ;
-		Top = 75, ;
-		Width = 749, ;
-		Name = "Grid1"
+  Procedure grid1.Init
+  Local lcTable, llFailed
+  lcTable = Addbs(Sys(2004)) + "Samples\Northwind\employees.dbf"
+  lcTable = Locfile(lcTable)
+  Try
+    Use (lcTable) In 0 Alias employees Shared
+    llFailed = .F.
+  Catch To loException
+    llFailed = .T.
+  Endtry
+  If llFailed
+    Return
+  Endif
+  With This
+    .ColumnCount  = 7
+    .RecordSource = 'employees'
+    With .Column1
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.employeeid"
+      With .Header1
+        .Caption   = "Employee Id"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column2
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "ALLTRIM(employees.lastname) + ', ' + ALLTRIM(employees.firstname)"
+      With .Header1
+        .Caption   = "Employee Name"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column3
+      .Resizable = .T.
+      .Alignment = 2
+      .ControlSource = "employees.hiredate"
+      With .Header1
+        .Caption   = "Hire Date"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column4
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.address"
+      With .Header1
+        .Caption   = "Address"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+    With .Column5
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.city"
+      With .Header1
+        .Caption   = "City"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+      .Text1.Alignment   = 1
+    Endwith
+    With .Column6
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.region"
+      With .Header1
+        .Caption   = "State"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+      .Text1.Alignment   = 1
+    Endwith
+    With .Column7
+      .Resizable = .T.
+      .Alignment = 0
+      .ControlSource = "employees.postalcode"
+      With .Header1
+        .Caption   = "Postal Code"
+        .FontBold  = .T.
+        .Alignment = 0
+      Endwith
+    Endwith
+  Endwith
 
+  Procedure command3.Click
+  Local lcExcel
+  lcExcel = Sys(5) + Addbs(Sys(2003)) + "Northwind Employees.xlsx"
+  Thisform.clsvfpxworkbookxlsx.SaveGridToWorkbookEX(Thisform.grid1, lcExcel, .T., "Employees")
+  Wait Window "Saved To Excel" Nowait
 
-	ADD OBJECT command3 AS commandbutton WITH ;
-		Top = 6, ;
-		Left = 193, ;
-		Height = 30, ;
-		Width = 183, ;
-		Caption = "Export Grid to Excel", ;
-		Name = "Command3"
-
-
-	PROCEDURE Load
-		SET SAFETY OFF
-	ENDPROC
-
-
-	PROCEDURE Resize
-		thisform.grid1.Width  = thisform.Width - 14
-		thisform.grid1.Height = thisform.Height - thisform.grid1.Top - 7
-	ENDPROC
-
-
-	PROCEDURE command1.Click
-		LOCAL lcTable, lcExcel
-		lcExcel = SYS(5) + ADDBS(SYS(2003)) + "Northwind Customers.xlsx"
-		lcTable = ADDBS(SYS(2004)) + "Samples\Northwind\customers.dbf"
-		lcTable = LOCFILE(lcTable)
-		IF !ISNULL(lcTable) .AND. FILE(lcTable)
-			thisform.clsVFPxWorkbookXLSX.SaveTabletoWorkbook(lcTable, lcExcel, .T., .T.)
-			WAIT WINDOW "Saved To Excel" NOWAIT
-		ENDIF
-	ENDPROC
-
-
-	PROCEDURE command2.Click
-		thisform.clsVFPxWorkbookXLSX.Demo()
-		WAIT WINDOW "Saved To Excel" NOWAIT
-	ENDPROC
-
-
-	PROCEDURE grid1.Init
-		LOCAL lcTable, llFailed
-		lcTable = ADDBS(SYS(2004)) + "Samples\Northwind\employees.dbf"
-		lcTable = LOCFILE(lcTable)
-		TRY
-			USE (lcTable) IN 0 ALIAS employees SHARED
-			llFailed = .F.
-		CATCH TO loException
-			llFailed = .T.
-		ENDTRY
-		IF llFailed
-			RETURN
-		ENDIF
-		WITH this
-			.ColumnCount  = 7
-			.RecordSource = 'employees'
-			WITH .Column1
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.employeeid"
-				.Header1.Caption   = "Employee Id"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column2
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "ALLTRIM(employees.lastname) + ', ' + ALLTRIM(employees.firstname)"
-				.Header1.Caption   = "Employee Name"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column3
-				.Resizable = .T.
-				.Alignment = 2
-				.ControlSource = "employees.hiredate"
-				.Header1.Caption   = "Hire Date"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column4
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.address"
-				.Header1.Caption   = "Address"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-			WITH .Column5
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.city"
-				.Header1.Caption   = "City"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-				.Text1.Alignment   = 1
-			ENDWITH
-			WITH .Column6
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.region"
-				.Header1.Caption   = "State"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-				.Text1.Alignment   = 1
-			ENDWITH
-			WITH .Column7
-				.Resizable = .T.
-				.Alignment = 0
-				.ControlSource = "employees.postalcode"
-				.Header1.Caption   = "Postal Code"
-				.Header1.FontBold  = .T.
-				.Header1.Alignment = 0
-			ENDWITH
-		ENDWITH
-	ENDPROC
-
-
-	PROCEDURE command3.Click
-		LOCAL lcExcel
-		lcExcel = SYS(5) + ADDBS(SYS(2003)) + "Northwind Employees.xlsx"
-		thisform.clsVFPxWorkbookXLSX.SaveGridToWorkbookEX(thisform.Grid1, lcExcel, .T., "Employees")
-		WAIT WINDOW "Saved To Excel" NOWAIT
-	ENDPROC
-
-
-ENDDEFINE
-*
-*-- EndDefine: form1
-**************************************************
+Enddefine
