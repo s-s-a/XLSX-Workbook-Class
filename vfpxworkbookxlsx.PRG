@@ -29,7 +29,7 @@ Define Class vfpxworkbookxlsx As Custom
 *-- Error level Id ***Integer
   ErrorLevelId = 0
 *-- Release version of Class ***Integer
-  ExcelXlsxRelease = 31
+  ExcelXlsxRelease = 34
 *-- XML DOM Object
   oXDom = ""
 *-- Flag to save a currency value as a numeric rather than currency in the spreadsheet; will convert the value to four decimal places ***Boolean
