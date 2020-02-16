@@ -31,3 +31,7 @@ All forms and classes in prg
 ## Release 33
 
 Refactoring: Fwrite() -> textmerge
+
+## Release 34
+
+Restore ParseString and down TODO:
