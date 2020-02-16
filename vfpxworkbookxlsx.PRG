@@ -121,19 +121,19 @@ Define Class vfpxworkbookxlsx As Custom
 
     Case tnFormatId = CELL_FORMAT_ACC_CURR_POUNDS
       lcXMLFormat  = '_-[$&#163;-809]* #,##0.00_-;-[$&#163;-809]* #,##0.00_-;_-[$&#163;-809]* &quot;-&quot;??_-;_-@_-'
-      lcTextFormat = '"£"#,##0.00;[Red]("£"#,##0.00)'
+      lcTextFormat = '"–à"#,##0.00;[Red]("–à"#,##0.00)'
 
     Case tnFormatId = CELL_FORMAT_ACC_CURR_EURO
       lcXMLFormat  = '_-[$&#8364;-2]* .00_-;-[$&#8364;-2]* .00_-;_-[$&#8364;-2]* &quot;-&quot;??_-;_-@_-'
-      lcTextFormat = '"Ä"#,##0.00;[Red]("Ä"#,##0.00)'
+      lcTextFormat = '"–Ç"#,##0.00;[Red]("–Ç"#,##0.00)'
 
     Case tnFormatId = CELL_FORMAT_CURR_POUNDS_RED
       lcXMLFormat  = '[$&#163;-809]#,##0.00;[Red]\-[$&#163;-809]#,##0.00'
-      lcTextFormat = '"£"#,##0.00;[Red]("£"#,##0.00)'
+      lcTextFormat = '"–à"#,##0.00;[Red]("–à"#,##0.00)'
 
     Case tnFormatId = CELL_FORMAT_CURR_EURO_RED
       lcXMLFormat  = '[$&#8364;-2]\ #,##0.00_);[Red]\([$&#8364;-2]\ #,##0.00\)'
-      lcTextFormat = '"Ä"#,##0.00;[Red]("Ä"#,##0.00)'
+      lcTextFormat = '"–Ç"#,##0.00;[Red]("–Ç"#,##0.00)'
     Endcase
 
     If llAdded
@@ -351,9 +351,9 @@ Define Class vfpxworkbookxlsx As Custom
       Return 0
     Endif
     With This
-      lcPosCode = Getwordnum(tcFormatCode, 1, ";")
-      lcNegCode = Getwordnum(tcFormatCode, 2, ";")
-      lcZerCode = Getwordnum(tcFormatCode, 3, ";")
+      lcPosCode = .ParseString(tcFormatCode, 1, ";")
+      lcNegCode = .ParseString(tcFormatCode, 2, ";")
+      lcZerCode = .ParseString(tcFormatCode, 3, ";")
       Return .AddCustomNumericFormat(tnWB, lcPosCode, lcNegCode, lcZerCode)
     Endwith
 
@@ -3261,19 +3261,20 @@ Define Class vfpxworkbookxlsx As Custom
 *-- Returns a list of validations for the workbook/sheet
   Procedure GetValidationList
     Lparameters tnWB, tnSheet
-* TODO: Á‡ÏÂÌËÚ¸ Ì‡ copy fields vtype, validndx to array loValidation.List
     Local loValiation, lcAlias
     lcAlias = Alias()
     loValidation = Createobject("Empty")
     AddProperty(loValidation, "List[1]")
     AddProperty(loValidation, "Count", 0)
     Select xl_validation
-    Scan For BinToC(workbook)+BinToC(Sheet)
-      loValidation.Count = loValidation.Count + 1
-      Dimension loValidation.List[loValidation.Count, 2]
-      loValidation.List[loValidation.Count, 1] = xl_validation.vtype
-      loValidation.List[loValidation.Count, 2] = xl_validation.validndx
-    Endscan
+*ssa*	    Scan For BinToC(workbook)+BinToC(Sheet)
+*ssa*	      loValidation.Count = loValidation.Count + 1
+*ssa*	      Dimension loValidation.List[loValidation.Count, 2]
+*ssa*	      loValidation.List[loValidation.Count, 1] = xl_validation.vtype
+*ssa*	      loValidation.List[loValidation.Count, 2] = xl_validation.validndx
+*ssa*	    Endscan
+		copy fields vtype, validndx For BinToC(workbook)+BinToC(Sheet) to array loValidation.List
+		Count For BinToC(workbook)+BinToC(Sheet) to loValidation.Count
     If !Empty(lcAlias)
       Select (lcAlias)
     Endif
@@ -3299,14 +3300,14 @@ Define Class vfpxworkbookxlsx As Custom
     AddProperty(loSheets, "Count", 0)
     Select xl_sheets
     Set Order To Tag Sheet
-* TODO: Á‡ÏÂÌËÚ¸ Ì‡ copy fields Sheet, shname to array loSheets.List
-* TODO: loSheets.Count = RecCount()
-    Scan For workbook = tnWB And !shdeleted
-      loSheets.Count = loSheets.Count + 1
-      Dimension loSheets.List[loSheets.Count, 2]
-      loSheets.List[loSheets.Count, 1] = xl_sheets.Sheet
-      loSheets.List[loSheets.Count, 2] = Alltrim(xl_sheets.shname)
-    Endscan
+*ssa*	    Scan For workbook = tnWB And !shdeleted
+*ssa*	      loSheets.Count = loSheets.Count + 1
+*ssa*	      Dimension loSheets.List[loSheets.Count, 2]
+*ssa*	      loSheets.List[loSheets.Count, 1] = xl_sheets.Sheet
+*ssa*	      loSheets.List[loSheets.Count, 2] = Alltrim(xl_sheets.shname)
+*ssa*	    Endscan
+		copy fields Sheet, shname For workbook = tnWB And !shdeleted to array loSheets.List
+		Count For workbook = tnWB And !shdeleted to loSheets.Count
     Set Order To
     Return loSheets
 
@@ -5051,7 +5052,7 @@ Define Class vfpxworkbookxlsx As Custom
           For lnCol=1 To lnColCount
             loColumn = toGrid.Columns(laColOrder[lnCol, 2])
             lcField  = loColumn.ControlSource
-            If type(lcField) != DATA_TYPE_DATE
+            If Type(lcField) != DATA_TYPE_DATE
               If .DefaultFont != loColumn.FontName Or .DefaultFontSize != loColumn.FontSize   && Change recommended by Doug Hennig; 2017-06-12
                 lnStyle = .IsFormatStyleDefined(lnWB, loColumn.FontName, loColumn.FontSize)
                 If Isnull(lnStyle)
@@ -5166,15 +5167,14 @@ Define Class vfpxworkbookxlsx As Custom
       laSheetNames[1] = tcSheetName
       If .WriteDirectXMLs(lcTempPath, @laSheetNames)
 *-*	Write the sheet XML
-*ssa*	        Try
-          lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
-          lhFile = Fcreate(lcFileName)
-          If lhFile < 0
-            Throw
-          Endif
-          Fclose(lhFile)
+        lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
+        lhFile = Fcreate(lcFileName)
+        If lhFile < 0
+          Throw
+        Endif
+        Fclose(lhFile)
 
-          Set Textmerge On To Memvar lcOutStr Noshow
+        Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -5184,86 +5184,78 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*		Write the sheet view information which includes the freeze pane information
         \\<dimension ref="A1:<<.ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1)>>"/>
-          If tlFreeze
+        If tlFreeze
           \\<sheetViews><sheetView workbookViewId="0">
           \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
           \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
           \\</sheetView></sheetViews>')
-          Endif
+        Endif
         \\<sheetFormatPr defaultRowHeight="15"/>
 
 *-*		Write sheet Column widths
         \\<cols>
-          For lnCol=1 To lnColCount
-            lnColWidth = .ConvertPixelsToExcelUnits(toGrid.Columns(laColOrder[lnCol, 2]).Width)
+        For lnCol=1 To lnColCount
+          lnColWidth = .ConvertPixelsToExcelUnits(toGrid.Columns(laColOrder[lnCol, 2]).Width)
           \\<col min="<<Transform(lnCol)>>" max="<<Transform(lnCol)>>" width="<<Transform(lnColWidth+0.7109375)>>" customWidth="1"/>
-          Endfor
+        Endfor
         \\</cols>')
 
 *-*		Write sheet cell data values
-          lcRowDefHt = ' ht="30"'
+        lcRowDefHt = ' ht="30"'
         \\<sheetData>
 
 *-*		Place field names in the first row
-          If toGrid.HeaderHeight > 0  && Change recommendation by Doug Hennig (if no headers, then no output)
+        If toGrid.HeaderHeight > 0  && Change recommendation by Doug Hennig (if no headers, then no output)
           \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >')
-            If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-              For lnCol=1 To lnColCount
-                .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-              Endfor
-            Else
-              For lnCol=1 To lnColCount
-                .WriteAsInLineFormattedString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-              Endfor
-            Endif
-          \\</row>
-            lnRow = 1
+          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+            For lnCol=1 To lnColCount
+              .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+            Endfor
           Else
-            lnRow = 0
+            For lnCol=1 To lnColCount
+              .WriteAsInLineFormattedString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+            Endfor
           Endif
+          \\</row>
+          lnRow = 1
+        Else
+          lnRow = 0
+        Endif
 
 *-*		Write the grid field values to cells
-          lcSETCentury = Set("CENTURY")
-          Set Century On
-          Select (lcAlias)
-          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-            Scan
-              lnRow = lnRow + 1
+        lcSETCentury = Set("CENTURY")
+        Set Century On
+        Select (lcAlias)
+        If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+          Scan
+            lnRow = lnRow + 1
             \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
-              For lnCol=1 To lnColCount
-                lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-                .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
-              Endfor
+            For lnCol=1 To lnColCount
+              lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+              .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
+            Endfor
             \\</Row>
-            Endscan
-          Else
-            Scan
-              lnRow = lnRow + 1
+          Endscan
+        Else
+          Scan
+            lnRow = lnRow + 1
             \\<Row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
-              For lnCol=1 To lnColCount
-                lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-                .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
-              Endfor
+            For lnCol=1 To lnColCount
+              lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+              .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
+            Endfor
             \\</Row>
-            Endscan
-          Endif
-          Set Century &lcSETCentury
+          Endscan
+        Endif
+        Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
        \\</sheetData>
        \\<pageMargins Left="0.7" Right="0.7" Top="0.75" Bottom="0.75" Header="0.3" Footer="0.3"/>
        \\</worksheet>
 
-*ssa*	        Catch To loException
-*ssa*	          Set Step On
-*ssa*	          llError = True
-*ssa*	          .ErrorLevelId = 14
-*ssa*	          Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
-
-*ssa*	        Finally
-          Set Textmerge to
-          .SaveAsUtf8(lcFileName, lcOutStr)
-*ssa*	        Endtry
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
         If llError
           llSuccess = False
         Else
@@ -5405,10 +5397,8 @@ Define Class vfpxworkbookxlsx As Custom
           Return False
         Endif
         Asort(laColOrder)
-
-*ssa*	        Try
-          lcFileName = lcTempPath + "xl\worksheets\sheet" + Transform(lnGrid) + ".xml"
-          Set Textmerge On To Memvar lcOutStr Noshow
+        lcFileName = lcTempPath + "xl\worksheets\sheet" + Transform(lnGrid) + ".xml"
+        Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
         \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -5418,86 +5408,78 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*		Write the sheet view information which includes the freeze pane information
         \\<dimension ref="A1:<<.ColumnIndexToAscii(lnColCount) + Transform(Reccount(lcAlias)+1)>>"/>
-          If toGrids.List[lnGrid, 3]
+        If toGrids.List[lnGrid, 3]
           \\<sheetViews><sheetView workbookViewId="0">
           \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
           \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
           \\</sheetView></sheetViews>
-          Endif
+        Endif
         \\<sheetFormatPr defaultRowHeight="15"/>
 
 *-*		Write sheet Column widths
         \\<cols>
-          For lnCol=1 To lnColCount
-            lnColWidth = .ConvertPixelsToExcelUnits(loGrid.Columns(laColOrder[lnCol, 2]).Width)
+        For lnCol=1 To lnColCount
+          lnColWidth = .ConvertPixelsToExcelUnits(loGrid.Columns(laColOrder[lnCol, 2]).Width)
           \\<col min="<<Transform(lnCol)>>" max="<<Transform(lnCol)>>" width="<<Transform(lnColWidth+0.7109375)>>" customWidth="1"/>
-          Endfor
+        Endfor
         \\</cols>
 
 *-*		Write sheet cell data values
-          lcRowDefHt = ' ht="30"'
+        lcRowDefHt = ' ht="30"'
         \\<sheetData>
 
 *-*		Place field names in the first row
-          If loGrid.HeaderHeight > 0                                   && Change recommendation by Doug Hennig (if no headers, then no output)
+        If loGrid.HeaderHeight > 0                                   && Change recommendation by Doug Hennig (if no headers, then no output)
           \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
-            If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-              For lnCol=1 To lnColCount
-                .WriteAsInLineString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-              Endfor
-            Else
-              For lnCol=1 To lnColCount
-                .WriteAsInLineFormattedString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
-              Endfor
-            Endif
-          \\</row>
-            lnRow = 1
+          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+            For lnCol=1 To lnColCount
+              .WriteAsInLineString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+            Endfor
           Else
-            lnRow = 0
+            For lnCol=1 To lnColCount
+              .WriteAsInLineFormattedString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+            Endfor
           Endif
+          \\</row>
+          lnRow = 1
+        Else
+          lnRow = 0
+        Endif
 
 *-*		Write the grid field values to cells
-          lcSETCentury = Set("CENTURY")
-          Set Century On
-          Select (lcAlias)
-          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-            Scan
-              lnRow = lnRow + 1
+        lcSETCentury = Set("CENTURY")
+        Set Century On
+        Select (lcAlias)
+        If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+          Scan
+            lnRow = lnRow + 1
             \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
-              For lnCol=1 To lnColCount
-                lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-                .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
-              Endfor
+            For lnCol=1 To lnColCount
+              lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+              .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
+            Endfor
             \\</row>
-            Endscan
-          Else
-            Scan
-              lnRow = lnRow + 1
+          Endscan
+        Else
+          Scan
+            lnRow = lnRow + 1
             \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
-              For lnCol=1 To lnColCount
-                lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
-                .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
-              Endfor
+            For lnCol=1 To lnColCount
+              lxCellValue = Evaluate(loGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
+              .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
+            Endfor
             \\</row>
-            Endscan
-          Endif
-          Set Century &lcSETCentury
+          Endscan
+        Endif
+        Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
         \\</sheetData>
         \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
         \\</worksheet>
 
-*ssa*	        Catch To loException
-*ssa*	          Set Step On
-*ssa*	          llError = True
-*ssa*	          .ErrorLevelId = 14
-*ssa*	          Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
-
-*ssa*	        Finally
-          Set Textmerge To
-          .SaveAsUtf8(lcFileName, lcOutStr)
-*ssa*	        Endtry
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
       Endfor
       If llError
         llSuccess = False
@@ -5757,9 +5739,8 @@ Define Class vfpxworkbookxlsx As Custom
       laSheetNames[1] = tcSheetName
       If .WriteDirectXMLs(lcTempPath, @laSheetNames)
 *-*	Write the sheet XML
-*ssa*	        Try
-          lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
-          Set Textmerge On To Memvar lcOutStr Noshow
+        lcFileName = lcTempPath + "xl\worksheets\sheet1.xml"
+        Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
       \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -5769,11 +5750,11 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*		Write the sheet view information which includes the freeze pane information
         \\<Dimension ref="A1:<<.ColumnIndexToAscii(lnFldCnt) + Transform(Reccount(lcAlias)+1)>>"/>
-          If tlFreeze
+        If tlFreeze
         \\<sheetViews><sheetView workbookViewId="0">
         \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
         \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
-          Endif
+        Endif
       \\</sheetView></sheetViews>
       \\<sheetFormatPr defaultRowHeight="15"/>
 
@@ -5781,61 +5762,53 @@ Define Class vfpxworkbookxlsx As Custom
       \\<sheetData>
 
 *-*		Place field names in the first row
-          lcRowDefHt = ' ht="30"'
+        lcRowDefHt = ' ht="30"'
       \\<row r="1" spans="1:<<Transform(lnFldCnt)>>"<<lcRowDefHt>>>
-          If .DefaultFont = "Calibri" And .DefaultFontSize = 11
-            For lnCol=1 To lnFldCnt
-              .WriteAsInLineString(1, lnCol, taFields[lnCol, 2])
-            Endfor
-          Else
-            For lnCol=1 To lnFldCnt
-              .WriteAsInLineFormattedString(1, lnCol, taFields[lnCol, 2])
-            Endfor
-          Endif
+        If .DefaultFont = "Calibri" And .DefaultFontSize = 11
+          For lnCol=1 To lnFldCnt
+            .WriteAsInLineString(1, lnCol, taFields[lnCol, 2])
+          Endfor
+        Else
+          For lnCol=1 To lnFldCnt
+            .WriteAsInLineFormattedString(1, lnCol, taFields[lnCol, 2])
+          Endfor
+        Endif
       \\</row>
 
 *-*		Write the table field values to cells
-          lcSETCentry = Set("CENTURY")
-          Set Century On
-          lnRow = 1
-          If This.DefaultFont = "Calibri" And This.DefaultFontSize = 11
-            Scan
-              lnRow = lnRow + 1
+        lcSETCentry = Set("CENTURY")
+        Set Century On
+        lnRow = 1
+        If This.DefaultFont = "Calibri" And This.DefaultFontSize = 11
+          Scan
+            lnRow = lnRow + 1
           \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnFldCnt)>>"<<lcRowDefHt>>>
-              For lnCol=1 To lnFldCnt
-                lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
-                .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
-              Endfor
+            For lnCol=1 To lnFldCnt
+              lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
+              .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
+            Endfor
           \\</row>
-            Endscan
-          Else
-            Scan
-              lnRow = lnRow + 1
+          Endscan
+        Else
+          Scan
+            lnRow = lnRow + 1
           \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnFldCnt)>>"<<lcRowDefHt>>>
-              For lnCol=1 To lnFldCnt
-                lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
-                .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
-              Endfor
+            For lnCol=1 To lnFldCnt
+              lxCellValue = Evaluate(lcAlias + '.' + taFields[lnCol, 1])
+              .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
+            Endfor
           \\</row>
-            Endscan
-          Endif
-          Set Century &lcSETCentry
+          Endscan
+        Endif
+        Set Century &lcSETCentry
 
 *-*		End the sheet cell data values and worksheet
       \\</sheetData>
       \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
       \\</worksheet>
 
-*ssa*	        Catch To loException
-*ssa*	          Set Step On
-*ssa*	          llError = True
-*ssa*	          .ErrorLevelId = 14
-*ssa*	          Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
-
-*ssa*	        Finally
-          Set Textmerge To
-          .SaveAsUtf8(lcFileName, lcOutStr)
-*ssa*	        Endtry
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
         If llError
           llSuccess = False
         Else
@@ -7006,10 +6979,10 @@ Define Class vfpxworkbookxlsx As Custom
           lcDataType  = DATA_TYPE_CURRENCY
           lcHorzAlign = CELL_HORIZ_ALIGN_RIGHT
           Do Case
-          Case lcCurrency = "£"
+          Case lcCurrency = "–à"
             lnNumFmtId = CELL_FORMAT_ACC_CURR_POUNDS
 
-          Case lcCurrency = "Ä"
+          Case lcCurrency = "–Ç"
             lnNumFmtId = CELL_FORMAT_ACC_CURR_EURO
 
           Otherwise
@@ -8107,24 +8080,23 @@ Define Class vfpxworkbookxlsx As Custom
       If !Isnull(loException)
         Return False
       Endif
-*ssa*	      Try
-        Set Textmerge On To Memvar lcOutStr Noshow
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
         \\<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
         \\<Default Extension="xml" ContentType="application/xml"/>
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
-        For lnSheet=1 To lnNumSheets
+      For lnSheet=1 To lnNumSheets
           \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet<<Transform(lnSheet)>>.xml"/>
-        Endfor
+      Endfor
         \\<Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
         \\</Types>
-        Set Textmerge To
-        Strtofile(lcOutStr, (tcPath + "[Content_Types].xml"))
+      Set Textmerge To
+      Strtofile(lcOutStr, (tcPath + "[Content_Types].xml"))
 
-        Set Textmerge On To Memvar lcOutStr Noshow
+      Set Textmerge On To Memvar lcOutStr Noshow
 *-*	Save the .rels XML
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -8132,37 +8104,37 @@ Define Class vfpxworkbookxlsx As Custom
         \\<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
         \\<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
         \\</Relationships>
-        Set Textmerge To
-        Strtofile(lcOutStr, (tcPath + "_rels\.rels"))
+      Set Textmerge To
+      Strtofile(lcOutStr, (tcPath + "_rels\.rels"))
 
 *-*	Write the workbook relationships file
-        Set Textmerge On To Memvar lcOutStr Noshow
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
         \\<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-        For lnSheet=1 To lnNumSheets
+      For lnSheet=1 To lnNumSheets
           \\<Relationship Id="rId<<Transform(lnSheet+1)>>" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet<<Transform(lnSheet)>>.xml"/>
-        Endfor
+      Endfor
         \\</Relationships>
-        Set Textmerge To
-        Strtofile(lcOutStr, (tcPath + "xl\_rels\workbook.xml.rels"))
+      Set Textmerge To
+      Strtofile(lcOutStr, (tcPath + "xl\_rels\workbook.xml.rels"))
 
 *-*	Save the app XML
-        Set Textmerge On To Memvar lcOutStr Noshow
-        lcFileName = tcPath + "docProps\app.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "docProps\app.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
         \\<Application>ExcelXMLX Release <<Transform(.ExcelXlsxRelease)>></Application>
-        If !Empty(.CompanyName)
+      If !Empty(.CompanyName)
           \\<Company><<.CompanyName>></Company>
-        Endif
+      Endif
         \\</Properties>
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Save the core XML
-        Set Textmerge On To Memvar lcOutStr Noshow
-        lcFileName = tcPath + "docProps\core.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "docProps\core.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<cp:coreProperties
         \\ xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
@@ -8170,27 +8142,27 @@ Define Class vfpxworkbookxlsx As Custom
         \\ xmlns:dcterms="http://purl.org/dc/terms/"
         \\ xmlns:dcmitype="http://purl.org/dc/dcmitype/"
         \\ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        If !Empty(.Title)
+      If !Empty(.Title)
           \\<dc:title><<.GetXMLString(.Title)>></dc:title>
-        Endif
-        If !Empty(.Subject)
+      Endif
+      If !Empty(.Subject)
           \\<dc:subject><<.GetXMLString(.Subject)>></dc:subject>
-        Endif
-        If !Empty(.CreatorName)
+      Endif
+      If !Empty(.CreatorName)
           \\<dc:creator><<.GetXMLString(.CreatorName)>></dc:creator>
-        Endif
-        If !Empty(.UserName)
+      Endif
+      If !Empty(.UserName)
           \\<cp:lastModifiedBy><<.GetXMLString(.UserName)>></cp:lastModifiedBy>
-        Endif
+      Endif
         \\<dcterms:created xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:created>
         \\<dcterms:modified xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:modified>
         \\</cp:coreProperties>
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Save the styles XML
-        Set Textmerge On To Memvar lcOutStr Noshow
-        lcFileName = tcPath + "xl\styles.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "xl\styles.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
         \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8202,30 +8174,25 @@ Define Class vfpxworkbookxlsx As Custom
         \\<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>
         \\<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
         \\</styleSheet>
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Write the workbook XML
-        Set Textmerge On To Memvar lcOutStr Noshow
-        lcFileName = tcPath + "xl\workbook.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "xl\workbook.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
         \\<sheets>
-        For lnSheet=1 To lnNumSheets
-          lcSheetName = Iif(Empty(taSheetNames[lnSheet]), "Sheet" + Transform(lnSheet), taSheetNames[lnSheet])
+      For lnSheet=1 To lnNumSheets
+        lcSheetName = Iif(Empty(taSheetNames[lnSheet]), "Sheet" + Transform(lnSheet), taSheetNames[lnSheet])
           \\<sheet name="<<lcSheetName>>" sheetId="<<Transform(lnSheet)>>" r:id="rId<<Transform(lnSheet+1)>>"/>
-        Endfor
+      Endfor
         \\</sheets>
         \\<calcPr calcId="0"/>
         \\</workbook>
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
 
-*ssa*	      Catch To loException
-*ssa*	        Set Step On
-*ssa*	        .ErrorLevelId = 18
-*ssa*	        Raiseevent(This, "OnShowErrorMessage", 18, "Unable to create workbook supporting XMLs")
-*ssa*	      Endtry
     Endwith
     Return Isnull(loException)
 
@@ -8236,28 +8203,21 @@ Define Class vfpxworkbookxlsx As Custom
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 5)
       lcBaseType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
-*ssa*	      Try
 *-*	Write the workbook relationships file
-        Set Textmerge On To Memvar lcOutStr Noshow
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 
-        Select xl_relationships
-        Scan For workbook = tnWB
+      Select xl_relationships
+      Scan For workbook = tnWB
           \\<Relationship Id="rId<<Transform(xl_relationships.relid)>>" Target="<<Alltrim(xl_relationships.Target)>>" Type="<<lcBaseType + Alltrim(xl_relationships.reltype)>>"/>
-        Endscan
+      Endscan
 
         \\</Relationships>
-        llSuccess = True
-        Set Textmerge To
-        .SaveAsUtf8(tcPath + "xl\_rels\workbook.xml.rels", lcOutStr)
+      llSuccess = True
+      Set Textmerge To
+      .SaveAsUtf8(tcPath + "xl\_rels\workbook.xml.rels", lcOutStr)
 
-*ssa*	      Catch To loException
-*ssa*	        Set Step On
-*ssa*	        llSuccess = False
-*ssa*	        .ErrorLevelId = 16
-*ssa*	        Raiseevent(This, "OnShowErrorMessage", 16, "Unable to create workbook.xml.rels")
-*ssa*	      Endtry
     Endwith
     Return llSuccess
 
@@ -8270,12 +8230,11 @@ Define Class vfpxworkbookxlsx As Custom
     With This
       lcAlias = Alias()
 *-*	Write the sheet
-*ssa*	      Try
-        Set Textmerge On To Memvar lcOutStr Noshow
-        lcFileName = tcPath + "xl\worksheets\sheet" + Transform(tnSheetNbr) + ".xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "xl\worksheets\sheet" + Transform(tnSheetNbr) + ".xml"
 *	lcDyDescent = ' x14ac:dyDescent="0.25"'                && Uncomment to add back...
-        lcDyDescent = ''
-        lcRowDefHt  = ' ht="30"'
+      lcDyDescent = ''
+      lcRowDefHt  = ' ht="30"'
 
 *-*	Write sheet XML header information
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -8285,168 +8244,168 @@ Define Class vfpxworkbookxlsx As Custom
         \\ xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*	Write the tab color definition if set
-        Do Case
-        Case xl_sheets.tabcolorndx > 0
+      Do Case
+      Case xl_sheets.tabcolorndx > 0
           \\<sheetPr codeName="Sheet<<Transform(tnSheetNbr)>>"><tabColor indexed="<<Transform(xl_sheets.tabcolorndx)>>"/></sheetPr>
 
-        Case !Empty(xl_sheets.tabcolorrgb)
+      Case !Empty(xl_sheets.tabcolorrgb)
           \\<sheetPr codeName="Sheet<<Transform(tnSheetNbr)>>"><tabColor rgb="<<xl_sheets.tabcolorrgb>>"/></sheetPr>
-        Endcase
+      Endcase
 
 *-*	Verify cells have been written
-        Select xl_cells
-        Locate For workbook = tnWB And Sheet = xl_sheets.Sheet And !celldeleted
-        If Found()
+      Select xl_cells
+      Locate For workbook = tnWB And Sheet = xl_sheets.Sheet And !celldeleted
+      If Found()
 *-*		Write the sheet view information which includes the freeze pane information
-          Select cel.Sheet, Max(cel.cellrow) As maxrow, Max(cel.cellcol) As maxcol ;
-            FROM xl_cells As cel ;
-            WHERE cel.workbook = tnWB ;
-            AND cel.Sheet = xl_sheets.Sheet ;
-            AND cel.celldeleted = False ;
-            GROUP By 1 ;
-            INTO Cursor t_max Readwrite
+        Select cel.Sheet, Max(cel.cellrow) As maxrow, Max(cel.cellcol) As maxcol ;
+          FROM xl_cells As cel ;
+          WHERE cel.workbook = tnWB ;
+          AND cel.Sheet = xl_sheets.Sheet ;
+          AND cel.celldeleted = False ;
+          GROUP By 1 ;
+          INTO Cursor t_max Readwrite
 
           \\<dimension ref="A1:<<.ColumnIndexToAscii(t_max.maxcol) + Transform(t_max.maxrow)>>"/>
-          Do Case
-          Case xl_sheets.ysplit > 0 And xl_sheets.xsplit = 0      && Freeze top row(s) only
+        Do Case
+        Case xl_sheets.ysplit > 0 And xl_sheets.xsplit = 0      && Freeze top row(s) only
             \\<sheetViews><sheetView workbookViewId="0">
-            lcRow = Transform(xl_sheets.ysplit+1)
+          lcRow = Transform(xl_sheets.ysplit+1)
             \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A<<lcRow>>" ySplit="<<Transform(xl_sheets.ysplit)>>"/>
             \\<selection activeCell="A<<lcRow>>" sqref="A<<lcRow>>" pane="bottomLeft"/>
 
-          Case xl_sheets.ysplit = 0 And xl_sheets.xsplit > 0      && Freeze side column(s) only
+        Case xl_sheets.ysplit = 0 And xl_sheets.xsplit > 0      && Freeze side column(s) only
             \\<sheetViews><sheetView workbookViewId="0">
-            lcColumn = .ColumnIndexToAscii(xl_sheets.xsplit+1)
+          lcColumn = .ColumnIndexToAscii(xl_sheets.xsplit+1)
             \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="<<lcColumn>>1" xSplit="<<Transform(xl_sheets.xsplit)>>"/>
             \\<selection activeCell="<<lcColumn>>1" sqref="<<lcColumn>>1" pane="topRight"/>
 
-          Case xl_sheets.ysplit > 0 And xl_sheets.xsplit > 0      && Freeze both top row(s) and side column(s)
+        Case xl_sheets.ysplit > 0 And xl_sheets.xsplit > 0      && Freeze both top row(s) and side column(s)
             \\<sheetViews><sheetView workbookViewId="0">
-            lcRow = Transform(xl_sheets.ysplit+1)
-            lcColumn = .ColumnIndexToAscii(xl_sheets.xsplit+1)
+          lcRow = Transform(xl_sheets.ysplit+1)
+          lcColumn = .ColumnIndexToAscii(xl_sheets.xsplit+1)
             \\<pane state="frozenSplit" activePane="bottomRight" topLeftCell="<<lcColumn + lcRow>>" ySplit="<<Transform(xl_sheets.ysplit)>>" xSplit="<<Transform(xl_sheets.xsplit)>>"/>
             \\<selection activeCell="<<.ColumnIndexToAscii(xl_sheets.xsplit)>>1" sqref="<<.ColumnIndexToAscii(xl_sheets.xsplit)>>1" pane="topRight"/>
             \\<selection activeCell="<<.ColumnIndexToAscii(xl_sheets.xsplit) + lcRow>>" sqref="<<.ColumnIndexToAscii(xl_sheets.xsplit) + lcRow>>" pane="bottomLeft"/>
             \\<selection activeCell="<<lcColumn + lcRow>>" sqref="<<lcColumn + lcRow>>" pane="bottomRight"/>
 
-          Otherwise
+        Otherwise
             \\<sheetViews><sheetView workbookViewId="0"><selection activeCell="A1" sqref="A1"/>
 *				FWRITE(lhFile, '<sheetViews><sheetView tabSelected="1" workbookViewId="0">')
-          Endcase
+        Endcase
           \\</sheetView></sheetViews>
           \\<sheetFormatPr defaultRowHeight="15"<<lcDyDescent>>/>
 
 *-*		Write sheet Column widths
-          Select clm.Column, clm.Width, clm.bestfit From xl_colwidths As clm ;
-            WHERE clm.workbook = tnWB ;
-            AND clm.Sheet = xl_sheets.Sheet ;
-            ORDER By clm.Column ;
-            INTO Cursor t_colwidths Readwrite
+        Select clm.Column, clm.Width, clm.bestfit From xl_colwidths As clm ;
+          WHERE clm.workbook = tnWB ;
+          AND clm.Sheet = xl_sheets.Sheet ;
+          ORDER By clm.Column ;
+          INTO Cursor t_colwidths Readwrite
 
-          If _Tally > 0
+        If _Tally > 0
             \\<cols>
-            Select t_colwidths
-            Goto Top
-            lnMinCol = t_colwidths.Column
-            lnMaxCol = t_colwidths.Column
-            lnWidth  = t_colwidths.Width
-            Skip In t_colwidths
-            Do While !Eof('t_colwidths')
-              Do Case
+          Select t_colwidths
+          Goto Top
+          lnMinCol = t_colwidths.Column
+          lnMaxCol = t_colwidths.Column
+          lnWidth  = t_colwidths.Width
+          Skip In t_colwidths
+          Do While !Eof('t_colwidths')
+            Do Case
 *					CASE t_colwidths.bestfit    && Not yet working!!!
 *						FWRITE(lhFile, '<col min="' + TRANSFORM(t_colwidths.column) + '" max="' + TRANSFORM(t_colwidths.column) + '" bestFit="1" customWidth="1"/>')
 
-              Case t_colwidths.Width = lnWidth And t_colwidths.Column-1 = lnMinCol
-                lnMaxCol = t_colwidths.Column
+            Case t_colwidths.Width = lnWidth And t_colwidths.Column-1 = lnMinCol
+              lnMaxCol = t_colwidths.Column
 
-              Otherwise
+            Otherwise
                 \\<col min="<<Transform(lnMinCol)>>" max="<<Transform(lnMaxCol)>>" width="<<Transform(lnWidth+0.7109375)>>" customWidth="1"/>
-                lnMinCol = t_colwidths.Column
-                lnMaxCol = t_colwidths.Column
-                lnWidth  = t_colwidths.Width
-              Endcase
-              Skip In t_colwidths
-            Enddo
+              lnMinCol = t_colwidths.Column
+              lnMaxCol = t_colwidths.Column
+              lnWidth  = t_colwidths.Width
+            Endcase
+            Skip In t_colwidths
+          Enddo
             \\<col min="<<Transform(lnMinCol)>>" max="<<Transform(lnMaxCol)>>" width="<<Transform(lnWidth+0.7109375)>>" customWidth="1"/>
             \\</cols>
-          Endif
-          Use In Select('t_colwidths')
+        Endif
+        Use In Select('t_colwidths')
 
 *-*		Write sheet cell data values
           \\<sheetData>
 *		lnLastRow = 0
-          lnHeadRow = 0
-          Select xl_cells
-          Set Order To Tag cellindex
-          Scan For workbook = tnWB And Sheet = xl_sheets.Sheet And !celldeleted
+        lnHeadRow = 0
+        Select xl_cells
+        Set Order To Tag cellindex
+        Scan For workbook = tnWB And Sheet = xl_sheets.Sheet And !celldeleted
 *-*			Write row header
-            If lnHeadRow != xl_cells.cellrow
-              If lnHeadRow != 0
+          If lnHeadRow != xl_cells.cellrow
+            If lnHeadRow != 0
                 \\</row>
-              Endif
-              lnHeadRow = xl_cells.cellrow
-              lnMaxCol  = .GetRowMaxColumn(tnWB, xl_sheets.Sheet, lnHeadRow)
-              If Seek(.GetRowHeightKeyExpr(tnWB, xl_sheets.Sheet, xl_cells.cellrow), "xl_rowheights", "shrow")
-                \\<row r="<<Transform(xl_cells.cellrow)>>" spans="1:<<Transform(lnMaxCol)>>" ht="<<Transform(xl_rowheights.Height)>>" customHeight="1">
-              Else
-                \\<row r="<<Transform(xl_cells.cellrow)>>" spans="1:<<Transform(lnMaxCol)>>"<<lcRowDefHt>>>
-              Endif
             Endif
+            lnHeadRow = xl_cells.cellrow
+            lnMaxCol  = .GetRowMaxColumn(tnWB, xl_sheets.Sheet, lnHeadRow)
+            If Seek(.GetRowHeightKeyExpr(tnWB, xl_sheets.Sheet, xl_cells.cellrow), "xl_rowheights", "shrow")
+                \\<row r="<<Transform(xl_cells.cellrow)>>" spans="1:<<Transform(lnMaxCol)>>" ht="<<Transform(xl_rowheights.Height)>>" customHeight="1">
+            Else
+                \\<row r="<<Transform(xl_cells.cellrow)>>" spans="1:<<Transform(lnMaxCol)>>"<<lcRowDefHt>>>
+            Endif
+          Endif
 *-*			Write columns
-            lcStyle = Iif(xl_cells.cellxfs > 0, ' s="' + Transform(xl_cells.cellxfs) + '"', '')
-            Do Case
-            Case xl_cells.DataType = DATA_TYPE_TIME
+          lcStyle = Iif(xl_cells.cellxfs > 0, ' s="' + Transform(xl_cells.cellxfs) + '"', '')
+          Do Case
+          Case xl_cells.DataType = DATA_TYPE_TIME
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
               \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_DATE
+          Case xl_cells.DataType = DATA_TYPE_DATE
               \<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
               \<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_DATETIME
+          Case xl_cells.DataType = DATA_TYPE_DATETIME
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
               \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_LOGICAL
+          Case xl_cells.DataType = DATA_TYPE_LOGICAL
               \<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>> t="s">
               \\<v><<Transform(xl_cells.stringid)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_CHAR
+          Case xl_cells.DataType = DATA_TYPE_CHAR
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>> t="s">
               \\<v><<Transform(xl_cells.stringid)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_INT
+          Case xl_cells.DataType = DATA_TYPE_INT
               \<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
               \<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_FLOAT
+          Case xl_cells.DataType = DATA_TYPE_FLOAT
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
               \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_CURRENCY
+          Case xl_cells.DataType = DATA_TYPE_CURRENCY
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>>
               \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_PERCENT
+          Case xl_cells.DataType = DATA_TYPE_PERCENT
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>"<<lcStyle >>>
               \\<v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_FORMULA
+          Case xl_cells.DataType = DATA_TYPE_FORMULA
               \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>> t="str">
               \\<f><<Alltrim(xl_cells.cellformula)>></f><v><<Alltrim(xl_cells.cellvalue)>></v></c>
 
-            Case xl_cells.DataType = DATA_TYPE_NONE
-              If !Empty(lcStyle)
+          Case xl_cells.DataType = DATA_TYPE_NONE
+            If !Empty(lcStyle)
                 \\<c r="<<.ColumnIndexToAscii(xl_cells.cellcol) + Transform(xl_cells.cellrow)>>"<<lcStyle>>></c>
-              Endif
-            Endcase
-          Endscan
+            Endif
+          Endcase
+        Endscan
           \\</row>
           \\</sheetData>
-          Set Order To
-          Use In t_max
+        Set Order To
+        Use In t_max
 
-        Else
+      Else
 *-*		No cell data has been created/written
           \\<dimension ref="A1"/>
           \\<sheetViews>
@@ -8454,136 +8413,136 @@ Define Class vfpxworkbookxlsx As Custom
           \\</sheetViews>
           \\<sheetFormatPr defaultRowHeight="14.4"/>
           \\<sheetData/>
-        Endif
+      Endif
 *-*	Write sheet merge data
-        Select mrg.begrow, mrg.begcol, mrg.endrow, mrg.endcol From xl_mergecells As mrg ;
-          WHERE mrg.workbook = tnWB ;
-          AND mrg.Sheet = xl_sheets.Sheet ;
-          ORDER By mrg.begrow ;
-          INTO Cursor t_merge
+      Select mrg.begrow, mrg.begcol, mrg.endrow, mrg.endcol From xl_mergecells As mrg ;
+        WHERE mrg.workbook = tnWB ;
+        AND mrg.Sheet = xl_sheets.Sheet ;
+        ORDER By mrg.begrow ;
+        INTO Cursor t_merge
 
-        If _Tally > 0
+      If _Tally > 0
           \\<mergeCells>
-          Select t_merge
-          Scan
+        Select t_merge
+        Scan
             \\<mergeCell ref="<<.ColumnIndexToAscii(t_merge.begcol) + Transform(t_merge.begrow)>>:<<.ColumnIndexToAscii(t_merge.endcol) + Transform(t_merge.endrow)>>"/>
-          Endscan
+        Endscan
           \\</mergeCells>
-        Endif
-        Use In t_merge
+      Endif
+      Use In t_merge
 
 *-*	Write the cell validation data
-        Select xl_validation
-        Count For xl_validation.workbook = tnWB And xl_validation.Sheet = xl_sheets.Sheet And !Deleted() To lnValidCnt
-        If lnValidCnt > 0
+      Select xl_validation
+      Count For xl_validation.workbook = tnWB And xl_validation.Sheet = xl_sheets.Sheet And !Deleted() To lnValidCnt
+      If lnValidCnt > 0
           \\<dataValidations count="<<Transform(lnValidCnt)>>">
+        Scan
+          Select xl.cellrow, xl.cellcol From xl_cells As xl ;
+            WHERE BinToC(xl.workbook)+BinToC(xl.Sheet)+BinToC(xl.validndx) = BinToC(tnWB)+BinToC(xl_sheets.Sheet)+BinToC(xl_validation.validndx) ;
+            ORDER By xl.cellrow, xl.cellcol ;
+            INTO Cursor t_celllist
+          Select t_celllist
+          lcSqRef = ""
           Scan
-            Select xl.cellrow, xl.cellcol From xl_cells As xl ;
-              WHERE BinToC(xl.workbook)+BinToC(xl.Sheet)+BinToC(xl.validndx) = BinToC(tnWB)+BinToC(xl_sheets.Sheet)+BinToC(xl_validation.validndx) ;
-              ORDER By xl.cellrow, xl.cellcol ;
-              INTO Cursor t_celllist
-            Select t_celllist
-            lcSqRef = ""
-            Scan
-              lcSqRef = lcSqRef + .ColumnIndexToAscii(t_celllist.cellcol) + Transform(t_celllist.cellrow) + " "
-            Endscan
-            lcSqRef = Alltrim(lcSqRef)
-            Do Case
-            Case xl_validation.vtype = NONE_VALID_TYPE
-              lcValidationText = 'type="none"'
-
-            Case xl_validation.vtype = WHOLE_VALID_TYPE
-              lcValidationText = 'type="whole"'
-
-            Case xl_validation.vtype = DECIMAL_VALID_TYPE
-              lcValidationText = 'type="decimal"'
-
-            Case xl_validation.vtype = LIST_VALID_TYPE
-              lcValidationText = 'type="list"'
-
-            Case xl_validation.vtype = DATE_VALID_TYPE
-              lcValidationText = 'type="date"'
-
-            Case xl_validation.vtype = TIME_VALID_TYPE
-              lcValidationText = 'type="time"'
-
-            Case xl_validation.vtype = TXTLEN_VALID_TYPE
-              lcValidationText = 'type="textLength"'
-
-            Case xl_validation.vtype = CUSTOM_VALID_TYPE
-              lcValidationText = 'type="custom"'
-
-            Otherwise
-              lcValidationText = 'type="none"'
-            Endcase
-            If xl_validation.vstyle > 0
-              Do Case
-              Case xl_validation.vstyle = STOP_VALID_STYLE
-                lcValidationText = lcValidationText + ' errorStyle="stop"'
-
-              Case xl_validation.vstyle = WARN_VALID_STYLE
-                lcValidationText = lcValidationText + ' errorStyle="warning"'
-
-              Case xl_validation.vstyle = INFO_VALID_STYLE
-                lcValidationText = lcValidationText + ' errorStyle="information"'
-              Endcase
-            Endif
-            If xl_validation.voperator > 0
-              Do Case
-              Case xl_validation.voperator = BETWEEN_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="between"'
-
-              Case xl_validation.voperator = NOTBETW_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="notBetween"'
-
-              Case xl_validation.voperator = EQUAL_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="equal"'
-
-              Case xl_validation.voperator = NOTEQUAL_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="notEqual"'
-
-              Case xl_validation.voperator = LESSTHAN_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="lessThan"'
-
-              Case xl_validation.voperator = LESSOREQUAL_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="lessThanOrEqual"'
-
-              Case xl_validation.voperator = GREATTHAN_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="greaterThan"'
-
-              Case xl_validation.voperator = GREATOREQUAL_VALID_OPER
-                lcValidationText = lcValidationText + ' operator="greaterThanOrEqual"'
-              Endcase
-            Endif
-            lcValidationText = lcValidationText + ' allowBlank="' + Iif(xl_validation.allowblank, '1', '0') + '"'
-            lcValidationText = lcValidationText + ' showInputMessage="' + Iif(xl_validation.showinpmsg, '1', '0') + '"'
-            lcValidationText = lcValidationText + ' showErrorMessage="' + Iif(xl_validation.showerrmsg, '1', '0') + '"'
-            If !Empty(xl_validation.errtitle)
-              lcValidationText = lcValidationText + ' errorTitle="' + Alltrim(xl_validation.errtitle) + '"'
-            Endif
-            If !Empty(xl_validation.errmsg)
-              lcValidationText = lcValidationText + ' error="' + Alltrim(xl_validation.errmsg) + '"'
-            Endif
-            If !Empty(xl_validation.vprompt)
-              lcValidationText = lcValidationText + ' prompt="' + Alltrim(xl_validation.vprompt) + '"'
-            Endif
-            \\<dataValidation <<lcValidationText>> sqref="<<lcSqRef>>">
-            If xl_validation.formula
-              \\<formula1><<Alltrim(xl_validation.formula1)>></formula1>
-              If !Empty(xl_validation.formula2)
-                \\<formula2><<Alltrim(xl_validation.formula2)>></formula2>
-              Endif
-            Else
-              \\<formula1>"<<Alltrim(xl_validation.formula1)>>"</formula1>
-              If !Empty(xl_validation.formula2)
-                \\<formula2>"<<Alltrim(xl_validation.formula2)>"</formula2>
-              Endif
-            Endif
-            \\</dataValidation>
+            lcSqRef = lcSqRef + .ColumnIndexToAscii(t_celllist.cellcol) + Transform(t_celllist.cellrow) + " "
           Endscan
-          Use In Select('t_celllist')
+          lcSqRef = Alltrim(lcSqRef)
+          Do Case
+          Case xl_validation.vtype = NONE_VALID_TYPE
+            lcValidationText = 'type="none"'
+
+          Case xl_validation.vtype = WHOLE_VALID_TYPE
+            lcValidationText = 'type="whole"'
+
+          Case xl_validation.vtype = DECIMAL_VALID_TYPE
+            lcValidationText = 'type="decimal"'
+
+          Case xl_validation.vtype = LIST_VALID_TYPE
+            lcValidationText = 'type="list"'
+
+          Case xl_validation.vtype = DATE_VALID_TYPE
+            lcValidationText = 'type="date"'
+
+          Case xl_validation.vtype = TIME_VALID_TYPE
+            lcValidationText = 'type="time"'
+
+          Case xl_validation.vtype = TXTLEN_VALID_TYPE
+            lcValidationText = 'type="textLength"'
+
+          Case xl_validation.vtype = CUSTOM_VALID_TYPE
+            lcValidationText = 'type="custom"'
+
+          Otherwise
+            lcValidationText = 'type="none"'
+          Endcase
+          If xl_validation.vstyle > 0
+            Do Case
+            Case xl_validation.vstyle = STOP_VALID_STYLE
+              lcValidationText = lcValidationText + ' errorStyle="stop"'
+
+            Case xl_validation.vstyle = WARN_VALID_STYLE
+              lcValidationText = lcValidationText + ' errorStyle="warning"'
+
+            Case xl_validation.vstyle = INFO_VALID_STYLE
+              lcValidationText = lcValidationText + ' errorStyle="information"'
+            Endcase
+          Endif
+          If xl_validation.voperator > 0
+            Do Case
+            Case xl_validation.voperator = BETWEEN_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="between"'
+
+            Case xl_validation.voperator = NOTBETW_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="notBetween"'
+
+            Case xl_validation.voperator = EQUAL_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="equal"'
+
+            Case xl_validation.voperator = NOTEQUAL_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="notEqual"'
+
+            Case xl_validation.voperator = LESSTHAN_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="lessThan"'
+
+            Case xl_validation.voperator = LESSOREQUAL_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="lessThanOrEqual"'
+
+            Case xl_validation.voperator = GREATTHAN_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="greaterThan"'
+
+            Case xl_validation.voperator = GREATOREQUAL_VALID_OPER
+              lcValidationText = lcValidationText + ' operator="greaterThanOrEqual"'
+            Endcase
+          Endif
+          lcValidationText = lcValidationText + ' allowBlank="' + Iif(xl_validation.allowblank, '1', '0') + '"'
+          lcValidationText = lcValidationText + ' showInputMessage="' + Iif(xl_validation.showinpmsg, '1', '0') + '"'
+          lcValidationText = lcValidationText + ' showErrorMessage="' + Iif(xl_validation.showerrmsg, '1', '0') + '"'
+          If !Empty(xl_validation.errtitle)
+            lcValidationText = lcValidationText + ' errorTitle="' + Alltrim(xl_validation.errtitle) + '"'
+          Endif
+          If !Empty(xl_validation.errmsg)
+            lcValidationText = lcValidationText + ' error="' + Alltrim(xl_validation.errmsg) + '"'
+          Endif
+          If !Empty(xl_validation.vprompt)
+            lcValidationText = lcValidationText + ' prompt="' + Alltrim(xl_validation.vprompt) + '"'
+          Endif
+            \\<dataValidation <<lcValidationText>> sqref="<<lcSqRef>>">
+          If xl_validation.formula
+              \\<formula1><<Alltrim(xl_validation.formula1)>></formula1>
+            If !Empty(xl_validation.formula2)
+                \\<formula2><<Alltrim(xl_validation.formula2)>></formula2>
+            Endif
+          Else
+              \\<formula1>"<<Alltrim(xl_validation.formula1)>>"</formula1>
+            If !Empty(xl_validation.formula2)
+                \\<formula2>"<<Alltrim(xl_validation.formula2)>"</formula2>
+            Endif
+          Endif
+            \\</dataValidation>
+        Endscan
+        Use In Select('t_celllist')
           \\</dataValidations>
-        Endif
+      Endif
 
 *-*	Write sheet margin data
         \\<pageMargins left="<<Rtrim(Transform(xl_sheets.mleft), 1, '0')>>"
@@ -8595,190 +8554,183 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*	Write the sheet page print setup
         \\<pageSetup orientation="<<Iif(xl_sheets.prnorient=1, 'portrait', 'landscape')>>"
-          && ssa PORTRAIT_PRINT_ORIENTATION
-        If xl_sheets.Paperwidth > 0 And xl_sheets.paperheight > 0
+&& ssa PORTRAIT_PRINT_ORIENTATION
+      If xl_sheets.Paperwidth > 0 And xl_sheets.paperheight > 0
           \\ paperHeight="<<Transform(xl_sheets.paperheight) + xl_sheets.paperdimen>>"
           \\ paperWidth="<<Transform(xl_sheets.Paperwidth) + xl_sheets.paperdimen>>"
-        Else
-          If xl_sheets.Papersize > 0
+      Else
+        If xl_sheets.Papersize > 0
             \\ paperSize="<<Transform(xl_sheets.Papersize)>>"
-          Endif
         Endif
-        Do Case
-        Case xl_sheets.fittowidth > 0 And xl_sheets.fittoheight > 0
+      Endif
+      Do Case
+      Case xl_sheets.fittowidth > 0 And xl_sheets.fittoheight > 0
           \\ fitToWidth="<<Transform(xl_sheets.fittowidth)>>"
           \\ fitToHeight="<<Transform(xl_sheets.fittoheight)>>"
 
-        Case xl_sheets.fittowidth = 0 And xl_sheets.fittoheight > 0
+      Case xl_sheets.fittowidth = 0 And xl_sheets.fittoheight > 0
           \\ fitToHeight="<<Transform(xl_sheets.fittoheight)>>"
 
-        Case xl_sheets.fittowidth > 0 And xl_sheets.fittoheight = 0
+      Case xl_sheets.fittowidth > 0 And xl_sheets.fittoheight = 0
           \\ fitToWidth="<<Transform(xl_sheets.fittowidth)>>"
 
-        Otherwise
-          If xl_sheets.Scale != 100
+      Otherwise
+        If xl_sheets.Scale != 100
             \\ scale="<<Transform(xl_sheets.Scale)>>"
-          Endif
-        Endcase
+        Endif
+      Endcase
         \\/>
 
 *-*	Write the header and footer for the sheet if defined
-        If Seek(BinToC(tnWB)+BinToC(xl_sheets.Sheet), "xl_hdrfooterdefn", "wbsheet")
+      If Seek(BinToC(tnWB)+BinToC(xl_sheets.Sheet), "xl_hdrfooterdefn", "wbsheet")
           \\<headerFooter
-          If xl_hdrfooterdefn.alignmargin
+        If xl_hdrfooterdefn.alignmargin
             \\ alignWithMargins="1"
-          Endif
-          If xl_hdrfooterdefn.difffirstpg
+        Endif
+        If xl_hdrfooterdefn.difffirstpg
             \\ differentFirst="1"
-          Endif
-          If xl_hdrfooterdefn.diffoddeven
+        Endif
+        If xl_hdrfooterdefn.diffoddeven
             \\ differentOddEven="1"
-          Endif
-          If xl_hdrfooterdefn.scalewdoc
+        Endif
+        If xl_hdrfooterdefn.scalewdoc
             \\ scaleWithDoc="1"
-          Endif
+        Endif
           \\>
 
 *-*		Get the page header text
-          lcOddText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcOddText = Iif(Empty(lcOddText), '<oddHeader>', lcOddText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcOddText = Iif(Empty(lcOddText), '<oddHeader>', lcOddText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcOddText = Iif(Empty(lcOddText), '<oddHeader>', lcOddText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcOddText)
-            lcOddText = lcOddText + '</oddHeader>'
-          Endif
+        lcOddText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcOddText = Iif(Empty(lcOddText), '<oddHeader>', lcOddText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcOddText = Iif(Empty(lcOddText), '<oddHeader>', lcOddText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcOddText = Iif(Empty(lcOddText), '<oddHeader>', lcOddText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcOddText)
+          lcOddText = lcOddText + '</oddHeader>'
+        Endif
 
-          lcEvenText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcEvenText = Iif(Empty(lcEvenText), '<evenHeader>', lcEvenText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcEvenText = Iif(Empty(lcEvenText), '<evenHeader>', lcEvenText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcEvenText = Iif(Empty(lcEvenText), '<evenHeader>', lcEvenText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcEvenText)
-            lcEvenText = lcEvenText + '</evenHeader>'
-          Endif
+        lcEvenText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcEvenText = Iif(Empty(lcEvenText), '<evenHeader>', lcEvenText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcEvenText = Iif(Empty(lcEvenText), '<evenHeader>', lcEvenText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcEvenText = Iif(Empty(lcEvenText), '<evenHeader>', lcEvenText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcEvenText)
+          lcEvenText = lcEvenText + '</evenHeader>'
+        Endif
 
-          lcSameText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcSameText = Iif(Empty(lcSameText), '<oddHeader>', lcSameText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcSameText = Iif(Empty(lcSameText), '<oddHeader>', lcSameText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcSameText = Iif(Empty(lcSameText), '<oddHeader>', lcSameText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcSameText)
-            lcSameText = lcSameText + '</oddHeader>'
-          Endif
-          If Empty(lcSameText)
-            lcHeaderText = lcOddText + lcEvenText
-          Else
-            lcHeaderText = lcSameText
-          Endif
+        lcSameText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcSameText = Iif(Empty(lcSameText), '<oddHeader>', lcSameText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcSameText = Iif(Empty(lcSameText), '<oddHeader>', lcSameText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcSameText = Iif(Empty(lcSameText), '<oddHeader>', lcSameText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcSameText)
+          lcSameText = lcSameText + '</oddHeader>'
+        Endif
+        If Empty(lcSameText)
+          lcHeaderText = lcOddText + lcEvenText
+        Else
+          lcHeaderText = lcSameText
+        Endif
 
 *-*		Get the page footer text
-          lcOddText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcOddText = Iif(Empty(lcOddText), '<oddFooter>', lcOddText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcOddText = Iif(Empty(lcOddText), '<oddFooter>', lcOddText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcOddText = Iif(Empty(lcOddText), '<oddFooter>', lcOddText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcOddText)
-            lcOddText = lcOddText + '</oddFooter>'
-          Endif
+        lcOddText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcOddText = Iif(Empty(lcOddText), '<oddFooter>', lcOddText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcOddText = Iif(Empty(lcOddText), '<oddFooter>', lcOddText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_ODD_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcOddText = Iif(Empty(lcOddText), '<oddFooter>', lcOddText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcOddText)
+          lcOddText = lcOddText + '</oddFooter>'
+        Endif
 
-          lcEvenText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcEvenText = Iif(Empty(lcEvenText), '<evenFooter>', lcEvenText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcEvenText = Iif(Empty(lcEvenText), '<evenFooter>', lcEvenText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcEvenText = Iif(Empty(lcEvenText), '<evenFooter>', lcEvenText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcEvenText)
-            lcEvenText = lcEvenText + '</evenFooter>'
-          Endif
+        lcEvenText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcEvenText = Iif(Empty(lcEvenText), '<evenFooter>', lcEvenText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcEvenText = Iif(Empty(lcEvenText), '<evenFooter>', lcEvenText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_EVEN_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcEvenText = Iif(Empty(lcEvenText), '<evenFooter>', lcEvenText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcEvenText)
+          lcEvenText = lcEvenText + '</evenFooter>'
+        Endif
 
-          lcSameText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcSameText = Iif(Empty(lcSameText), '<oddFooter>', lcSameText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcSameText = Iif(Empty(lcSameText), '<oddFooter>', lcSameText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcSameText = Iif(Empty(lcSameText), '<oddFooter>', lcSameText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcSameText)
-            lcSameText = lcSameText + '</oddFooter>'
-          Endif
-          If Empty(lcSameText)
-            lcFooterText = lcOddText + lcEvenText
-          Else
-            lcFooterText = lcSameText
-          Endif
+        lcSameText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcSameText = Iif(Empty(lcSameText), '<oddFooter>', lcSameText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcSameText = Iif(Empty(lcSameText), '<oddFooter>', lcSameText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_SAME_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcSameText = Iif(Empty(lcSameText), '<oddFooter>', lcSameText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcSameText)
+          lcSameText = lcSameText + '</oddFooter>'
+        Endif
+        If Empty(lcSameText)
+          lcFooterText = lcOddText + lcEvenText
+        Else
+          lcFooterText = lcSameText
+        Endif
 
 *-*		Get the first page text
-          lcFirstHdrText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcFirstHdrText = Iif(Empty(lcFirstHdrText), '<firstHeader>', lcFirstHdrText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcFirstHdrText = Iif(Empty(lcFirstHdrText), '<firstHeader>', lcFirstHdrText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcFirstHdrText = Iif(Empty(lcFirstHdrText), '<firstHeader>', lcFirstHdrText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcFirstHdrText)
-            lcFirstHdrText = lcFirstHdrText + '</firstHeader>'
-          Endif
+        lcFirstHdrText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcFirstHdrText = Iif(Empty(lcFirstHdrText), '<firstHeader>', lcFirstHdrText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcFirstHdrText = Iif(Empty(lcFirstHdrText), '<firstHeader>', lcFirstHdrText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_HDR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcFirstHdrText = Iif(Empty(lcFirstHdrText), '<firstHeader>', lcFirstHdrText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcFirstHdrText)
+          lcFirstHdrText = lcFirstHdrText + '</firstHeader>'
+        Endif
 
-          lcFirstFtrText = ""
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
-            lcFirstFtrText = Iif(Empty(lcFirstFtrText), '<firstFooter>', lcFirstFtrText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
-            lcFirstFtrText = Iif(Empty(lcFirstFtrText), '<firstFooter>', lcFirstFtrText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
-            lcFirstFtrText = Iif(Empty(lcFirstFtrText), '<firstFooter>', lcFirstFtrText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
-          Endif
-          If !Empty(lcFirstFtrText)
-            lcFirstFtrText = lcFirstFtrText + '</firstFooter>'
-          Endif
+        lcFirstFtrText = ""
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_FTR_LEFT), "xl_hdrfootertext", "hdrfootr")
+          lcFirstFtrText = Iif(Empty(lcFirstFtrText), '<firstFooter>', lcFirstFtrText) + '&amp;L&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_FTR_CENTER), "xl_hdrfootertext", "hdrfootr")
+          lcFirstFtrText = Iif(Empty(lcFirstFtrText), '<firstFooter>', lcFirstFtrText) + '&amp;C&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If Seek(.GetHeaderFooterKeyExpr(tnWB, xl_sheets.Sheet, HEADERFOOTER_FIRST_PAGE, HEADERFOOTER_SECT_FTR_RIGHT), "xl_hdrfootertext", "hdrfootr")
+          lcFirstFtrText = Iif(Empty(lcFirstFtrText), '<firstFooter>', lcFirstFtrText) + '&amp;R&amp;' + .GetXmlHeaderFooterText()
+        Endif
+        If !Empty(lcFirstFtrText)
+          lcFirstFtrText = lcFirstFtrText + '</firstFooter>'
+        Endif
 *-*		Write the header/footer text to XML
           \\<<lcHeaderText + lcFooterText + lcFirstHdrText + lcFirstFtrText>></headerFooter>
-        Endif
+      Endif
 *-*	Completed writing sheet
         \\</worksheet>
-        llSuccess = True
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
+      llSuccess = True
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
 
-*ssa*	      Catch To loException
-*ssa*	        Set Step On
-*ssa*	        llSuccess = False
-*ssa*	        .ErrorLevelId = 14
-*ssa*	        Raiseevent(This, "OnShowErrorMessage", 14, loException.Message)
-
-*ssa*	      Endtry
       If !Empty(lcAlias)
         Select (lcAlias)
       Endif
@@ -8791,103 +8743,96 @@ Define Class vfpxworkbookxlsx As Custom
     Local lcFileName, lnTotCount, lnUniqueCnt, loException, llSuccess, lnRelId
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 2)
-*ssa*	      Try
-        Select xl_strformat
-        Set Order To Tag sortorder
-        Count For workbook = tnWB And !Deleted() To lnTotCount
+      Select xl_strformat
+      Set Order To Tag sortorder
+      Count For workbook = tnWB And !Deleted() To lnTotCount
 
-        Select xl_strings
-        Set Order To Tag sortorder
-        Count For workbook = tnWB And !Deleted() To lnUniqueCnt
-        lnTotCount = lnTotCount + lnUniqueCnt
+      Select xl_strings
+      Set Order To Tag sortorder
+      Count For workbook = tnWB And !Deleted() To lnUniqueCnt
+      lnTotCount = lnTotCount + lnUniqueCnt
 
-        If lnUniqueCnt > 0
+      If lnUniqueCnt > 0
 *-*		If the shared strings xml has not been defined in the relationships, add it
-          If !Seek(BinToC(tnWB)+"sharedStrings", "xl_relationships", "reltype")
-            lnRelId = .GetNextId(tnWB, "xl_relationships")
-            Insert Into xl_relationships (workbook, relid, reltype, Target) Values (tnWB, lnRelId, "sharedStrings", "sharedStrings.xml")
-          Endif
+        If !Seek(BinToC(tnWB)+"sharedStrings", "xl_relationships", "reltype")
+          lnRelId = .GetNextId(tnWB, "xl_relationships")
+          Insert Into xl_relationships (workbook, relid, reltype, Target) Values (tnWB, lnRelId, "sharedStrings", "sharedStrings.xml")
+        Endif
 
 *-*		Output the file
-          Set Textmerge On To Memvar lcOutStr Noshow
-          lcFileName = tcPath + "xl\sharedStrings.xml"
+        Set Textmerge On To Memvar lcOutStr Noshow
+        lcFileName = tcPath + "xl\sharedStrings.xml"
 
           \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
           \<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="<<Transform(lnTotCount)>>" uniqueCount="<<Transform(lnUniqueCnt)>>">
 
-          Select xl_strings
-          Scan For workbook = tnWB And !Deleted()
-            If xl_strings.Formatted
+        Select xl_strings
+        Scan For workbook = tnWB And !Deleted()
+          If xl_strings.Formatted
               \\<si>
-              Select xl_strformat
-              Scan For workbook = tnWB And Id = xl_strings.Id And !Deleted()
+            Select xl_strformat
+            Scan For workbook = tnWB And Id = xl_strings.Id And !Deleted()
                 \\<r>
-                If xl_strformat.fbold Or xl_strformat.fitalic Or xl_strformat.fcolor>0 Or !Empty(xl_strformat.fname) Or xl_strformat.Fsize>0 ;
-                    OR xl_strformat.strkthr Or !Empty(xl_strformat.fvpos) Or xl_strformat.Theme>0 Or xl_strformat.indexed>0 Or xl_strformat.uline != UNDERLINE_NONE
+              If xl_strformat.fbold Or xl_strformat.fitalic Or xl_strformat.fcolor>0 Or !Empty(xl_strformat.fname) Or xl_strformat.Fsize>0 ;
+                  OR xl_strformat.strkthr Or !Empty(xl_strformat.fvpos) Or xl_strformat.Theme>0 Or xl_strformat.indexed>0 Or xl_strformat.uline != UNDERLINE_NONE
 
                   \\<rPr>
-                  If xl_strformat.fbold
+                If xl_strformat.fbold
                     \\<b/>
-                  Endif
-                  If xl_strformat.fitalic
+                Endif
+                If xl_strformat.fitalic
                     \\<i/>
-                  Endif
-                  If xl_strformat.uline != UNDERLINE_NONE
+                Endif
+                If xl_strformat.uline != UNDERLINE_NONE
                     \\<u/>
-                  Endif
-                  If xl_strformat.strkthr
+                Endif
+                If xl_strformat.strkthr
                     \\<strike/>
-                  Endif
-                  If xl_strformat.Fsize > 0
+                Endif
+                If xl_strformat.Fsize > 0
                     \\<sz val="<<Transform(xl_strformat.Fsize)>>"/>
-                  Endif
-                  Do Case
-                  Case xl_strformat.fcolor > 0
+                Endif
+                Do Case
+                Case xl_strformat.fcolor > 0
                     \\<color rgb="<<.ConvertColorToHex(xl_strformat.fcolor)>>"/>
 
-                  Case xl_strformat.indexed > 0
+                Case xl_strformat.indexed > 0
                     \\<color indexed="<<Transform(xl_strformat.indexed)>>"/>
 
-                  Case xl_strformat.Theme > 0
+                Case xl_strformat.Theme > 0
                     \\<color theme="<<Transform(xl_strformat.Theme)>>" tint="<<Transform(xl_strformat.tint, "99.999999999999999")>>"/>
-                  Endcase
-                  If !Empty(xl_strformat.fvpos)
+                Endcase
+                If !Empty(xl_strformat.fvpos)
                     \\<vertAlign val="<<Alltrim(xl_strformat.fvpos)>>"/>
-                  Endif
-                  If !Empty(xl_strformat.fname)
-                    \\<rFont val="<<Alltrim(xl_strformat.fname)>>"/>
-                  Endif
-                  \\</rPr>
                 Endif
+                If !Empty(xl_strformat.fname)
+                    \\<rFont val="<<Alltrim(xl_strformat.fname)>>"/>
+                Endif
+                  \\</rPr>
+              Endif
                 \\<t xml:space="preserve"><<Chrtran(xl_strformat.stringxml, Chr(160), Chr(32))>></t>
                 \\</r>
-              Endscan
+            Endscan
               \\</si>
-              Select xl_strings
-            Else
-              If xl_strings.presvspace
+            Select xl_strings
+          Else
+            If xl_strings.presvspace
                 \\<si><t xml:space="preserve"><<Chrtran(xl_strformat.stringxml, Chr(160), Chr(32))>></t></si>
-              Else
+            Else
                 \\<si><t><<xl_strings.stringxml>></t></si>
-              Endif
             Endif
-          Endscan
-          Set Order To
+          Endif
+        Endscan
+        Set Order To
           \\</sst>
-          Set Textmerge To
-          .SaveAsUtf8(lcFileName, lcOutStr)
-        Else
+        Set Textmerge To
+        .SaveAsUtf8(lcFileName, lcOutStr)
+      Else
 *-*		No strings are assigned to cells; remove from relationships if present
-          Delete From xl_relationships Where workbook = tnWB And reltype = "sharedStrings"
-        Endif
-        llSuccess = True
+        Delete From xl_relationships Where workbook = tnWB And reltype = "sharedStrings"
+      Endif
+      llSuccess = True
 
-*ssa*	      Catch To loException
-*ssa*	        Set Step On
-*ssa*	        llSuccess = False
-*ssa*	        .ErrorLevelId = 15
-*ssa*	        Raiseevent(This, "OnShowErrorMessage", 15, loException.Message)
-*ssa*	      Endtry
     Endwith
     Return llSuccess
 
@@ -8898,358 +8843,349 @@ Define Class vfpxworkbookxlsx As Custom
     Local llMruColors
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 3)
-*ssa*	      Try
-        lcAlias = Alias()
-        lcFileName = tcPath + "xl\styles.xml"
-        Set Textmerge On To Memvar lcOutStr Noshow
+      lcAlias = Alias()
+      lcFileName = tcPath + "xl\styles.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
         \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         \\ mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">
 
 *-*	Get last used custom number format Id
-        lnNumFmtsId = 0
-        Select xl_numFmts
-        Set Order To Tag sortorder
-        Scan For workbook = tnWB And xl_numFmts.Id < 900
-          If xl_numFmts.Id > lnNumFmtsId
-            lnNumFmtsId = xl_numFmts.Id
-          Endif
-        Endscan
+      lnNumFmtsId = 0
+      Select xl_numFmts
+      Set Order To Tag sortorder
+      Scan For workbook = tnWB And xl_numFmts.Id < 900
+        If xl_numFmts.Id > lnNumFmtsId
+          lnNumFmtsId = xl_numFmts.Id
+        Endif
+      Endscan
 
 *-*	Write the Number format section
-        Count For workbook = tnWB To lnRecCount
+      Count For workbook = tnWB To lnRecCount
         \\<numFmts count="<<Transform(lnRecCount)>>">
-        Scan For workbook = tnWB
-          If xl_numFmts.Id > 900
-            lnNumFmtsId = lnNumFmtsId + 1
+      Scan For workbook = tnWB
+        If xl_numFmts.Id > 900
+          lnNumFmtsId = lnNumFmtsId + 1
             \\<numFmt numFmtId="<<Transform(lnNumFmtsId)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>>"/>
-            Replace xl_numFmts.tempid With lnNumFmtsId In xl_numFmts
-          Else
+          Replace xl_numFmts.tempid With lnNumFmtsId In xl_numFmts
+        Else
             \\<numFmt numFmtId="<<Transform(xl_numFmts.Id)>>" formatCode="<<Alltrim(xl_numFmts.formatxml)>>"/>
-            Replace xl_numFmts.tempid With xl_numFmts.Id In xl_numFmts
-          Endif
-        Endscan
+          Replace xl_numFmts.tempid With xl_numFmts.Id In xl_numFmts
+        Endif
+      Endscan
         \\</numFmts>
-        Set Order To
+      Set Order To
 
 *-*	Write the fonts section
-        Select xl_fonts
-        Set Order To Tag sortorder
-        Count For workbook = tnWB To lnRecCount
+      Select xl_fonts
+      Set Order To Tag sortorder
+      Count For workbook = tnWB To lnRecCount
         \\<fonts count="<<Transform(lnRecCount)>>" x14ac:knownFonts="1">
-        Scan For workbook = tnWB
+      Scan For workbook = tnWB
           \\<font>
           \\<name val="<<Alltrim(xl_fonts.fname)>>"/>
           \\<sz val="<<Transform(xl_fonts.Fsize)>>"/>
-          If xl_fonts.fbold
+        If xl_fonts.fbold
             \\<b/>
-          Endif
-          If xl_fonts.fitalic
+        Endif
+        If xl_fonts.fitalic
             \\<i/>
-          Endif
-          If !Empty(xl_fonts.uline)
+        Endif
+        If !Empty(xl_fonts.uline)
             \\<u val="<<Alltrim(xl_fonts.uline)>>"/>
-          Endif
-          If xl_fonts.strkthr
+        Endif
+        If xl_fonts.strkthr
             \\<strike/>
-          Endif
-          If !Empty(xl_fonts.fvpos)
+        Endif
+        If !Empty(xl_fonts.fvpos)
             \\<vertAlign val="<<Alltrim(xl_fonts.fvpos)>>"/>
-          Endif
-          Do Case
-          Case xl_fonts.fcolor > 0
+        Endif
+        Do Case
+        Case xl_fonts.fcolor > 0
             \\<color rgb="<<.ConvertColorToHex(xl_fonts.fcolor)>>"/>
 
-          Case xl_fonts.indexed > 0
+        Case xl_fonts.indexed > 0
             \\<color indexed="<<Transform(xl_fonts.indexed)>>"/>
 
-          Case xl_fonts.Theme > 0
+        Case xl_fonts.Theme > 0
             \\<color theme="<<Transform(xl_fonts.Theme)>>" tint="<<Transform(xl_fonts.tint, "99.999999999999999")>>"/>
-          Endcase
+        Endcase
           \\</font>
-        Endscan
+      Endscan
         \\</fonts>
-        Set Order To
+      Set Order To
 
 *-*	Write the fills section
-        Select xl_fills
-        Set Order To Tag sortorder
-        Count For workbook = tnWB To lnRecCount
+      Select xl_fills
+      Set Order To Tag sortorder
+      Count For workbook = tnWB To lnRecCount
         \\<fills count="<<Transform(lnRecCount)>>">
-        Scan For workbook = tnWB
+      Scan For workbook = tnWB
           \\<fill><patternFill patternType="<<Alltrim(xl_fills.patttype)>>"
-          Do Case
-          Case xl_fills.fgindexed > 0 And xl_fills.bgindexed > 0
+        Do Case
+        Case xl_fills.fgindexed > 0 And xl_fills.bgindexed > 0
             \\>
             \\<fgColor indexed="<<Transform(xl_fills.fgindexed)>>"/>
             \\<bgColor indexed="<<Transform(xl_fills.bgindexed)>"/>
             \\</patternFill>
 
-          Case xl_fills.fgcolor > 0 And xl_fills.bgindexed > 0
+        Case xl_fills.fgcolor > 0 And xl_fills.bgindexed > 0
             \\>
             \\<fgColor rgb="<<.ConvertColorToHex(xl_fills.fgcolor)>>"/>
             \\<bgColor indexed="<<Transform(xl_fills.bgindexed)>>"/>
             \\</patternFill>
 
-          Case xl_fills.bgcolor > 0 And xl_fills.fgindexed > 0
+        Case xl_fills.bgcolor > 0 And xl_fills.fgindexed > 0
             \\>
             \\<fgColor indexed="<<Transform(xl_fills.fgindexed)>>"/>
             \\<bgColor rgb="<<.ConvertColorToHex(xl_fills.bgcolor)>>"/>
             \\</patternFill>')
 
-          Case xl_fills.fgcolor > 0 And xl_fills.bgcolor > 0
+        Case xl_fills.fgcolor > 0 And xl_fills.bgcolor > 0
             \\>
             \\<fgColor rgb="<<.ConvertColorToHex(xl_fills.fgcolor)>>"/>
             \\<bgColor rgb="<<.ConvertColorToHex(xl_fills.bgcolor)>>"/>
             \\</patternFill>
 
-          Case xl_fills.Theme > 0
+        Case xl_fills.Theme > 0
             \\>
             \\<fgColor theme="<<Transform(xl_fills.Theme)>>" tint="<<Transform(xl_fills.tint, "99.999999999999999")>>"/>
             \\<bgColor indexed="64"/>')
             \\</patternFill>')
 
-          Otherwise
+        Otherwise
             \\/>
-          Endcase
+        Endcase
           \\</fill>
-        Endscan
+      Endscan
         \\</fills>
 
 *-*	Write the borders section
-        Select xl_borders
-        Set Order To Tag sortorder
-        Count For workbook = tnWB To lnRecCount
+      Select xl_borders
+      Set Order To Tag sortorder
+      Count For workbook = tnWB To lnRecCount
         \\<borders count="<<Transform(lnRecCount)>>">
-        Scan For workbook = tnWB
+      Scan For workbook = tnWB
           \\<border<<Iif(xl_borders.diagdn=1, ' diagonalDown="1"', '') + Iif(xl_borders.diagup=1, ' diagonalUp="1"', '')>>>
-          If Empty(xl_borders.lstyle)
+        If Empty(xl_borders.lstyle)
             \\<left/>
-          Else
-            If xl_borders.lstyle = BORDER_STYLE_NONE
+        Else
+          If xl_borders.lstyle = BORDER_STYLE_NONE
               \\<left
-            Else
+          Else
               \\<left style="<<Alltrim(xl_borders.lstyle)>>"
-            Endif
-            Do Case
-            Case xl_borders.lcolor > 0
+          Endif
+          Do Case
+          Case xl_borders.lcolor > 0
               \\>
               \\<color rgb="<<.ConvertColorToHex(xl_borders.lcolor)>>"/>
               \\</left>
 
-            Case xl_borders.lindexed > 0
+          Case xl_borders.lindexed > 0
               \\>
               \\<color indexed="<<Transform(xl_borders.lindexed)>>"/>
               \\</left>
 
-            Case xl_borders.ltheme > 0
+          Case xl_borders.ltheme > 0
               \\>
               \\<color theme="<<Transform(xl_borders.ltheme)>>" tint="<<Transform(xl_borders.ltint, "99.999999999999999")>>"/>
               \\</left>
 
-            Otherwise
+          Otherwise
               \\/>
-            Endcase
-          Endif
-          If Empty(xl_borders.rstyle)
+          Endcase
+        Endif
+        If Empty(xl_borders.rstyle)
             \\<right/>
-          Else
-            If xl_borders.rstyle = BORDER_STYLE_NONE
+        Else
+          If xl_borders.rstyle = BORDER_STYLE_NONE
               \\<right
-            Else
+          Else
               \\<right style="<<Alltrim(xl_borders.rstyle)>>"
-            Endif
-            Do Case
-            Case xl_borders.rcolor > 0
+          Endif
+          Do Case
+          Case xl_borders.rcolor > 0
               \\>
               \\<color rgb="<<.ConvertColorToHex(xl_borders.rcolor)>>"/>
               \\</right>
 
-            Case xl_borders.rindexed > 0
+          Case xl_borders.rindexed > 0
               \\>
               \\<color indexed="<<Transform(xl_borders.rindexed)>>"/>
               \\</right>
 
 
-            Case xl_borders.rtheme > 0
+          Case xl_borders.rtheme > 0
               \\>
               \\<color theme="<<Transform(xl_borders.rtheme)>>" tint="<<Transform(xl_borders.rtint, "99.999999999999999")>>"/>
               \\</right>
 
-            Otherwise
+          Otherwise
               \\/>
-            Endcase
-          Endif
-          If Empty(xl_borders.tstyle)
+          Endcase
+        Endif
+        If Empty(xl_borders.tstyle)
             \\<top/>
-          Else
-            If xl_borders.tstyle = BORDER_STYLE_NONE
+        Else
+          If xl_borders.tstyle = BORDER_STYLE_NONE
               \\<top
-            Else
+          Else
               \<top style="<<Alltrim(xl_borders.tstyle)>>"
-            Endif
-            Do Case
-            Case xl_borders.tcolor > 0
+          Endif
+          Do Case
+          Case xl_borders.tcolor > 0
               \\>
               \\<color rgb="<<.ConvertColorToHex(xl_borders.tcolor)>>"/>
               \\</top>')
 
-            Case xl_borders.tindexed > 0
+          Case xl_borders.tindexed > 0
               \\>
               \\<color indexed="<<Transform(xl_borders.tindexed)>"/>
               \\</top>
 
-            Case xl_borders.ttheme > 0
+          Case xl_borders.ttheme > 0
               \\>
               \\<color theme="<<Transform(xl_borders.ttheme)>>" tint="<<Transform(xl_borders.ttint, "99.999999999999999")>>"/>
               \\</top>')
 
-            Otherwise
+          Otherwise
               \\/>
-            Endcase
-          Endif
-          If Empty(xl_borders.bstyle)
+          Endcase
+        Endif
+        If Empty(xl_borders.bstyle)
             \\<bottom/>
-          Else
-            If xl_borders.bstyle = BORDER_STYLE_NONE
+        Else
+          If xl_borders.bstyle = BORDER_STYLE_NONE
               \\<bottom
-            Else
+          Else
               \\<bottom style="<<Alltrim(xl_borders.bstyle)>>"
-            Endif
-            Do Case
-            Case xl_borders.bcolor > 0
+          Endif
+          Do Case
+          Case xl_borders.bcolor > 0
               \\>
               \\<color rgb="<<.ConvertColorToHex(xl_borders.bcolor)>>"/>
               \\</bottom>
 
-            Case xl_borders.bindexed > 0
+          Case xl_borders.bindexed > 0
               \\>
               \\<color indexed="<<Transform(xl_borders.bindexed)>>"/>
               \\</bottom>
 
-            Case xl_borders.btheme > 0
+          Case xl_borders.btheme > 0
               \\>
               \\<color theme="<<Transform(xl_borders.btheme)>>" tint="<<Transform(xl_borders.btint, "99.999999999999999")>>"/>
               \\</bottom>
 
-            Otherwise
+          Otherwise
               \\/>
-            Endcase
-          Endif
-          If Empty(xl_borders.dstyle)
+          Endcase
+        Endif
+        If Empty(xl_borders.dstyle)
             \\<diagonal/>
-          Else
-            If xl_borders.dstyle = BORDER_STYLE_NONE
+        Else
+          If xl_borders.dstyle = BORDER_STYLE_NONE
               \\<diagonal
-            Else
+          Else
               \\<diagonal style="<<Alltrim(xl_borders.dstyle)>>"
-            Endif
-            Do Case
-            Case xl_borders.dcolor > 0
+          Endif
+          Do Case
+          Case xl_borders.dcolor > 0
               \\>
               \\<color rgb="<<.ConvertColorToHex(xl_borders.dcolor)>>"/>
               \\</diagonal>
 
-            Case xl_borders.dindexed > 0
+          Case xl_borders.dindexed > 0
               \\>
               \\<color indexed="<<Transform(xl_borders.dindexed)>"/>
               \\</diagonal>
 
-            Case xl_borders.dtheme > 0
+          Case xl_borders.dtheme > 0
               \\>
               \\<color theme="<<Transform(xl_borders.dtheme)>>" tint="<<Transform(xl_borders.dtint, "99.999999999999999")>>"/>
               \\</diagonal>
 
-            Otherwise
+          Otherwise
               \\/>
-            Endcase
-          Endif
+          Endcase
+        Endif
           \\</border>
-        Endscan
+      Endscan
         \\</borders>
 *-*	Write the cellStyleXfs section
 
 *-*	Write the cellXfs section
-        Select xl_cellxfs
-        Set Order To Tag sortorder
-        Count For workbook = tnWB To lnRecCount
+      Select xl_cellxfs
+      Set Order To Tag sortorder
+      Count For workbook = tnWB To lnRecCount
         \\<cellXfs count="<<Transform(lnRecCount)>>">
-        Scan For workbook = tnWB
-          If xl_cellxfs.numfmtid > 0 And Seek(BinToC(tnWB)+BinToC(xl_cellxfs.numfmtid), "xl_numfmts", "id")
-            lcNumFmtId = Transform(xl_numFmts.tempid)
-          Else
-            lcNumFmtId = Transform(xl_cellxfs.numfmtid)
-          Endif
+      Scan For workbook = tnWB
+        If xl_cellxfs.numfmtid > 0 And Seek(BinToC(tnWB)+BinToC(xl_cellxfs.numfmtid), "xl_numfmts", "id")
+          lcNumFmtId = Transform(xl_numFmts.tempid)
+        Else
+          lcNumFmtId = Transform(xl_cellxfs.numfmtid)
+        Endif
           \\<xf numFmtId="<<lcNumFmtId>>" fontId="<<Transform(xl_cellxfs.fontid)>>"
           \\ fillId="<<Transform(xl_cellxfs.fillid)>>" borderId="<<Transform(xl_cellxfs.borderid)>>"
           \\<<IIF(lcNumFmtId = '0', '', ' applyNumberFormat="1"') + Iif(xl_cellxfs.fontid > 0, ' applyFont="1"', '') + IIF(xl_cellxfs.fillid > 0, ' applyFill="1"', '') + Iif(xl_cellxfs.borderid > 0, ' applyBorder="1"', '')>> applyAlignment="1"
 
-          If !Empty(xl_cellxfs.halign) Or !Empty(xl_cellxfs.valign) Or xl_cellxfs.wraptext > 0 Or xl_cellxfs.indent > 0 Or xl_cellxfs.Rotation > 0
+        If !Empty(xl_cellxfs.halign) Or !Empty(xl_cellxfs.valign) Or xl_cellxfs.wraptext > 0 Or xl_cellxfs.indent > 0 Or xl_cellxfs.Rotation > 0
             \\><alignment
-            If !Empty(xl_cellxfs.halign)
+          If !Empty(xl_cellxfs.halign)
               \\ horizontal="<<Alltrim(xl_cellxfs.halign)>>"
-            Endif
-            If !Empty(xl_cellxfs.valign)
-              \\ vertical="<<Alltrim(xl_cellxfs.valign)>>"
-            Endif
-            If xl_cellxfs.wraptext > 0
-              \\ wrapText="1"
-            Endif
-            If xl_cellxfs.indent > 0
-              \\ indent="<<Transform(xl_cellxfs.indent)>>"
-            Endif
-            If xl_cellxfs.Rotation != 0
-              \\ textRotation="<<Transform(xl_cellxfs.Rotation)>>"
-            Endif
-            \\/></xf>
-          Else
-            \\/>
           Endif
-        Endscan
+          If !Empty(xl_cellxfs.valign)
+              \\ vertical="<<Alltrim(xl_cellxfs.valign)>>"
+          Endif
+          If xl_cellxfs.wraptext > 0
+              \\ wrapText="1"
+          Endif
+          If xl_cellxfs.indent > 0
+              \\ indent="<<Transform(xl_cellxfs.indent)>>"
+          Endif
+          If xl_cellxfs.Rotation != 0
+              \\ textRotation="<<Transform(xl_cellxfs.Rotation)>>"
+          Endif
+            \\/></xf>
+        Else
+            \\/>
+        Endif
+      Endscan
         \\</cellXfs>
 
 *-*	Write the colors section
-        llIndexedColors = Seek(BinToC(tnWB)+BinToC(1), "xl_ndxcolors", "indexid")
-        llMruColors     = Seek(BinToC(tnWB)+BinToC(1), "xl_mrucolors", "indexid")
-        If llIndexedColors Or llMruColors
+      llIndexedColors = Seek(BinToC(tnWB)+BinToC(1), "xl_ndxcolors", "indexid")
+      llMruColors     = Seek(BinToC(tnWB)+BinToC(1), "xl_mrucolors", "indexid")
+      If llIndexedColors Or llMruColors
           \\<colors>
-          If llIndexedColors
+        If llIndexedColors
             \\<indexedColors>
-            Select xl_ndxcolors
-            Set Order To Tag indexid
-            Scan For workbook = tnWB
+          Select xl_ndxcolors
+          Set Order To Tag indexid
+          Scan For workbook = tnWB
               \\<rgbColor rgb="<<xl_ndxcolors.rgbcolor>>"/>
-            Endscan
+          Endscan
             \\</indexedColors>
-          Endif
-
-          If llMruColors
-            \\<mruColors>
-            Select xl_mrucolors
-            Set Order To Tag indexid
-            Scan For workbook = tnWB
-              \\<color rgb="<<xl_ndxcolors.rgbcolor>>"/>
-            Endscan
-            \\</mruColors>
-          Endif
-          \\</colors>
         Endif
+
+        If llMruColors
+            \\<mruColors>
+          Select xl_mrucolors
+          Set Order To Tag indexid
+          Scan For workbook = tnWB
+              \\<color rgb="<<xl_ndxcolors.rgbcolor>>"/>
+          Endscan
+            \\</mruColors>
+        Endif
+          \\</colors>
+      Endif
 
 *-*	Close the style sheet
         \\</styleSheet>
-        llSuccess = True
+      llSuccess = True
 
-*ssa*	      Catch To loException
-*ssa*	        Set Step On
-*ssa*	        llSuccess = False
-*ssa*	        .ErrorLevelId = 17
-*ssa*	        Raiseevent(This, "OnShowErrorMessage", 17, "Unable to create styles.xml")
-
-*ssa*	      Finally
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
-*ssa*	      Endtry
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
       If !Empty(lcAlias)
         Select (lcAlias)
       Endif
@@ -9262,74 +9198,73 @@ Define Class vfpxworkbookxlsx As Custom
     Local llSuccess, loException, lhFile, lnSheet, lnUniqueCnt, lcCurr, lcColor, lnTotCount, lcFileName, lcBaseContentType
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 1)
-*ssa*	      Try
-        Set Textmerge On To Memvar lcOutStr Noshow
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
         \\<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
         \\<Default Extension="xml" ContentType="application/xml"/>
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
 
-        lcBaseContentType = '<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.'
-        Select xl_relationships
-        Scan For workbook = tnWB And !Deleted()
-          Do Case
-          Case xl_relationships.reltype = "calcChain"
+      lcBaseContentType = '<Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.'
+      Select xl_relationships
+      Scan For workbook = tnWB And !Deleted()
+        Do Case
+        Case xl_relationships.reltype = "calcChain"
 *				FWRITE(lhFile, lcBaseContentType + 'calcChain+xml" PartName="/xl/calcChain.xml"/>')
 
-          Case xl_relationships.reltype = "drawings"
+        Case xl_relationships.reltype = "drawings"
 *				FWRITE(lhFile, lcBaseContentType + 'drawing+xml" PartName="/xl/drawings/drawing1.xml"/>')
 
-          Case xl_relationships.reltype = "externalLink"
+        Case xl_relationships.reltype = "externalLink"
 *				FWRITE(lhFile, lcBaseContentType + 'externalLink+xml" PartName="/xl/externalLinks/externalLink1.xml"/>')
 
-          Case xl_relationships.reltype = "sharedStrings"
+        Case xl_relationships.reltype = "sharedStrings"
             \\<<lcBaseContentType>>sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
 
-          Case xl_relationships.reltype = "styles"
+        Case xl_relationships.reltype = "styles"
             \\<<lcBaseContentType>>styles+xml" PartName="/xl/styles.xml"/>
 
-          Case xl_relationships.reltype = "theme"
+        Case xl_relationships.reltype = "theme"
 *				FWRITE(lhFile, lcBaseContentType + 'theme+xml" PartName="/xl/theme/theme1.xml"/>')
 
-          Case xl_relationships.reltype = "worksheet"
+        Case xl_relationships.reltype = "worksheet"
             \\<<lcBaseContentType>>worksheet+xml" PartName="/xl/worksheets/sheet<<Transform(xl_relationships.Sheet)>>.xml"/>
-          Endcase
-        Endscan
+        Endcase
+      Endscan
 
         \\<Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
         \\<Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
         \\</Types>
-        Set Textmerge To
-        .SaveAsUtf8(tcPath + "[Content_Types].xml", lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(tcPath + "[Content_Types].xml", lcOutStr)
 
 *-*	Save the .rels XML
-        Set Textmerge On To Memvar lcOutStr Noshow
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
         \\<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
         \\<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
         \\<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
         \\</Relationships>
-        Set Textmerge To
-        .SaveAsUtf8(tcPath + "_rels\.rels", lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(tcPath + "_rels\.rels", lcOutStr)
 
 *-*	Save the app XML
-        Set Textmerge On To Memvar lcOutStr Noshow
-        lcFileName = tcPath + "docProps\app.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "docProps\app.xml"
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
         \\<Application>ExcelXMLX Release <<Transform(.ExcelXlsxRelease)>></Application>
-        If !Empty(.CompanyName)
+      If !Empty(.CompanyName)
           \\<Company><<.CompanyName>></Company>
-        Endif
+      Endif
         \\</Properties>
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
 
 *-*	Save the core XML
-        lcFileName = tcPath + "docProps\core.xml"
-        Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "docProps\core.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<cp:coreProperties
         \\ xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
@@ -9337,32 +9272,26 @@ Define Class vfpxworkbookxlsx As Custom
         \\ xmlns:dcterms="http://purl.org/dc/terms/"
         \\ xmlns:dcmitype="http://purl.org/dc/dcmitype/"
         \\ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        If !Empty(.Title)
+      If !Empty(.Title)
           \\<dc:title><<.GetXMLString(.Title)>></dc:title>
-        Endif
-        If !Empty(.Subject)
+      Endif
+      If !Empty(.Subject)
           \\<dc:subject><<.GetXMLString(.Subject)>></dc:subject>
-        Endif
-        If !Empty(.CreatorName)
+      Endif
+      If !Empty(.CreatorName)
           \\<dc:creator><<.GetXMLString(.CreatorName)>></dc:creator>
-        Endif
-        If !Empty(.UserName)
+      Endif
+      If !Empty(.UserName)
           \\<cp:lastModifiedBy><<.GetXMLString(.UserName)>></cp:lastModifiedBy>
-        Endif
+      Endif
         \\<dcterms:created xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:created>
         \\<dcterms:modified xsi:type="dcterms:W3CDTF"><<Ttoc(Datetime(), 3)>>Z</dcterms:modified>
         \\</cp:coreProperties>
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
 
-        llSuccess = True
+      llSuccess = True
 
-*ssa*	      Catch To loException
-*ssa*	        Set Step On
-*ssa*	        llSuccess = False
-*ssa*	        .ErrorLevelId = 18
-*ssa*	        Raiseevent(This, "OnShowErrorMessage", 18, "Unable to create workbook supporting XMLs")
-*ssa*	      Endtry
     Endwith
     Return llSuccess
 
@@ -9372,96 +9301,117 @@ Define Class vfpxworkbookxlsx As Custom
     Local lcFileName, lhFile, loException, llSuccess, lcSheetName
     With This
       Raiseevent(This, "OnShowStatusMessage", 2, 4)
-*ssa*	      Try
-        lcFileName = tcPath + "xl\workbook.xml"
-        Set Textmerge On To Memvar lcOutStr Noshow
+      lcFileName = tcPath + "xl\workbook.xml"
+      Set Textmerge On To Memvar lcOutStr Noshow
         \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 
 *-*	Write thw sheet information
         \\<sheets>
-        Select xl_relationships
-        Set Order To Tag relid
-        Scan For workbook = tnWB And reltype = "worksheet"
-          If Seek(BinToC(tnWB)+BinToC(xl_relationships.Sheet), "xl_sheets", "sheetndx")
-            Do Case
-            Case xl_sheets.state = VISIBLE_SHEET_STATE
+      Select xl_relationships
+      Set Order To Tag relid
+      Scan For workbook = tnWB And reltype = "worksheet"
+        If Seek(BinToC(tnWB)+BinToC(xl_relationships.Sheet), "xl_sheets", "sheetndx")
+          Do Case
+          Case xl_sheets.state = VISIBLE_SHEET_STATE
               \\<sheet r:id="rId<<Transform(xl_relationships.relid)>>" sheetId="<<Transform(xl_relationships.Sheet)>>" name="<<Alltrim(xl_sheets.shname)>>"/>
 
-            Case xl_sheets.state = HIDDEN_SHEET_STATE
+          Case xl_sheets.state = HIDDEN_SHEET_STATE
               \\<sheet r:id="rId<<Transform(xl_relationships.relid)>>" sheetId="<<Transform(xl_relationships.Sheet)>>" state="hidden" name="<<Alltrim(xl_sheets.shname)>>"/>
 
-            Case xl_sheets.state = VERYHIDDEN_SHEET_STATE
+          Case xl_sheets.state = VERYHIDDEN_SHEET_STATE
               \\<sheet r:id="rId<<Transform(xl_relationships.relid)>>" sheetId="<<Transform(xl_relationships.Sheet)>>" state="veryHidden" name="<<Alltrim(xl_sheets.shname)>>"/>
-            Endcase
-          Else
-            Throw
-          Endif
-        Endscan
-        Set Order To
+          Endcase
+        Else
+          Throw
+        Endif
+      Endscan
+      Set Order To
         \\</sheets>
 
 *-*	Write the named range information
-        Select xl_namerange
-        Locate For workbook = tnWB And !Deleted()
-        If Found()
+      Select xl_namerange
+      Locate For workbook = tnWB And !Deleted()
+      If Found()
           \\<definedNames>
-          Scan For workbook = tnWB And !Deleted()
-            If (xl_namerange.begcol = 0 And xl_namerange.begrow = 0) Or (xl_namerange.begcol = 0 And xl_namerange.begrow = 0)
-              Loop
-            Endif
+        Scan For workbook = tnWB And !Deleted()
+          If (xl_namerange.begcol = 0 And xl_namerange.begrow = 0) Or (xl_namerange.begcol = 0 And xl_namerange.begrow = 0)
+            Loop
+          Endif
             \\<definedName name="<<Alltrim(xl_namerange.rname)>>"
-            If !Empty(xl_namerange.Comment)
+          If !Empty(xl_namerange.Comment)
               \\ comment="<<Alltrim(xl_namerange.Comment)>>"
-            Endif
-            If xl_namerange.scope = SCOPE_SH_NAMED_RANGE
+          Endif
+          If xl_namerange.scope = SCOPE_SH_NAMED_RANGE
               \\ localSheetId="<<Transform(xl_namerange.Sheet)>>"
-            Endif
+          Endif
             \\>
 
-            lcSheetName = .GetSheetName(tnWB, xl_namerange.Sheet)
+          lcSheetName = .GetSheetName(tnWB, xl_namerange.Sheet)
             \\<<Iif(Occurs(" ", lcSheetName)>0, "'", "") + lcSheetName + Iif(Occurs(" ", lcSheetName)>0, "'", "")>>
-            Do Case
-            Case xl_namerange.begcol = 0 And xl_namerange.begrow > 0
+          Do Case
+          Case xl_namerange.begcol = 0 And xl_namerange.begrow > 0
               \\!$<<Transform(xl_namerange.begrow)>>
 
-            Case xl_namerange.begcol > 0 And xl_namerange.begrow = 0
+          Case xl_namerange.begcol > 0 And xl_namerange.begrow = 0
               \\!$<<.ColumnIndexToAscii(xl_namerange.begcol)>>
 
-            Otherwise
+          Otherwise
               \\!$<<.ColumnIndexToAscii(xl_namerange.begcol)>>$<<Transform(xl_namerange.begrow)>>
-            Endcase
-            Do Case
-            Case xl_namerange.endcol = 0 And xl_namerange.endrow > 0
+          Endcase
+          Do Case
+          Case xl_namerange.endcol = 0 And xl_namerange.endrow > 0
               \\:$<<Transform(xl_namerange.endrow)>>
 
-            Case xl_namerange.endcol > 0 And xl_namerange.begrow = 0
+          Case xl_namerange.endcol > 0 And xl_namerange.begrow = 0
               \\:$<<.ColumnIndexToAscii(xl_namerange.endcol)>>
 
-            Otherwise
+          Otherwise
               \\:$<<.ColumnIndexToAscii(xl_namerange.endcol)>>$<<Transform(xl_namerange.endrow)>>
-            Endcase
+          Endcase
             \\</definedName>
-          Endscan
+        Endscan
           \\</definedNames>
-        Endif
+      Endif
 
 *-*	Close the workbook
         \\<calcPr calcId="0"/>
         \\</workbook>
 
-        llSuccess = True
+      llSuccess = True
 
-*ssa*	      Catch To loException
-*ssa*	        Set Step On
-*ssa*	        llSuccess = False
-
-*ssa*	      Finally
-        Set Textmerge To
-        .SaveAsUtf8(lcFileName, lcOutStr)
-*ssa*	      Endtry
+      Set Textmerge To
+      .SaveAsUtf8(lcFileName, lcOutStr)
     Endwith
     Return llSuccess
+
+*-- Parses a string based on a specified delimiter
+*  Replacement for GETWORDNUM function (fixes problem of parsing a string
+*  that has a null value for one of the tokens)
+  Procedure ParseString
+    Lparameters tcText, tnPos, tcDelimiter
+    Local lcWord, lnCnt, lnBeg, lnEnd
+    lnCnt = Occurs(tcDelimiter, tcText) + 1
+    If tnPos <= lnCnt
+      Do Case
+      Case lnCnt = 0
+        lcWord = tcText
+
+      Case tnPos = 1
+        lcWord = Left(tcText, Atc(tcDelimiter, tcText)-1)
+
+      Case tnPos = lnCnt
+        lcWord = Substr(tcText, Ratc(tcDelimiter, tcText)+1)
+
+      Otherwise
+        lnBeg = Atc(tcDelimiter, tcText, tnPos-1) + 1
+        lnEnd = Atc(tcDelimiter, tcText, tnPos)
+        lcWord = Substr(tcText, lnBeg, lnEnd-lnBeg)
+      Endcase
+      Return lcWord
+    Else
+      Return ""
+    Endif
 
   Protected Procedure Destroy
     Set Debugout To
