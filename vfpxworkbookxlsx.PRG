@@ -5019,7 +5019,7 @@ Define Class vfpxworkbookxlsx As Custom
             lnRow = 1
             For lnCol=1 To lnColCount
               loColumn = toGrid.Columns(laColOrder[lnCol, 2])
-              .SetCellValue(lnWB, lnSh, 1, lnCol, loColumn.Header1.Caption)
+              .SetCellValue(lnWB, lnSh, 1, lnCol, loColumn.Controls[1].Caption) && ssa Header1 -> Controls[1]
               .SetColumnWidth(lnWB, lnSh, lnCol, .ConvertPixelsToExcelUnits(loColumn.Width))
             Endfor
           Else
@@ -5188,7 +5188,7 @@ Define Class vfpxworkbookxlsx As Custom
           \\<sheetViews><sheetView workbookViewId="0">
           \\<pane state="frozenSplit" activePane="bottomLeft" topLeftCell="A2" ySplit="1"/>
           \\<selection activeCell="A2" sqref="A2" pane="bottomLeft"/>
-          \\</sheetView></sheetViews>')
+          \\</sheetView></sheetViews>
         Endif
         \\<sheetFormatPr defaultRowHeight="15"/>
 
@@ -5198,7 +5198,7 @@ Define Class vfpxworkbookxlsx As Custom
           lnColWidth = .ConvertPixelsToExcelUnits(toGrid.Columns(laColOrder[lnCol, 2]).Width)
           \\<col min="<<Transform(lnCol)>>" max="<<Transform(lnCol)>>" width="<<Transform(lnColWidth+0.7109375)>>" customWidth="1"/>
         Endfor
-        \\</cols>')
+        \\</cols>
 
 *-*		Write sheet cell data values
         lcRowDefHt = ' ht="30"'
@@ -5206,7 +5206,7 @@ Define Class vfpxworkbookxlsx As Custom
 
 *-*		Place field names in the first row
         If toGrid.HeaderHeight > 0  && Change recommendation by Doug Hennig (if no headers, then no output)
-          \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >')
+          \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
           If .DefaultFont = "Calibri" And .DefaultFontSize = 11
             For lnCol=1 To lnColCount
               .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
@@ -5234,25 +5234,25 @@ Define Class vfpxworkbookxlsx As Custom
               lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
               .WriteDirectCellValue(lnRow, lnCol, lxCellValue)
             Endfor
-            \\</Row>
+            \\</row>
           Endscan
         Else
           Scan
             lnRow = lnRow + 1
-            \\<Row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
+            \\<row r="<<Transform(lnRow)>>" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
             For lnCol=1 To lnColCount
               lxCellValue = Evaluate(toGrid.Columns(laColOrder[lnCol, 2]).ControlSource)
               .WriteDirectCellFormattedValue(lnRow, lnCol, lxCellValue)
             Endfor
-            \\</Row>
+            \\</row>
           Endscan
         Endif
         Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
-       \\</sheetData>
-       \\<pageMargins Left="0.7" Right="0.7" Top="0.75" Bottom="0.75" Header="0.3" Footer="0.3"/>
-       \\</worksheet>
+      \\</sheetData>
+      \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+      \\</worksheet>
 
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
@@ -5400,7 +5400,7 @@ Define Class vfpxworkbookxlsx As Custom
         lcFileName = lcTempPath + "xl\worksheets\sheet" + Transform(lnGrid) + ".xml"
         Set Textmerge On To Memvar lcOutStr Noshow
 *-*		Write sheet XML header information
-        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
+        \\<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         \\<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
         \\ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
         \\ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac"
@@ -5474,9 +5474,9 @@ Define Class vfpxworkbookxlsx As Custom
         Set Century &lcSETCentury
 
 *-*		End the sheet cell data values and worksheet
-        \\</sheetData>
-        \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
-        \\</worksheet>
+      \\</sheetData>
+      \\<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+      \\</worksheet>
 
         Set Textmerge To
         .SaveAsUtf8(lcFileName, lcOutStr)
@@ -8060,7 +8060,7 @@ Define Class vfpxworkbookxlsx As Custom
         \\<v><<Transform(txCellValue)>></v></c>
 
       Otherwise
-        \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="inlineStr">')
+        \\<c r="<<.ColumnIndexToAscii(tnCol) + Transform(tnRow)>>" t="inlineStr">
         \\<is><t>Unsupported Field Type</t></is></c>
       Endcase
     Endwith
@@ -8290,7 +8290,6 @@ Define Class vfpxworkbookxlsx As Custom
 
         Otherwise
             \\<sheetViews><sheetView workbookViewId="0"><selection activeCell="A1" sqref="A1"/>
-*				FWRITE(lhFile, '<sheetViews><sheetView tabSelected="1" workbookViewId="0">')
         Endcase
           \\</sheetView></sheetViews>
           \\<sheetFormatPr defaultRowHeight="15"<<lcDyDescent>>/>
@@ -8313,7 +8312,6 @@ Define Class vfpxworkbookxlsx As Custom
           Do While !Eof('t_colwidths')
             Do Case
 *					CASE t_colwidths.bestfit    && Not yet working!!!
-*						FWRITE(lhFile, '<col min="' + TRANSFORM(t_colwidths.column) + '" max="' + TRANSFORM(t_colwidths.column) + '" bestFit="1" customWidth="1"/>')
 
             Case t_colwidths.Width = lnWidth And t_colwidths.Column-1 = lnMinCol
               lnMaxCol = t_colwidths.Column
@@ -8940,7 +8938,7 @@ Define Class vfpxworkbookxlsx As Custom
             \\>
             \\<fgColor indexed="<<Transform(xl_fills.fgindexed)>>"/>
             \\<bgColor rgb="<<.ConvertColorToHex(xl_fills.bgcolor)>>"/>
-            \\</patternFill>')
+            \\</patternFill>
 
         Case xl_fills.fgcolor > 0 And xl_fills.bgcolor > 0
             \\>
@@ -8951,8 +8949,8 @@ Define Class vfpxworkbookxlsx As Custom
         Case xl_fills.Theme > 0
             \\>
             \\<fgColor theme="<<Transform(xl_fills.Theme)>>" tint="<<Transform(xl_fills.tint, "99.999999999999999")>>"/>
-            \\<bgColor indexed="64"/>')
-            \\</patternFill>')
+            \\<bgColor indexed="64"/>
+            \\</patternFill>
 
         Otherwise
             \\/>
@@ -9037,7 +9035,7 @@ Define Class vfpxworkbookxlsx As Custom
           Case xl_borders.tcolor > 0
               \\>
               \\<color rgb="<<.ConvertColorToHex(xl_borders.tcolor)>>"/>
-              \\</top>')
+              \\</top>
 
           Case xl_borders.tindexed > 0
               \\>
@@ -9047,7 +9045,7 @@ Define Class vfpxworkbookxlsx As Custom
           Case xl_borders.ttheme > 0
               \\>
               \\<color theme="<<Transform(xl_borders.ttheme)>>" tint="<<Transform(xl_borders.ttint, "99.999999999999999")>>"/>
-              \\</top>')
+              \\</top>
 
           Otherwise
               \\/>
@@ -9210,13 +9208,10 @@ Define Class vfpxworkbookxlsx As Custom
       Scan For workbook = tnWB And !Deleted()
         Do Case
         Case xl_relationships.reltype = "calcChain"
-*				FWRITE(lhFile, lcBaseContentType + 'calcChain+xml" PartName="/xl/calcChain.xml"/>')
 
         Case xl_relationships.reltype = "drawings"
-*				FWRITE(lhFile, lcBaseContentType + 'drawing+xml" PartName="/xl/drawings/drawing1.xml"/>')
 
         Case xl_relationships.reltype = "externalLink"
-*				FWRITE(lhFile, lcBaseContentType + 'externalLink+xml" PartName="/xl/externalLinks/externalLink1.xml"/>')
 
         Case xl_relationships.reltype = "sharedStrings"
             \\<<lcBaseContentType>>sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
@@ -9225,7 +9220,6 @@ Define Class vfpxworkbookxlsx As Custom
             \\<<lcBaseContentType>>styles+xml" PartName="/xl/styles.xml"/>
 
         Case xl_relationships.reltype = "theme"
-*				FWRITE(lhFile, lcBaseContentType + 'theme+xml" PartName="/xl/theme/theme1.xml"/>')
 
         Case xl_relationships.reltype = "worksheet"
             \\<<lcBaseContentType>>worksheet+xml" PartName="/xl/worksheets/sheet<<Transform(xl_relationships.Sheet)>>.xml"/>
