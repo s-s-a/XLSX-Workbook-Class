@@ -5209,11 +5209,11 @@ Define Class vfpxworkbookxlsx As Custom
           \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>> >
           If .DefaultFont = "Calibri" And .DefaultFontSize = 11
             For lnCol=1 To lnColCount
-              .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              .WriteAsInLineString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Controls[1].Caption)
             Endfor
           Else
             For lnCol=1 To lnColCount
-              .WriteAsInLineFormattedString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              .WriteAsInLineFormattedString(1, lnCol, toGrid.Columns(laColOrder[lnCol, 2]).Controls[1].Caption)
             Endfor
           Endif
           \\</row>
@@ -5433,11 +5433,11 @@ Define Class vfpxworkbookxlsx As Custom
           \\<row r="1" spans="1:<<Transform(lnColCount)>>"<<lcRowDefHt>>>
           If .DefaultFont = "Calibri" And .DefaultFontSize = 11
             For lnCol=1 To lnColCount
-              .WriteAsInLineString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              .WriteAsInLineString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Controls[1].Caption)
             Endfor
           Else
             For lnCol=1 To lnColCount
-              .WriteAsInLineFormattedString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Header1.Caption)
+              .WriteAsInLineFormattedString(1, lnCol, loGrid.Columns(laColOrder[lnCol, 2]).Controls[1].Caption)
             Endfor
           Endif
           \\</row>
