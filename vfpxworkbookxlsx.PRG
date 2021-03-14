@@ -1199,7 +1199,7 @@ Define Class vfpxworkbookxlsx As Custom
     Catch To loException
       lcDir = Null
     Endtry
-    Return Addbs(lcDir)
+    Return Nvl(Addbs(lcDir), Null)
 
 *-- Debugging use for saving the internal cursors to a text file
   Procedure DebugCursorsToFile
