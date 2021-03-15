@@ -1033,7 +1033,7 @@ Define Class vfpxworkbookxlsx As Custom
     Return lnWB
 
 *-- Internal method for creating a workbook
-  Protected Procedure CreatWorkbookEx
+  Protected Procedure CreateWorkbookEx
     Lparameters tcName
     Local lcWBName, lcPath, lnWB
     lcWBName = Juststem(tcName)
